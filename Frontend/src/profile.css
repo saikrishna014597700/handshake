@@ -1,0 +1,230 @@
+* {
+  box-sizing: border-box;
+}
+
+/* Add a gray background color with some padding */
+body {
+  font-family: Arial;
+  padding: 10px;
+  background: #f1f1f1;
+}
+
+/* Header/Blog Title */
+.header {
+  padding: 40px;
+  font-size: 60px;
+  text-align: center;
+  background: rgb(98, 160, 241);
+}
+.editableinput {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 500px;
+  height: 30px;
+}
+.editableinput2 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 800px;
+  height: 80px;
+}
+.editableinput3 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 500px;
+  height: 30px;
+}
+.editableinput4 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 400px;
+  height: 30px;
+}
+img {
+  float: right;
+}
+.editButton {
+  font-size: 16px;
+  float: right;
+  background: #1569e0;
+  color: #ffffff;
+  font-size: 18px;
+  width: 150px;
+  height: 40px;
+  padding: 0;
+}
+.btn-primaryLanding {
+  background: #f0ad4e none repeat scroll 0 0;
+  border-color: #f0ad4e;
+  color: #ffffff;
+  font-size: 14px;
+  width: 30%;
+  height: 50px;
+  line-height: 50px;
+  padding: 0;
+  float: center;
+  margin-top: 8cm;
+  margin-left: 15cm;
+}
+.btn-primaryLanding2 {
+  background: #f0ad4e none repeat scroll 0 0;
+  border-color: #f0ad4e;
+  color: #ffffff;
+  font-size: 14px;
+  width: 30%;
+  height: 50px;
+  line-height: 50px;
+  padding: 0;
+  float: center;
+  margin-top: 20px;
+  margin-left: 15cm;
+}
+.header a {
+  float: left;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  text-decoration: none;
+  font-size: 22px;
+  line-height: 10px;
+  border-radius: 4px;
+}
+
+.header a.logo {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.header a:hover {
+  background-color: #1569e0;
+  color: white;
+}
+
+.header a.active {
+  background-color: #1569e0;
+  color: white;
+}
+
+.header-right {
+  float: right;
+}
+
+/* Create two unequal columns that floats next to each other */
+/* Left column */
+.leftcolumn {
+  float: left;
+  width: 65%;
+  padding-left: 30px;
+}
+
+/* Right column */
+.rightcolumn {
+  float: left;
+  width: 35%;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+/* Fake image */
+.fakeimg {
+  background-color: #aaa;
+  width: 100%;
+  padding: 20px;
+}
+
+.glyphicon-pencil {
+  right: true;
+  right: 10px;
+  top: 5px;
+}
+
+/* Add a card effect for articles */
+.card {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.card2 {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 230px;
+  margin-right: 230px;
+  float: center;
+}
+
+.btn {
+  border: 2px solid black;
+  background-color: white;
+  color: black;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  float: right;
+}
+
+/* Green */
+.success {
+  border-color: #1569e0;
+  color: #1569e0;
+}
+
+.success:hover {
+  background-color: #1569e0;
+  color: white;
+}
+
+.heading {
+  margin-left: 45%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Footer */
+.footer {
+  padding: 20px;
+  text-align: center;
+  background: #ddd;
+  margin-top: 20px;
+}
+.Profileheading {
+  padding: 20px;
+  margin-top: 20px;
+}
+
+/* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 800px) {
+  .leftcolumn,
+  .rightcolumn {
+    width: 100%;
+    padding: 0;
+  }
+}

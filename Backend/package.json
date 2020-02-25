@@ -1,0 +1,42 @@
+{
+  "name": "handshake",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "bootstrap": "^4.4.1",
+    "chai": "^4.1.2",
+    "chai-http": "^4.2.0",
+    "client-sessions": "^0.8.0",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "express-session": "^1.15.6",
+    "express-sessions": "^1.0.6",
+    "mocha": "^5.2.0",
+    "mysql": "^2.18.1",
+    "react-bootstrap": "^1.0.0-beta.16",
+    "redux": "^4.0.5",
+    "util": "^0.12.1"
+  },
+  "scripts": {
+    "test": "mocha",
+    "start": "node server",
+    "login": "nodemon index"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

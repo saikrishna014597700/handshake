@@ -1,0 +1,11 @@
+.card {
+  background-color: rgba(211, 204, 204, 0.952);
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+.leftcolumn {
+  float: left;
+  width: 65%;
+  padding-left: 30px;
+}

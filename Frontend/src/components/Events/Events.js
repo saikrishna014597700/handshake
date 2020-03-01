@@ -56,6 +56,7 @@ class Events extends Component {
     });
     //if not logged in go to login page
     let redirectVar = null;
+    console.log("Cookie is", cookie.load("cookie"));
     if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }

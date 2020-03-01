@@ -8,11 +8,11 @@ class CompanyDashboard extends Component {
   constructor() {
     super();
     this.state = {
-      students: [],
-      studentId: 1,
-      studentBasicDetailsResult: [],
-      studentAllDetailsResult: [],
-      redirect: null
+      company: [],
+      companyId: 1,
+      // studentBasicDetailsResult: [],
+      companyJobPostings: []
+      // redirect: null
     };
     this.getProfileDetails = this.getProfileDetails.bind(this);
   }
@@ -20,27 +20,25 @@ class CompanyDashboard extends Component {
   componentDidMount() {
     console.log("in componentDidMount");
     const data = {
-      studentId: this.state.studentId
+      companyId: this.state.companyId
     };
-    axios.get(`http://localhost:3001/student`).then(response => {
-      //update the state with the response data
-      console.log("res 2 is  :::", response);
-      this.setState({
-        studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
-          response.data
-        )
-      });
-    });
-    console.log("data is", data);
+    // axios.get(`http://localhost:3001/company`).then(response => {
+    //   //update the state with the response data
+    //   console.log("res 2 is  :::", response);
+    //   this.setState({
+    //     studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
+    //       response.data
+    //     )
+    //   });
+    // });
+    // console.log("data is", data);
     axios
-      .get(
-        `http://localhost:3001/profilestudentDetails/${this.state.studentId}`
-      )
+      .get(`http://localhost:3001/companyJobPostings/${this.state.companyId}`)
       .then(response => {
         console.log("res 1 is  :::", response);
         //update the state with the response data
         this.setState({
-          studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
+          companyJobPostings: this.state.companyJobPostings.concat(
             response.data
           )
         });
@@ -48,39 +46,32 @@ class CompanyDashboard extends Component {
   }
 
   render() {
-    if (this.state.redirect) {
-      return <Redirect to={this.state.redirect} />;
-    }
+    // if (this.state.redirect) {
+    //   return <Redirect to={this.state.redirect} />;
+    // }
     //iterate over books to create a table row
-    let studentDetails = this.state.studentBasicDetailsResult.map(
-      studentBasicDetailResult => {
-        console.log("Student is ", studentBasicDetailResult);
+    let companyJobPosting = this.state.companyJobPostings.map(
+      companyJobPosting => {
+        console.log("Student is ", companyJobPosting);
         return (
           <div class="card2">
+            <h4>Title : {companyJobPosting.jobTite}</h4>
+            <h4>{companyJobPosting.jobdescription}</h4>
             <h4>
-              Student Name : {studentBasicDetailResult.firstName}{" "}
-              {studentBasicDetailResult.lastName}
-            </h4>
-            <h4>
-              Education Level :{" "}
-              {studentBasicDetailResult.presentlevelOfEducation}
-            </h4>
-            <h4>
-              Course : {studentBasicDetailResult.presentCourse}
+              Course : {companyJobPosting.location}
               <button
                 class="btn success"
                 onClick={event =>
-                  this.getProfileDetails(
-                    event,
-                    studentBasicDetailResult.studentId
-                  )
+                  this.getProfileDetails(event, companyJobPosting.jobId)
                 }
               >
                 View Profile
               </button>
             </h4>
-            <h4>University: {studentBasicDetailResult.collegeName}</h4>
-            <h4>Graduation Year :{studentBasicDetailResult.graduationYear}</h4>
+            <h4>University: {companyJobPosting.location}</h4>
+            <h4>Graduation Year :{companyJobPosting.salary}</h4>
+            <h4>University: {companyJobPosting.jobCategory}</h4>
+            <h4>Graduation Year :{companyJobPosting.applicationDeadline}</h4>
           </div>
         );
       }
@@ -96,26 +87,26 @@ class CompanyDashboard extends Component {
         <div class="row">
           <h3 class="heading"> Students</h3>
           <br />
-          <div>{studentDetails}</div>
+          <div>{companyJobPosting}</div>
         </div>
       </div>
     );
   }
   getProfileDetails = (event, id) => {
-    const data = {
-      studentBasicDetailsResult: this.state.studentBasicDetailsResult
-    };
-    // axios
-    //   .post("http://localhost:3001/updatePersonalInfo", data)
-    //   .then(response => {
-    //     console.log("Status Code : ", response.status);
-    //     if (response.status === 200) {
-    //       console.log("Updated work details successfully");
-    //     } else {
-    //       console.log("Error Updating work page");
-    //     }
-    //   });
-    this.setState({ redirect: `/studentprofile/${id}` });
+    // const data = {
+    //   studentBasicDetailsResult: this.state.studentBasicDetailsResult
+    // };
+    // // axios
+    // //   .post("http://localhost:3001/updatePersonalInfo", data)
+    // //   .then(response => {
+    // //     console.log("Status Code : ", response.status);
+    // //     if (response.status === 200) {
+    // //       console.log("Updated work details successfully");
+    // //     } else {
+    // //       console.log("Error Updating work page");
+    // //     }
+    // //   });
+    // this.setState({ redirect: `/studentprofile/${id}` });
   };
 }
 //export Home Component

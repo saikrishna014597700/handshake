@@ -3,6 +3,8 @@ import "../../App.css";
 import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import { login } from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 //Define a Login Component
 class Login extends Component {
@@ -42,11 +44,11 @@ class Login extends Component {
     });
   };
   //submit Login handler to send a request to the node backend
-  submitLogin = e => {
+  async submitLogin() {
     // eslint-disable-next-line
     var headers = new Headers();
     //prevent page from refresh
-    e.preventDefault();
+    // e.preventDefault();
     const data = {
       username: this.state.username,
       password: this.state.password
@@ -55,18 +57,26 @@ class Login extends Component {
     axios.defaults.withCredentials = true;
     //make a post request with the user data
     if (this.state.roleFlag === "/login/1") {
-      axios.post("http://localhost:3001/login", data).then(response => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          this.setState({
-            authFlag: true
-          });
-        } else {
-          this.setState({
-            authFlag: false
-          });
-        }
-      });
+      await this.props.login(data);
+      console.log(
+        "login Response from props in login component status:",
+        this.props.loginResponse.status
+      );
+      if (this.props.loginResponse.status === 200) {
+        //console.log();
+        console.log("response.status", this.props.loginResponse);
+
+        var x = await cookie.load("cookie");
+        console.log("Cookie is", x);
+
+        this.setState({
+          loginFlag: true
+        });
+      } else {
+        this.setState({
+          loginFlag: false
+        });
+      }
     } else {
       console.log("In companylogin");
       axios.post("http://localhost:3001/companylogin", data).then(response => {
@@ -82,7 +92,7 @@ class Login extends Component {
         }
       });
     }
-  };
+  }
 
   fun() {
     this.props.history.push("/Register");
@@ -155,4 +165,11 @@ class Login extends Component {
   }
 }
 //export Login Component
-export default Login;
+const mapStateToProps = state => ({
+  loginResponse: state.schools.loginResponse
+});
+
+//export Profile Component
+export default connect(mapStateToProps, {
+  login
+})(Login);

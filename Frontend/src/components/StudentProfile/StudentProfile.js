@@ -1,85 +1,94 @@
 import React, { Component } from "react";
 import "../../profile.css";
-import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
+import {
+  fetchStudent,
+  fetchStudentDetails,
+  fetchEduDetails,
+  fetchWorkExpDetails
+} from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 class StudentProfile extends Component {
-  constructor(props) {
-    super(props);
-    console.log(this.props);
-    console.log("props are", props);
-    this.state = {
-      studentBasicDetailsResult: [],
-      studentAllDetailsResult: [],
-      studentAllEduDetailsResult: [],
-      studentAllWorkDetailsResult: [],
-      myJourney: [],
-      studentId: this.props.match.params.id,
-      studentDetailsId: ""
+  constructor() {
+    super();
+    console.log("Hii");
+    this.initialState = {
+      studentObject: [],
+      studentExperience: [],
+      studentEducation: [],
+      studentBasicDetails: []
     };
+    this.props = this.initialState;
   }
   //get the books data from backend
   componentDidMount() {
-    const data = {
-      studentId: this.state.studentId
-    };
+    console.log("this.props", this.props);
+    var studentId = this.props.match.params.id;
+    this.props.fetchStudent(studentId);
+    this.props.fetchStudentDetails(studentId);
+    this.props.fetchEduDetails(studentId);
+    this.props.fetchWorkExpDetails(studentId);
+    // const data = {
+    //   studentId: this.props.studentId
+    // };
 
-    axios
-      .get(`http://localhost:3001/profilestudent/${this.state.studentId}`)
-      .then(response => {
-        //update the state with the response data
-        console.log("res 2 is  :::", response);
-        this.setState({
-          studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
-            response.data
-          )
-        });
-      });
-    console.log("data is", data);
-    axios
-      .get(
-        `http://localhost:3001/profilestudentDetails/${this.state.studentId}`
-      )
-      .then(response => {
-        console.log("res 1 is  :::", response);
-        //update the state with the response data
-        this.setState({
-          studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
-            response.data
-          )
-        });
-        this.setState({
-          myJourney: this.state.myJourney.concat(response.data)
-        });
-      });
-    this.timer = setInterval(
-      () => this.setState(prevState => ({ test: !prevState.test })),
-      3000
-    );
-    axios
-      .get(`http://localhost:3001/profileEduDetails/${this.state.studentId}`)
-      .then(response => {
-        //update the state with the response data
-        console.log("res 3 is  :::", response);
-        this.setState({
-          studentAllEduDetailsResult: this.state.studentAllEduDetailsResult.concat(
-            response.data
-          )
-        });
-      });
-    axios
-      .get(`http://localhost:3001/profileWorkDetails/${this.state.studentId}`)
-      .then(response => {
-        //update the state with the response data
-        console.log("res 4 is  :::", response);
-        this.setState({
-          studentAllWorkDetailsResult: this.state.studentAllWorkDetailsResult.concat(
-            response.data
-          )
-        });
-      });
+    // axios
+    //   .get(`http://localhost:3001/profilestudent/${this.props.studentId}`)
+    //   .then(response => {
+    //     //update the state with the response data
+    //     console.log("res 2 is  :::", response);
+    //     this.setState({
+    //       studentBasicDetailsResult: this.props.studentBasicDetailsResult.concat(
+    //         response.data
+    //       )
+    //     });
+    //   });
+    // console.log("data is", data);
+    // axios
+    //   .get(
+    //     `http://localhost:3001/profilestudentDetails/${this.props.studentId}`
+    //   )
+    //   .then(response => {
+    //     console.log("res 1 is  :::", response);
+    //     //update the state with the response data
+    //     this.setState({
+    //       studentAllDetailsResult: this.props.studentAllDetailsResult.concat(
+    //         response.data
+    //       )
+    //     });
+    //     this.setState({
+    //       myJourney: this.props.myJourney.concat(response.data)
+    //     });
+    //   });
+    // this.timer = setInterval(
+    //   () => this.setState(prevState => ({ test: !prevState.test })),
+    //   3000
+    // );
+    // axios
+    //   .get(`http://localhost:3001/profileEduDetails/${this.props.studentId}`)
+    //   .then(response => {
+    //     //update the state with the response data
+    //     console.log("res 3 is  :::", response);
+    //     this.setState({
+    //       studentAllEduDetailsResult: this.props.studentAllEduDetailsResult.concat(
+    //         response.data
+    //       )
+    //     });
+    //   });
+    // axios
+    //   .get(`http://localhost:3001/profileWorkDetails/${this.props.studentId}`)
+    //   .then(response => {
+    //     //update the state with the response data
+    //     console.log("res 4 is  :::", response);
+    //     this.setState({
+    //       studentAllWorkDetailsResult: this.props.studentAllWorkDetailsResult.concat(
+    //         response.data
+    //       )
+    //     });
+    //   });
   }
 
   redirecttoUpdateProfilePage() {
@@ -87,8 +96,7 @@ class StudentProfile extends Component {
   }
 
   render() {
-    //iterate over books to create a table row
-    let myJourneys = this.state.myJourney.map(myJourne => {
+    let myJourneys = this.props.studentBasicDetails.map(myJourne => {
       return (
         <div>
           <Link
@@ -101,7 +109,7 @@ class StudentProfile extends Component {
         </div>
       );
     });
-    let studentDetails = this.state.studentBasicDetailsResult.map(
+    let studentDetails = this.props.studentObject.map(
       studentBasicDetailResult => {
         return (
           <div class="card">
@@ -110,9 +118,10 @@ class StudentProfile extends Component {
               {studentBasicDetailResult.lastName}
             </h2>
             <br />
-            <div class="fakeimg" style={{ height: "100px;" }}>
-              {"Loading"}
+            <div class="wrapper">
+              <img src={require("../profile.jpg")} class="image--cover"></img>
             </div>
+            <br />
             <br />
             <h4>
               {studentBasicDetailResult.presentlevelOfEducation} {"in"}{" "}
@@ -126,7 +135,7 @@ class StudentProfile extends Component {
         );
       }
     );
-    let studentDetails2 = this.state.studentAllDetailsResult.map(
+    let studentDetails2 = this.props.studentBasicDetails.map(
       studentBasicDetailResult => {
         return (
           <div class="card">
@@ -145,7 +154,7 @@ class StudentProfile extends Component {
         );
       }
     );
-    let studentDetails3 = this.state.studentAllDetailsResult.map(
+    let studentDetails3 = this.props.studentBasicDetails.map(
       studentBasicDetailResult => {
         return (
           <div>
@@ -157,9 +166,8 @@ class StudentProfile extends Component {
     );
 
     //iterate over books to create a table row
-    let studentEducationDetails = this.state.studentAllEduDetailsResult.map(
+    let studentEducationDetails = this.props.studentEducation.map(
       studentAllEduDetailResult => {
-        console.log("xxxx::::", studentAllEduDetailResult);
         return (
           <div class="card">
             <h3>{studentAllEduDetailResult.collegeName}</h3>
@@ -173,9 +181,8 @@ class StudentProfile extends Component {
     );
 
     //iterate over books to create a table row
-    let studentWorkDetails = this.state.studentAllWorkDetailsResult.map(
+    let studentWorkDetails = this.props.studentExperience.map(
       studentAllWorkDetailResult => {
-        console.log("xxxx::::", studentAllWorkDetailResult);
         return (
           <div class="card">
             <h3>{studentAllWorkDetailResult.companyName}</h3>
@@ -223,13 +230,26 @@ class StudentProfile extends Component {
             </div>
           </div>
 
-          {/* <div class="footer">
+          <div class="footer">
             <h2></h2>
-          </div> */}
+          </div>
         </body>
       </div>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  studentObject: state.schools.studentObject,
+  studentBasicDetails: state.schools.studentBasicDetails,
+  studentExperience: state.schools.studentExperience,
+  studentEducation: state.schools.studentEducation
+});
+
 //export Profile Component
-export default StudentProfile;
+export default connect(mapStateToProps, {
+  fetchStudent,
+  fetchStudentDetails,
+  fetchEduDetails,
+  fetchWorkExpDetails
+})(StudentProfile);

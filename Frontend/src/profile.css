@@ -16,6 +16,21 @@ body {
   text-align: center;
   background: rgb(98, 160, 241);
 }
+.wrapper {
+  padding: 20px;
+  float: left;
+  margin-top: 10px;
+}
+
+.image--cover {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 20px;
+  margin-top: -50px;
+  object-fit: cover;
+  object-position: center;
+}
 .editableinput {
   background: white;
   margin-top: 4px;

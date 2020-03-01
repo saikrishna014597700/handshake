@@ -16,6 +16,7 @@
   border: 1px solid #dddddd;
   margin-bottom: 15px;
   box-sizing: border-box;
+  border-radius: 10px;
 }
 .register-form input[type="submit"] {
   width: 100%;
@@ -26,6 +27,7 @@
   cursor: pointer;
   font-weight: bold;
   color: #ffffff;
+  border-radius: 10px;
 }
 .register-form input[type="submit"] {
   width: 100px;
@@ -38,8 +40,8 @@
   color: #ffffff;
 }
 .register-form .btn.btn-primary {
-  background: #f0ad4e none repeat scroll 0 0;
-  border-color: #f0ad4e;
+  background: #1569e0;
+  border-color: #1569e0;
   color: #ffffff;
   font-size: 14px;
   width: 100%;

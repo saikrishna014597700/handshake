@@ -3,6 +3,8 @@ import "../../register.css";
 import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import { connect } from "react-redux";
+import { studentRegister } from "../../actions/fetchStudent";
 
 class Register extends Component {
   constructor(props) {
@@ -61,7 +63,7 @@ class Register extends Component {
     });
   };
 
-  submitRegister = e => {
+  async submitRegister(e) {
     // eslint-disable-next-line
     var headers = new Headers();
     //prevent page from refresh
@@ -76,20 +78,34 @@ class Register extends Component {
     };
     //set the with credentials to true
     axios.defaults.withCredentials = true;
+    console.log("data before company registration post", data);
+    await this.props.studentRegister(data);
+    console.log("response from props:", this.props.signupResponse);
+    if (this.props.signupResponse.status === 200) {
+      console.log("response.status", this.props.signupResponse.status);
+      this.setState({
+        registerFlag: true
+      });
+    } else {
+      this.setState({
+        registerFlag: false
+      });
+    }
+
     //make a post request with the user data
-    axios.post("http://localhost:3001/register", data).then(response => {
-      console.log("Status Code : ", response.status);
-      if (response.status === 200) {
-        this.setState({
-          registerFlag: true
-        });
-      } else {
-        this.setState({
-          registerFlag: false
-        });
-      }
-    });
-  };
+    // axios.post("http://localhost:3001/register", data).then(response => {
+    //   console.log("Status Code : ", response.status);
+    //   if (response.status === 200) {
+    //     this.setState({
+    //       registerFlag: true
+    //     });
+    //   } else {
+    //     this.setState({
+    //       registerFlag: false
+    //     });
+    //   }
+    // });
+  }
 
   render() {
     //iterate over books to create a table row
@@ -97,7 +113,7 @@ class Register extends Component {
     let redirectVar = null;
     if (this.state.registerFlag) {
       console.log("Register is:::", this.state.registerFlag);
-      redirectVar = <Redirect to="/login" />;
+      redirectVar = <Redirect to="/login/1" />;
     }
 
     return (
@@ -109,7 +125,7 @@ class Register extends Component {
         </head>
         <body>
           <div class="register-form">
-            <h1>Register Form</h1>
+            <h1>Register as Student</h1>
             <form action="register" method="POST">
               <input
                 type="text"
@@ -122,21 +138,21 @@ class Register extends Component {
                 type="text"
                 onChange={this.firstnameChangeHandler}
                 name="firstName"
-                placeholder="firstName"
+                placeholder="First Name"
                 required
               />
               <input
                 type="text"
                 onChange={this.lastnameChangeHandler}
                 name="lastName"
-                placeholder="lastName"
+                placeholder="Last Name"
                 required
               />
               <input
                 type="text"
                 onChange={this.univnameChangeHandler}
                 name="univname"
-                placeholder="university"
+                placeholder="University"
                 required
               />
               <input
@@ -156,5 +172,11 @@ class Register extends Component {
     );
   }
 }
-//export Home Component
-export default Register;
+const mapStateToProps = state => ({
+  signupResponse: state.schools.signupResponse,
+  student: state.schools.student
+});
+
+export default connect(mapStateToProps, {
+  studentRegister
+})(Register);

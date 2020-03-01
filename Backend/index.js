@@ -52,18 +52,6 @@ app.use(function(req, res, next) {
   next();
 });
 
-var Users = [
-  {
-    username: "admin",
-    password: "admin"
-  }
-];
-
-var books = [
-  { BookID: "1", Title: "Book 1", Author: "Author 1" },
-  { BookID: "2", Title: "Book 2", Author: "Author 2" },
-  { BookID: "3", Title: "Book 3", Author: "Author 3" }
-];
 //Route to handle Post Request Call
 app.post("/login", function(request, response) {
   var username = request.body.username;
@@ -75,7 +63,7 @@ app.post("/login", function(request, response) {
       function(error, results, fields) {
         console.log(results);
         if (results.length > 0) {
-          response.cookie("cookie", username, {
+          response.cookie("cookie", results[0].studentId, {
             maxAge: 900000,
             httpOnly: false,
             path: "/"
@@ -84,8 +72,8 @@ app.post("/login", function(request, response) {
           response.writeHead(200, {
             "Content-Type": "text/plain"
           });
-          // response.end("Successful Login");
-          response.redirect("/home");
+          response.end("Successful Login");
+          // response.redirect("/home");
         } else {
           response.send("Incorrect Username and/or Password!");
         }
@@ -94,7 +82,7 @@ app.post("/login", function(request, response) {
     );
   } else {
     response.send("Please enter Username and Password!");
-    // response.end()
+    response.end();
   }
 });
 
@@ -177,6 +165,22 @@ app.get("/home", async function(req, response) {
   });
 });
 
+app.get("/companyJobPostings/:id", async function(req, response) {
+  console.log("Id ios ", req.params.id);
+  connection.query(
+    "SELECT * FROM jobPostings where fk_companyId = ?",
+    req.params.id,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  );
+});
+
 const getResults = util.promisify(connection.query).bind(connection);
 
 // app.get("/profile", async function(req, response) {
@@ -242,14 +246,14 @@ app.get("/profilestudent/:id", async function(req, response) {
 });
 
 app.put("/myjourney", async function(req, response) {
-  console.log("In myjourney");
-  var id = req.body.id;
-  var value = req.body.myJourney;
+  var id = req.body[0].studentDetailsId;
+  var value = req.body[0].carrierObjective;
   var data = [value, id];
+  console.log("Vaslue us", data);
   var studentQuery =
     "UPDATE studentDetails SET carrierObjective = ? WHERE studentDetailsId = ?";
   results = await getResults(studentQuery, data);
-  //console.log(results[1].job_desc);
+  console.log(results);
   updateResult = await results;
   response.send("Updated successfully");
 });
@@ -278,17 +282,18 @@ app.post("/addEduDetails", async function(req, response) {
 
 app.post("/addWorkDetails", async function(req, response) {
   console.log("In workDetails");
-  var workDetails = req.body.data;
+  var workDetails = req.body;
   var data = [
-    workDetails.company,
-    workDetails.role,
+    workDetails.companyName,
+    workDetails.title,
     // workDetails.startDate,
     // workDetails.endDate,
+    workDetails.description,
     workDetails.studentId
   ];
   console.log("data is", data);
   var studentEduQuery =
-    "INSERT workExpDetails SET companyName = ?,title = ? , studentId = ?";
+    "INSERT workExpDetails SET companyName = ?,title = ? ,description = ?, studentId = ?";
   results = await getResults(studentEduQuery, data);
   //console.log(results[1].job_desc);
   updateResult = await results;
@@ -296,7 +301,8 @@ app.post("/addWorkDetails", async function(req, response) {
 });
 
 app.post("/updateWorkDetails", async function(req, response) {
-  var studentAllWorkDetailsResult = req.body.studentAllWorkDetailsResult;
+  var studentAllWorkDetailsResult = req.body;
+  console.log("updateWorkDetails", studentAllWorkDetailsResult);
   studentAllWorkDetailsResult.map(async studentAllWorkDetailResult => {
     var data = [
       studentAllWorkDetailResult.companyName,
@@ -309,12 +315,13 @@ app.post("/updateWorkDetails", async function(req, response) {
       "UPDATE workExpDetails SET companyName = ?,title = ? WHERE workExpDetailsId = ?";
     results = await getResults(studentEduQuery, data);
     updateResult = await results;
-    // response.send("Updated successfully");
+    response.send("Updated successfully");
   });
 });
 
 app.post("/updateEduDetails", async function(req, response) {
-  var studentAllEduDetailsResult = req.body.studentAllEduDetailsResult;
+  var studentAllEduDetailsResult = req.body;
+  console.log("studentAllEduDetailsResult", studentAllEduDetailsResult);
   studentAllEduDetailsResult.map(async studentEduDetail => {
     var data = [
       studentEduDetail.degree,
@@ -328,7 +335,7 @@ app.post("/updateEduDetails", async function(req, response) {
     results = await getResults(studentEduQuery, data);
     //console.log(results[1].job_desc);
     updateResult = await results;
-    // response.send("Updated successfully");
+    response.send("Updated successfully");
   });
 });
 
@@ -342,64 +349,65 @@ app.post("/deleteEduDetails", async function(req, response) {
   // response.send("Updated successfully");
 });
 
-app.post("/updateskillSet", async function(req, response) {
-  var studentAllDetailsResult = req.body.studentAllDetailsResult;
-  studentAllDetailsResult.map(async studentAllDetailResult => {
-    var data = [
-      studentAllDetailResult.skillSet,
-      studentAllDetailResult.studentDetailsId
-    ];
-    console.log("data is", data);
-    var studentEduQuery =
-      "UPDATE studentDetails SET skillSet = ? WHERE studentDetailsId = ?";
-    results = await getResults(studentEduQuery, data);
-    //console.log(results[1].job_desc);
-    updateResult = await results;
-    response.send("Updated successfully");
-  });
+app.post("/deleteWorkDetails", async function(req, response) {
+  var workId = req.body.workId;
+  var studentEduQuery =
+    "DELETE FROM workExpDetails WHERE workExpDetailsId = ?    ";
+  results = await getResults(studentEduQuery, workId);
+  //console.log(results[1].job_desc);
+  updateResult = await results;
+  // response.send("Updated successfully");
 });
 
-app.post("/updateContactdetails", async function(req, response) {
+app.put("/updateskillSet", async function(req, response) {
+  var data = [req.body[0].skillSet, req.body[0].studentDetailsId];
+  console.log("data is", data);
+  var studentEduQuery =
+    "UPDATE studentDetails SET skillSet = ? WHERE studentDetailsId = ?";
+  results = await getResults(studentEduQuery, data);
+  //console.log(results[1].job_desc);
+  updateResult = await results;
+  response.send("Updated successfully");
+});
+
+app.put("/updateContactdetails", async function(req, response) {
   console.log("In updateContactdetails");
-  var studentAllDetailsResult = req.body.studentAllDetailsResult;
-  studentAllDetailsResult.map(async studentAllDetailResult => {
-    var data = [
-      studentAllDetailResult.phoneNumber,
-      studentAllDetailResult.city,
-      studentAllDetailResult.state,
-      studentAllDetailResult.country,
-      // studentAllDetailResult.dob,
-      studentAllDetailResult.studentDetailsId
-    ];
-    console.log("data is", data);
-    var studentEduQuery =
-      // "UPDATE studentDetails SET phoneNumber = ?, city = ?,state = ?,country = ?,dob = ? WHERE studentDetailsId = ?";
-      "UPDATE studentDetails SET phoneNumber = ?, city = ?,state = ?,country = ? WHERE studentDetailsId = ?";
-    results = await getResults(studentEduQuery, data);
-    //console.log(results[1].job_desc);
-    updateResult = await results;
-    response.send("Updated successfully");
-  });
+
+  var data = [
+    req.body[0].phoneNumber,
+    req.body[0].city,
+    req.body[0].state,
+    req.body[0].country,
+    // studentAllDetailResult.dob,
+    req.body[0].studentDetailsId
+  ];
+  console.log("data is", data);
+  var studentEduQuery =
+    // "UPDATE studentDetails SET phoneNumber = ?, city = ?,state = ?,country = ?,dob = ? WHERE studentDetailsId = ?";
+    "UPDATE studentDetails SET phoneNumber = ?, city = ?,state = ?,country = ? WHERE studentDetailsId = ?";
+  results = await getResults(studentEduQuery, data);
+  //console.log(results[1].job_desc);
+  updateResult = await results;
+  response.send("Updated successfully");
 });
 
-app.post("/updatePersonalInfo", async function(req, response) {
+app.put("/updatePersonalInfo", async function(req, response) {
   console.log("In updatePersonalInfo");
-  var studentBasicDetailsResult = req.body.studentBasicDetailsResult;
-  studentBasicDetailsResult.map(async studentBasicDetailResult => {
-    var data = [
-      studentBasicDetailResult.presentlevelOfEducation,
-      studentBasicDetailResult.presentCourse,
-      studentBasicDetailResult.graduationYear,
-      studentBasicDetailResult.studentId
-    ];
-    console.log("data is", data);
-    var studentQuery =
-      "UPDATE student SET presentlevelOfEducation = ?, presentCourse = ?,graduationYear = ? WHERE studentId = ?";
-    results = await getResults(studentQuery, data);
-    //console.log(results[1].job_desc);
-    updateResult = await results;
-    // response.send("Updated successfully");
-  });
+  console.log(req.body[0]);
+  var data = [
+    req.body[0].presentlevelOfEducation,
+    req.body[0].presentCourse,
+    req.body[0].graduationYear,
+    req.body[0].collegeName,
+    req.body[0].studentId
+  ];
+  console.log("data is", data);
+  var studentQuery =
+    "UPDATE student SET presentlevelOfEducation = ?, presentCourse = ?,graduationYear = ?,collegeName=? WHERE studentId = ?";
+  results = await getResults(studentQuery, data);
+  //console.log(results[1].job_desc);
+  updateResult = await results;
+  response.send("Updated successfully");
 });
 
 app.post("/registerToEvent", async function(req, response) {

@@ -57,6 +57,9 @@ class Students extends Component {
         console.log("Student is ", studentBasicDetailResult);
         return (
           <div class="card2">
+            <div class="wrapper">
+              <img src={require("../profile.jpg")} class="image--cover2"></img>
+            </div>
             <h4>
               Student Name : {studentBasicDetailResult.firstName}{" "}
               {studentBasicDetailResult.lastName}
@@ -102,19 +105,6 @@ class Students extends Component {
     );
   }
   getProfileDetails = (event, id) => {
-    const data = {
-      studentBasicDetailsResult: this.state.studentBasicDetailsResult
-    };
-    // axios
-    //   .post("http://localhost:3001/updatePersonalInfo", data)
-    //   .then(response => {
-    //     console.log("Status Code : ", response.status);
-    //     if (response.status === 200) {
-    //       console.log("Updated work details successfully");
-    //     } else {
-    //       console.log("Error Updating work page");
-    //     }
-    //   });
     this.setState({ redirect: `/studentprofile/${id}` });
   };
 }

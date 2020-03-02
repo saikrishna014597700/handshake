@@ -31,6 +31,29 @@
   font-style: bold;
   margin-left: 1cm;
 }
+.wrapper {
+  padding: 20px;
+  float: left;
+  margin-top: 10px;
+}
+
+.image--cover {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 20px;
+  margin-top: -50px;
+  object-fit: cover;
+  object-position: center;
+}
+.rightCard {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: 20px;
+  margin-left: 72%;
+}
 a {
   color: white !important;
   text-decoration: none;

@@ -165,6 +165,21 @@ app.get("/home", async function(req, response) {
   });
 });
 
+app.get("/getjobDetails/:id", async function(req, response) {
+  connection.query(
+    "SELECT * FROM jobPostings where jobId = ?",
+    req.params.id,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  );
+});
+
 app.get("/companyJobPostings/:id", async function(req, response) {
   console.log("Id ios ", req.params.id);
   connection.query(
@@ -243,6 +258,15 @@ app.get("/profilestudent/:id", async function(req, response) {
   console.log("results are  ", results);
   studentresult = await results;
   response.send(studentresult);
+});
+
+app.get("/companyDetails/:id", async function(req, response) {
+  var companyId = req.params.id;
+  var compQ = "SELECT * FROM company where companyId = ?";
+  results = await getResults(compQ, companyId);
+  console.log("results are  ", results);
+  compRes = await results;
+  response.send(compRes);
 });
 
 app.put("/myjourney", async function(req, response) {

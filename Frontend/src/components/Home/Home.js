@@ -8,15 +8,16 @@ class Home extends Component {
   constructor() {
     super();
     this.state = {
-      jobPostings: []
+      jobPostings: [],
+      redirect: null
     };
+    this.getJobDetail = this.getJobDetail.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
     axios.get("http://localhost:3001/home").then(response => {
       //update the state with the response data
-      console.log("res is  :::", response);
       this.setState({
         jobPostings: this.state.jobPostings.concat(response.data)
       });
@@ -24,36 +25,31 @@ class Home extends Component {
   }
 
   render() {
+    if (this.state.redirect) {
+      return <Redirect to={this.state.redirect} />;
+    }
     //iterate over books to create a table row
     let jobPostings = this.state.jobPostings.map(jobPosting => {
       console.log("xxxx::::", jobPosting);
       return (
-        <div class="card text-center">
-          <div class="card-header">Job Title : {jobPosting.jobTitle}</div>
-          <div class="card-body">
-            <h5 class="card-title">Category : {jobPosting.jobCategory}</h5>
-            <p class="card-text">Description : {jobPosting.jobdescription}</p>
-            <p class="card-text">Posting Date: {jobPosting.postingDate}</p>
-            <p class="card-text">
-              Application Deadline : {jobPosting.applicationDeadline}
-            </p>
-            <p class="card-text">
-              Salary : {jobPosting.salary}
-              <button
-                class="btn success"
-                onClick={event =>
-                  this.registerToJobDetails(
-                    event,
-                    jobPosting.jobId,
-                    jobPosting.fk_companyId
-                  )
-                }
-              >
-                Apply
-              </button>
-            </p>
+        <div class="card2">
+          <div class="wrapper">
+            <img src={require("../jobs.png")} class="image--cover2"></img>
           </div>
-          <div class="card-footer text-muted">Expires in 3 days</div>
+          <h4>Job Title : {jobPosting.jobTitle}</h4>
+          <h4>Category : {jobPosting.jobCategory}</h4>
+          <h4>
+            Posting Date: {jobPosting.postingDate}
+            <button
+              class="btn success"
+              onClick={event => this.getJobDetail(event, jobPosting.jobId)}
+            >
+              View Details
+            </button>
+          </h4>
+          {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
+          <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
+          <h4>Salary : {jobPosting.salary}</h4>
         </div>
       );
     });
@@ -65,32 +61,17 @@ class Home extends Component {
     return (
       <div>
         {redirectVar}
-        <div class="container">
-          <h2>Job postings</h2>
-          <table class="table">
-            <tbody>
-              {/*Display the Tbale row based on data recieved*/}
-              {jobPostings}
-            </tbody>
-          </table>
+        <div class="row">
+          <h3 class="heading"> Job Postings</h3>
+          <br />
+          <div>{jobPostings}</div>
         </div>
       </div>
     );
   }
 
-  registerToJobDetails = (event, jobId, companyId) => {
-    const data = {
-      jobId: jobId,
-      companyId: companyId
-    };
-    axios.post("http://localhost:3001/applyToJob", data).then(response => {
-      console.log("Status Code : ", response.status);
-      if (response.status === 200) {
-        console.log("Applied successfully");
-      } else {
-        console.log("Error Applying for this Job");
-      }
-    });
+  getJobDetail = (event, id) => {
+    this.setState({ redirect: `/jobDetails/${id}` });
   };
 }
 //export Home Component

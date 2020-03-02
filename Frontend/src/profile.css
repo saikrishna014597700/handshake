@@ -19,7 +19,7 @@ body {
 .wrapper {
   padding: 20px;
   float: left;
-  margin-top: 10px;
+  margin-top: -20px;
 }
 
 .image--cover {
@@ -28,6 +28,15 @@ body {
   border-radius: 50%;
   margin: 20px;
   margin-top: -50px;
+  object-fit: cover;
+  object-position: center;
+}
+.image--cover2 {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 20px;
+  margin-top: -0px;
   object-fit: cover;
   object-position: center;
 }
@@ -188,6 +197,26 @@ img {
   margin-bottom: 20px;
   margin-left: 230px;
   margin-right: 230px;
+  float: center;
+}
+
+.card3 {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 30%;
+  float: center;
+}
+
+.card4 {
+  background-color: white;
+  padding: 20px;
+  margin-top: 60px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 30%;
   float: center;
 }
 

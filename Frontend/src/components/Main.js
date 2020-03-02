@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Route } from "react-router-dom";
 import Login from "./Login/Login";
 import Home from "./Home/Home";
+import JobDescription from "./Home/JobDescription";
 import Events from "./Events/Events";
 import Register from "./Register/Register";
 import Delete from "./Delete/Delete";
@@ -36,6 +37,7 @@ class Main extends Component {
           {/* <Route path="/myjourney" component={UpdateProfile} /> */}
           <Route path="/create" component={Create} />
           <Route path="/studentprofile/:id" component={StudentProfile} />
+          <Route path="/jobDetails/:id" component={JobDescription} />
           <Route path="/companyDashboard" component={CompanyDashboard} />
         </div>
       </Provider>

@@ -27,7 +27,7 @@ class Profile extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("this.props", this.props);
-    var studentId = cookie.load("cookie");
+    var studentId = cookie.load("cookie").split("+")[0];
     this.props.fetchStudent(studentId);
     this.props.fetchStudentDetails(studentId);
     this.props.fetchEduDetails(studentId);
@@ -63,7 +63,7 @@ class Profile extends Component {
             </h2>
             <br />
             <div class="wrapper">
-              <img src={require("../profile.jpg")} class="image--cover"></img>
+              <img src={require("../profile.jpg")} class="image--cover3"></img>
             </div>
             <br />
             <h4>

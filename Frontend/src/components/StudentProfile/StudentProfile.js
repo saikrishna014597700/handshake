@@ -119,7 +119,7 @@ class StudentProfile extends Component {
             </h2>
             <br />
             <div class="wrapper">
-              <img src={require("../profile.jpg")} class="image--cover"></img>
+              <img src={require("../profile.jpg")} class="image--cover3"></img>
             </div>
             <br />
             <br />

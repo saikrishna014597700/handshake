@@ -45,7 +45,10 @@ class UpdateProfile extends Component {
       title: "",
       startDate: "",
       endDate: "",
-      description: ""
+      description: "",
+      studentDetailsId: "",
+      success: false,
+      url: ""
     };
     // };
     // constructor() {
@@ -74,15 +77,22 @@ class UpdateProfile extends Component {
     this.submitWorkDetails = this.submitWorkDetails.bind(this);
     this.addEducation = this.addEducation.bind(this);
     this.addSkills = this.addSkills.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleUpload = this.handleUpload.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
-    console.log("this.props", this.props);
-    var studentId = cookie.load("cookie");
+    console.log("this.props", cookie.load("cookie").split("+"));
+    var studentId = cookie.load("cookie").split("+")[0];
     this.props.fetchStudent(studentId);
     this.props.fetchStudentDetails(studentId);
     this.props.fetchEduDetails(studentId);
     this.props.fetchWorkExpDetails(studentId);
+    this.props.studentBasicDetails.map(studentAllDetailResult => {
+      this.setState({
+        studentDetailsId: studentAllDetailResult.studentDetailsId
+      });
+    });
   }
   addEducation() {
     this.setState({
@@ -100,6 +110,49 @@ class UpdateProfile extends Component {
     });
     console.log("this.state.addSkillsFlag", this.state.addSkillsFlag);
   }
+
+  handleChange = ev => {
+    this.setState({ success: false, url: "" });
+  };
+  handleUpload = ev => {
+    let file = this.uploadInput.files[0];
+    // Split the filename to get the name and type
+    let fileParts = this.uploadInput.files[0].name.split(".");
+    let fileName = fileParts[0];
+    let fileType = fileParts[1];
+    console.log("Preparing the upload");
+    axios
+      .post("http://localhost:3001/sign_s3", {
+        fileName: fileName,
+        fileType: fileType
+      })
+      .then(response => {
+        var returnData = response.data.data.returnData;
+        var signedRequest = returnData.signedRequest;
+        var url = returnData.url;
+        this.setState({ url: url });
+        console.log("Recieved a signed request " + signedRequest);
+
+        // Put the fileType in the headers for the upload
+        var options = {
+          headers: {
+            "Content-Type": fileType
+          }
+        };
+        axios
+          .put(signedRequest, file, options)
+          .then(result => {
+            console.log("Response from s3");
+            this.setState({ success: true });
+          })
+          .catch(error => {
+            alert("ERROR " + JSON.stringify(error));
+          });
+      })
+      .catch(error => {
+        alert(JSON.stringify(error));
+      });
+  };
   redirecttoUpdateProfilePage() {
     this.props.history.push("/Profile");
   }
@@ -235,41 +288,35 @@ class UpdateProfile extends Component {
     if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
+    const Success_message = () => (
+      <div style={{ padding: 50 }}>
+        <h3 style={{ color: "green" }}>SUCCESSFUL UPLOAD</h3>
+        <a href={this.state.url}>Access the file here</a>
+        <br />
+      </div>
+    );
+    let fileUpload = (
+      <div className="App">
+        <center>
+          <h1>UPLOAD A FILE</h1>
+          {this.state.success ? <Success_message /> : null}
+          <input
+            onChange={this.handleChange}
+            ref={ref => {
+              this.uploadInput = ref;
+            }}
+            type="file"
+          />
+          <br />
+          <button onClick={this.handleUpload}>UPLOAD</button>
+        </center>
+      </div>
+    );
     //iterate over books to create a table row
     let studentDetails1 = this.props.studentBasicDetails.map(
       studentAllDetailResult => {
         console.log("Id iss::::::" + studentAllDetailResult.studentDetailsId);
-        return (
-          <div>
-            <form>
-              <input
-                class="editableinput2"
-                type="text"
-                name="carrierObjective"
-                defaultValue={studentAllDetailResult.carrierObjective}
-                onChange={e =>
-                  this.handlemyChange(
-                    e,
-                    studentAllDetailResult.studentDetailsId,
-                    "carrierObjective"
-                  )
-                }
-              />
-              <button
-                class="btn success"
-                onClick={event =>
-                  this.submitmyJourney(
-                    event,
-                    studentAllDetailResult.studentDetailsId,
-                    "carrierObjective"
-                  )
-                }
-              >
-                Save
-              </button>
-            </form>
-          </div>
-        );
+        return studentAllDetailResult.carrierObjective;
       }
     );
     console.log("StudentDetails isssss:", studentDetails1);
@@ -294,7 +341,7 @@ class UpdateProfile extends Component {
             </h2>
             <br />
             <div class="wrapper">
-              <img src={require("../profile.jpg")} class="image--cover"></img>
+              <img src={require("../profile.jpg")} class="image--cover3"></img>
             </div>
             <br />
             <br />
@@ -858,7 +905,41 @@ class UpdateProfile extends Component {
                   Add Skills
                 </button> */}
               </h2>
-              <div class="card">{<p>{studentDetails1}</p>}</div>
+              <div class="card">
+                {
+                  <p>
+                    <div>
+                      <form>
+                        <input
+                          class="editableinput2"
+                          type="text"
+                          name="carrierObjective"
+                          defaultValue={studentDetails1}
+                          onChange={e =>
+                            this.handlemyChange(
+                              e,
+                              this.state.studentDetailsId,
+                              "carrierObjective"
+                            )
+                          }
+                        />
+                        <button
+                          class="btn success"
+                          onClick={event =>
+                            this.submitmyJourney(
+                              event,
+                              this.state.studentDetailsId,
+                              "carrierObjective"
+                            )
+                          }
+                        >
+                          Save
+                        </button>
+                      </form>
+                    </div>
+                  </p>
+                }
+              </div>
               <h2 class="Profileheading">
                 Education
                 <button class="btn success" onClick={e => this.addEducation()}>
@@ -882,6 +963,7 @@ class UpdateProfile extends Component {
               {studentDetails}
               {studentDetails2}
               <div class="card">{studentDetails3}</div>
+              <div class="card">{fileUpload}</div>
             </div>
           </div>
         </body>

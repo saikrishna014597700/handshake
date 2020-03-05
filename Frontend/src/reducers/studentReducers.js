@@ -14,14 +14,16 @@ import {
   REMOVE_MYWORK,
   EDIT_PERSONALINFO,
   LOGIN,
-  STUDENT_REGISTER
+  STUDENT_REGISTER,
+  FETCH_COMPANY_PROFILE
 } from "../actions/types";
 
 const initialState = {
   studentObject: [],
   studentExperience: [],
   studentEducation: [],
-  studentBasicDetails: []
+  studentBasicDetails: [],
+  companyProfile: []
   // isExpSaveEnabled: false,
   // isEduSaveEnabled: false,
   // isObjSaveEnabled: false,
@@ -112,6 +114,13 @@ export default function(state = initialState, action) {
       return {
         ...state,
         signupResponse: action.payload
+
+        // studentExperience: [].concat(action.payload)
+      };
+    case FETCH_COMPANY_PROFILE:
+      return {
+        ...state,
+        companyProfile: action.payload
 
         // studentExperience: [].concat(action.payload)
       };

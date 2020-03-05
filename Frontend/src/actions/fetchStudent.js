@@ -14,7 +14,8 @@ import {
   REMOVE_MYWORK,
   EDIT_PERSONALINFO,
   LOGIN,
-  STUDENT_REGISTER
+  STUDENT_REGISTER,
+  FETCH_COMPANY_PROFILE
 } from "./types";
 import axios from "axios";
 
@@ -72,6 +73,20 @@ export function fetchStudent(payload) {
       .then(response =>
         dispatch({
           type: FETCH_STUDENT,
+          payload: response.data
+        })
+      );
+  };
+}
+
+export function fetchCompanyProfile(payload) {
+  console.log("dispatching the action");
+  return function(dispatch) {
+    axios
+      .get("http://localhost:3001/profileCompany/" + payload)
+      .then(response =>
+        dispatch({
+          type: FETCH_COMPANY_PROFILE,
           payload: response.data
         })
       );

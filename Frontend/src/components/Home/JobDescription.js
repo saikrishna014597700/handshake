@@ -37,18 +37,6 @@ class JobDescription extends Component {
             });
           });
       });
-
-    // var comapnyDetails = this.state.jobDetails[0].fk_companyId;
-
-    // axios
-    //   .get(`http://localhost:3001/companyDetails/${comapnyDetails}`)
-    //   .then(response => {
-    //     //update the state with the response data
-    //     console.log("res is  :::", response);
-    //     this.setState({
-    //       companyDetails: this.state.companyDetails.concat(response.data)
-    //     });
-    //   });
   }
 
   render() {
@@ -121,6 +109,25 @@ class JobDescription extends Component {
     let redirectVar = null;
     if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
+    }
+    if (
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "company"
+    ) {
+      let viewRegisteredStudents = (
+        <button
+          class="btn success"
+          onClick={event =>
+            this.registerToJobDetails(
+              event,
+              jobPosting.jobId,
+              jobPosting.fk_companyId
+            )
+          }
+        >
+          Students Applied
+        </button>
+      );
     }
     return (
       <div>

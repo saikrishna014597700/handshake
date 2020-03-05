@@ -45,12 +45,25 @@ class Navbar extends Component {
     }
     let redirectVar = null;
     var loginFLag = false;
-    if (cookie.load("cookie")) {
+    var studentFlag = false;
+    var companyFlag = false;
+    if (
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "student"
+    ) {
       redirectVar = <Redirect to="/home" />;
       loginFLag = true;
+      studentFlag = true;
+    } else if (
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "company"
+    ) {
+      redirectVar = <Redirect to="/companyDashboard" />;
+      loginFLag = true;
+      companyFlag = true;
     }
     var loggedInNav;
-    if (loginFLag) {
+    if (loginFLag && studentFlag) {
       loggedInNav = (
         <div class="navbar-header">
           <a class="navbar-brand">Handshake</a>
@@ -85,6 +98,38 @@ class Navbar extends Component {
             </li>
             <li>
               <Link to="/profile">Profile</Link>
+            </li>
+          </ul>
+        </div>
+      );
+    } else if (loginFLag && companyFlag) {
+      loggedInNav = (
+        <div class="navbar-header">
+          <a class="navbar-brand">Handshake</a>
+          <ul class="nav navbar-nav">
+            <li>
+              <div class="active-cyan-3 active-cyan-4 mb-4">
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="Search"
+                  aria-label="Search"
+                />
+              </div>
+            </li>
+            <li class="li-class">
+              <Link to="/companyDashboard">Dashboard</Link>
+            </li>
+            <li>
+              <Link to="/companyevents">Events</Link>
+            </li>
+
+            <li>
+              <Link to="/student">Students</Link>
+            </li>
+
+            <li>
+              <Link to="/companyprofile">Profile</Link>
             </li>
           </ul>
         </div>

@@ -8,9 +8,11 @@ class Events extends Component {
   constructor() {
     super();
     this.state = {
-      events: []
+      events: [],
+      showingAlert: false
     };
   }
+
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
@@ -25,32 +27,45 @@ class Events extends Component {
 
   render() {
     //iterate over books to create a table row
+    if (this.state.showingAlert) {
+      let alert = (
+        <div
+          className={`alert alert-success ${
+            this.state.showingAlert ? "alert-shown" : "alert-hidden"
+          }`}
+        >
+          <strong>Hurray!!</strong> You have successfully registered to this
+          event
+        </div>
+      );
+    }
+
     let events = this.state.events.map(event => {
-      console.log("Events are ", event);
       return (
-        <div class="card">
-          <div class="card-header">Event Name : {event.eventName}</div>
-          <div class="card-body">
-            <h5 class="card-title">Description : {event.eventDescription}</h5>
-            <p class="card-text">Location : {event.eventLocation}</p>
-            <p class="card-text">Posting Date: Event Date: {event.eventtime}</p>
-            <p class="card-text">
-              Event Eligibility : {event.eventEligibility}
-              <button
-                class="btn success"
-                onClick={event1 =>
-                  this.registerToEventDetails(
-                    event1,
-                    event.eventId,
-                    event.fk_companyId
-                  )
-                }
-              >
-                Register
-              </button>
-            </p>
+        <div class="card2">
+          <div class="wrapper">
+            <img src={require("./events.jpg")} class="image--cover2"></img>
           </div>
-          <div class="card-footer text-muted">Register in 3 days</div>
+          <h4>Event Name : {event.eventName}</h4>
+          <h4>Location : {event.eventLocation}</h4>
+          <h4>
+            Event Date: {event.eventtime}
+            <button
+              class="btn success"
+              onClick={event1 =>
+                this.registerToEventDetails(
+                  event1,
+                  event.eventId,
+                  event.fk_companyId
+                )
+              }
+            >
+              Register
+            </button>
+          </h4>
+          {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
+          <h4>Event Eligibility : {event.eventEligibility}</h4>
+          <h5>Description : {event.eventDescription}</h5>
         </div>
       );
     });
@@ -62,15 +77,13 @@ class Events extends Component {
     }
     return (
       <div>
+        {alert}
+
         {redirectVar}
-        <div class="container">
-          <h2>Upcoming Events</h2>
-          <table class="table">
-            <tbody>
-              {/*Display the Tbale row based on data recieved*/}
-              {events}
-            </tbody>
-          </table>
+        <div class="row">
+          <h3 class="heading"> Upcoming Events</h3>
+          <br />
+          <div>{events}</div>
         </div>
       </div>
     );
@@ -85,6 +98,9 @@ class Events extends Component {
       console.log("Status Code : ", response.status);
       if (response.status === 200) {
         console.log("Registered successfully");
+        this.setState({
+          showingAlert: true
+        });
       } else {
         console.log("Error Registering for this event");
       }

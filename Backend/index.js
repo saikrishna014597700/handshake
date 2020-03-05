@@ -8,6 +8,11 @@ var cookieParser = require("cookie-parser");
 var cors = require("cors");
 const util = require("util");
 app.set("view engine", "ejs");
+var bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const exjwt = require("express-jwt");
+var aws = require("aws-sdk");
+require("dotenv").config();
 
 //use cors to allow cross origin resource sharing
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -46,10 +51,19 @@ app.use(function(req, res, next) {
   );
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
+    "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type,Authorization, Access-Control-Request-Method, Access-Control-Request-Headers"
   );
   res.setHeader("Cache-Control", "no-cache");
   next();
+});
+
+const jwtMW = exjwt({
+  secret: "keyboard cat 4 ever"
+});
+
+app.get("/", jwtMW /* Using the express jwt MW here */, (req, res) => {
+  console.log("Web Token Checked.");
+  res.send("You are authenticated"); //Sending some response when authenticated
 });
 
 //Route to handle Post Request Call
@@ -58,31 +72,55 @@ app.post("/login", function(request, response) {
   var password = request.body.password;
   if (username && password) {
     connection.query(
-      "SELECT * FROM student WHERE email = ? AND studentPassword = ?",
-      [username, password],
+      "SELECT * FROM student WHERE email = ?",
+      [username],
       function(error, results, fields) {
+        if (error) {
+          response.end("Invalid Username");
+        }
         console.log(results);
         if (results.length > 0) {
-          response.cookie("cookie", results[0].studentId, {
-            maxAge: 900000,
-            httpOnly: false,
-            path: "/"
+          bcrypt.compare(password, results[0].studentPassword, function(
+            err,
+            result
+          ) {
+            if (result === true) {
+              response.cookie(
+                "cookie",
+                results[0].studentId + "+" + "student",
+                {
+                  maxAge: 900000,
+                  httpOnly: false,
+                  path: "/"
+                }
+              );
+              console.log("Valid!");
+              let token = jwt.sign(
+                { username: results[0].email },
+                "keyboard cat 4 ever",
+                { expiresIn: 129600 }
+              ); // Signing the token
+              response.json({
+                sucess: true,
+                err: null,
+                token
+              });
+              console.log("Valid!", token);
+            } else {
+              console.log("Entered Password and Hash do not match!");
+              res.status(401).json({
+                sucess: false,
+                token: null,
+                err: "Entered Password and Hash do not match!"
+              });
+            }
           });
-          // request.session.user = user;
-          response.writeHead(200, {
-            "Content-Type": "text/plain"
-          });
-          response.end("Successful Login");
-          // response.redirect("/home");
         } else {
-          response.send("Incorrect Username and/or Password!");
+          response.end("Invalid Username");
         }
         // response.end();
       }
     );
-  } else {
-    response.send("Please enter Username and Password!");
-    response.end();
   }
 });
 
@@ -96,7 +134,7 @@ app.post("/companylogin", function(request, response) {
       function(error, results, fields) {
         console.log("Results are:", results);
         if (results.length > 0) {
-          response.cookie("cookie", username, {
+          response.cookie("cookie", results[0].companyId + "+" + "company", {
             maxAge: 900000,
             httpOnly: false,
             path: "/"
@@ -122,31 +160,57 @@ app.post("/companylogin", function(request, response) {
 
 app.post("/register", function(req, res) {
   var today = new Date();
-  var students = {
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    studentPassword: req.body.password,
-    collegeName: req.body.univname
-  };
-  connection.query("INSERT INTO student SET ?", students, function(
-    error,
-    results,
-    fields
-  ) {
-    if (error) {
-      console.log("error ocurred", error);
-      res.send({
-        code: 400,
-        failed: "error ocurred"
-      });
-    } else {
-      console.log("The solution is: ", results);
-      res.send({
-        code: 200,
-        success: "User Registered"
-      });
-    }
+  const saltRounds = 10;
+  studentPassword = req.body.password;
+  bcrypt.hash(studentPassword, saltRounds, function(err, hash) {
+    console.log("Password is", hash);
+    var students = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      studentPassword: hash,
+      collegeName: req.body.univname
+    };
+    console.log("Syudent is", students);
+    connection.query("INSERT INTO student SET ?", students, function(
+      error,
+      results,
+      fields
+    ) {
+      if (error) {
+        console.log("error ocurred", error);
+        res.send({
+          code: 400,
+          failed: "error ocurred"
+        });
+      } else {
+        console.log("The solution is: ", results);
+        connection.query(
+          "INSERT INTO studentDetails SET studentId = ?",
+          results.insertId,
+          function(error, results, fields) {
+            if (error) {
+              console.log("error ocurred", error);
+              res.send({
+                code: 400,
+                failed: "error ocurred"
+              });
+            } else {
+              console.log("The solution is: ", results);
+              res.send({
+                code: 200,
+                success:
+                  "User Registered & created an entry for student details"
+              });
+            }
+          }
+        );
+        // res.send({
+        //   code: 200,
+        //   success: "User Registered"
+        // });
+      }
+    });
   });
 });
 
@@ -196,6 +260,72 @@ app.get("/companyJobPostings/:id", async function(req, response) {
   );
 });
 
+app.post("/postJob", async function(req, response) {
+  console.log("In postJob");
+  var jobDetails = req.body;
+  var data = [
+    jobDetails.jobTitle,
+    jobDetails.location,
+    jobDetails.applicationDeadline,
+    jobDetails.salary,
+    jobDetails.jobDescription,
+    jobDetails.jobCategory,
+    jobDetails.duties,
+    jobDetails.requirements,
+    jobDetails.qualifications,
+    jobDetails.companyId
+  ];
+  console.log("data is", data);
+  var jobQuery =
+    "INSERT INTO jobPostings SET jobTitle = ?,location = ?,applicationDeadline = ?,salary = ?, jobDescription = ?,jobCategory = ?,duties = ?,requirements = ?,qualifications = ?,fk_companyId=?";
+  results = await getResults(jobQuery, data);
+  //console.log(results[1].job_desc);
+  updateResult = await results;
+  connection.query(
+    "SELECT * FROM jobPostings where fk_companyId = ?",
+    jobDetails.companyId,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  ); // response.send("Updated successfully");
+});
+
+app.post("/postEvent", async function(req, response) {
+  console.log("In postEvent");
+  var eventDetails = req.body;
+  var data = [
+    eventDetails.eventname,
+    eventDetails.eventDescription,
+    eventDetails.eventtime,
+    eventDetails.eventocation,
+    eventDetails.eventEligibility,
+    eventDetails.companyId
+  ];
+  console.log("data is", data);
+  var jobQuery =
+    "INSERT INTO events SET eventname = ?,eventDescription = ?,eventtime = ?,eventLocation = ?, eventEligibility = ?,fk_companyId=?";
+  results = await getResults(jobQuery, data);
+  //console.log(results[1].job_desc);
+  updateResult = await results;
+  connection.query(
+    "SELECT * FROM events where fk_companyId = ?",
+    eventDetails.companyId,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  ); // response.send("Updated successfully");
+});
+
 const getResults = util.promisify(connection.query).bind(connection);
 
 // app.get("/profile", async function(req, response) {
@@ -231,12 +361,33 @@ app.get("/events", async function(req, response) {
   response.send(eventresult);
 });
 
+app.get("/companyevents/:id", async function(req, response) {
+  var eventresult;
+  var companyId = req.params.id;
+  console.log("company Id isss", companyId);
+  var eventQuery = "SELECT * FROM events where fk_companyId = ?";
+  results = await getResults(eventQuery, companyId);
+  eventresult = await results;
+  response.send(eventresult);
+});
+
 app.get("/profilestudentDetails/:id", async function(req, response) {
   var studentId = req.params.id;
   console.log("In studentDetails", studentId);
   var studentQuery = "SELECT * FROM studentDetails where studentId = ?";
   results = await getResults(studentQuery, studentId);
   console.log("results are  for student details ", results);
+  studentresult = await results;
+  response.send(studentresult);
+});
+
+app.get("/eventRegisteredStudents/:id", async function(req, response) {
+  var eventId = req.params.id;
+  console.log("In eventId", eventId);
+  var eventQuery =
+    "select * from student JOIN events_registration ON student.studentId = events_registration.studentId and events_registration.fk_eventId=?;";
+  results = await getResults(eventQuery, eventId);
+  console.log("results are  for event details ", results);
   studentresult = await results;
   response.send(studentresult);
 });
@@ -250,6 +401,27 @@ app.get("/student", async function(req, response) {
   response.send(studentresult);
 });
 
+app.get("/studentSearch/:name", async function(req, response) {
+  var data = ["%" + req.params.name + "%", "%" + req.params.name + "%"];
+
+  connection.query(
+    `SELECT * FROM student where (firstName LIKE ? OR collegeName LIKE ? )`,
+    data,
+    function(error, results, fields) {
+      console.log("Results areeeee", results);
+      if (results) {
+        if (results.length > 0) {
+          console.log("Results areeeee", results);
+          response.send(results);
+        } else {
+          response.send("No Job postings!");
+        }
+      }
+      // response.end();
+    }
+  );
+});
+
 app.get("/profilestudent/:id", async function(req, response) {
   var studentId = req.params.id;
   console.log("In student", studentId);
@@ -258,6 +430,16 @@ app.get("/profilestudent/:id", async function(req, response) {
   console.log("results are  ", results);
   studentresult = await results;
   response.send(studentresult);
+});
+
+app.get("/profileCompany/:id", async function(req, response) {
+  var companyId = req.params.id;
+  console.log("In student", companyId);
+  var companyQuery = "SELECT * FROM company where companyId = ?";
+  results = await getResults(companyQuery, companyId);
+  console.log("results are  ", results);
+  companyresult = await results;
+  response.send(companyresult);
 });
 
 app.get("/companyDetails/:id", async function(req, response) {
@@ -461,6 +643,47 @@ app.post("/applyToJob", async function(req, response) {
   //console.log(results[1].job_desc);
   updateResult = await results;
   response.send("Updated successfully");
+});
+
+// Configure dotenv to load in the .env file
+// Configure aws with your accessKeyId and your secretAccessKey
+aws.config.update({
+  region: "us-east-2", // Put your aws region here
+  accessKeyId: "AKIAIEGURI5FGBKERRTQ",
+  secretAccessKey: "8AiAob9WMzS/tpbwcGETufNbQYr2CzRK+mLOHj65"
+});
+
+const S3_BUCKET = "handshakefiles";
+// Now lets export this function so we can call it from somewhere else
+app.post("/sign_s3", async function(req, res) {
+  console.log("File Upload");
+  const s3 = new aws.S3(); // Create a new instance of S3
+  const fileName = req.body.fileName;
+  const fileType = req.body.fileType;
+  // Set up the payload of what we are sending to the S3 api
+  const s3Params = {
+    Bucket: S3_BUCKET,
+    Key: fileName,
+    Expires: 500,
+    // ContentType: fileType,
+    ACL: "public-read"
+  };
+  console.log("params are", s3Params);
+  // Make a request to the S3 API to get a signed URL which we can use to upload our file
+  s3.getSignedUrl("putObject", s3Params, (err, data) => {
+    if (err) {
+      console.log(err);
+      res.json({ success: false, error: err });
+    }
+    // Data payload of what we are sending back, the url of the signedRequest and a URL where we can access the content after its saved.
+    const returnData = {
+      signedRequest: data,
+      url: `https://${S3_BUCKET}.s3.amazonaws.com/${fileName}`
+    };
+    // Send it all back
+    console.log("Return Data Upload", returnData);
+    res.json({ success: true, data: { returnData } });
+  });
 });
 
 //start your server on port 3001

@@ -54,6 +54,27 @@
   margin-right: 20px;
   margin-left: 72%;
 }
+.searchComponent {
+  margin-left: 212px;
+  width: 50%;
+  height: 50px;
+  color: black;
+  font-size: 16px;
+  line-height: 50px;
+  padding: 10;
+  border-radius: 10px;
+}
+.button {
+  padding: 12px 10px;
+  width: 10%;
+  border-radius: 4px;
+  background-color: #4286f4;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 18px;
+  margin-left: 110px;
+  border-radius: 10px;
+}
 a {
   color: white !important;
   text-decoration: none;

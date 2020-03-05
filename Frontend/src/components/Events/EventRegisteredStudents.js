@@ -4,12 +4,11 @@ import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
-class Students extends Component {
-  constructor() {
-    super();
+class EventRegisteredStudents extends Component {
+  constructor(props) {
+    super(props);
     this.state = {
       students: [],
-      studentId: 1,
       studentBasicDetailsResult: [],
       studentAllDetailsResult: [],
       redirect: null,
@@ -38,32 +37,31 @@ class Students extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
-    const data = {
-      studentId: this.state.studentId
-    };
-    axios.get(`http://localhost:3001/student`).then(response => {
-      //update the state with the response data
-      console.log("res 2 is  :::", response);
-      this.setState({
-        studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
-          response.data
-        )
-      });
-    });
-    console.log("data is", data);
+    var eventId = this.props.match.params.id;
     axios
-      .get(
-        `http://localhost:3001/profilestudentDetails/${this.state.studentId}`
-      )
+      .get(`http://localhost:3001/eventRegisteredStudents/${eventId}`)
       .then(response => {
-        console.log("res 1 is  :::", response);
         //update the state with the response data
+        console.log("res 2 is  :::", response);
         this.setState({
-          studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
+          studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
             response.data
           )
         });
       });
+    // axios
+    //   .get(
+    //     `http://localhost:3001/profilestudentDetails/${this.state.studentId}`
+    //   )
+    //   .then(response => {
+    //     console.log("res 1 is  :::", response);
+    //     //update the state with the response data
+    //     this.setState({
+    //       studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
+    //         response.data
+    //       )
+    //     });
+    //   });
   }
 
   render() {
@@ -141,4 +139,4 @@ class Students extends Component {
   };
 }
 //export Home Component
-export default Students;
+export default EventRegisteredStudents;

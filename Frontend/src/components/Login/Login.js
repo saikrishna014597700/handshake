@@ -83,11 +83,11 @@ class Login extends Component {
         console.log("Status Code : ", response.status);
         if (response.status === 200) {
           this.setState({
-            authFlag: true
+            loginFlag: true
           });
         } else {
           this.setState({
-            authFlag: false
+            loginFlag: false
           });
         }
       });

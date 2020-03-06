@@ -392,6 +392,17 @@ app.get("/eventRegisteredStudents/:id", async function(req, response) {
   response.send(studentresult);
 });
 
+app.get("/jobAppliedStudents/:id", async function(req, response) {
+  var jobId = req.params.id;
+  console.log("In eventId", jobId);
+  var jobQ =
+    "select * from student JOIN job_application ON student.studentId = job_application.studentId and job_application.fk_jobId=?;";
+  results = await getResults(jobQ, jobId);
+  console.log("results are  for event details ", results);
+  studentresult = await results;
+  response.send(studentresult);
+});
+
 app.get("/student", async function(req, response) {
   var studentresult;
   var studentQuery = "SELECT * FROM student";
@@ -615,7 +626,7 @@ app.put("/updatePersonalInfo", async function(req, response) {
   updateResult = await results;
   response.send("Updated successfully");
 });
-
+/////////////////////////////////Change These
 app.post("/registerToEvent", async function(req, response) {
   console.log("req is::", req.body);
   var eventId = req.body.eventid;
@@ -639,6 +650,20 @@ app.post("/applyToJob", async function(req, response) {
   console.log("data is::", data);
   var applyToJobQuery =
     "INSERT INTO job_application SET studentId = ?, fk_jobId = ?, applicationStatus = ?";
+  results = await getResults(applyToJobQuery, data);
+  //console.log(results[1].job_desc);
+  updateResult = await results;
+  response.send("Updated successfully");
+});
+
+app.post("/changeJobApplicationsStatus", async function(req, response) {
+  var jobId = req.body.jobId;
+  var studentId = req.body.studentId;
+  var applicationStatus = req.body.status;
+  var data = [applicationStatus, studentId, jobId];
+  console.log("data is::", data);
+  var applyToJobQuery =
+    "UPDATE job_application SET  applicationStatus = ? WHERE studentId = ? AND fk_jobId = ?";
   results = await getResults(applyToJobQuery, data);
   //console.log(results[1].job_desc);
   updateResult = await results;

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Route } from "react-router-dom";
 import Login from "./Login/Login";
 import Home from "./Home/Home";
+import JobAppliedStudents from "./Home/JobAppliedStudents";
 import JobDescription from "./Home/JobDescription";
 import Events from "./Events/Events";
 import EventRegisteredStudents from "./Events/EventRegisteredStudents";
@@ -53,6 +54,10 @@ class Main extends Component {
           <Route
             path="/studentsRegisteredForEvent/:id"
             component={EventRegisteredStudents}
+          />
+          <Route
+            path="/jobAppliedStudents/:id"
+            component={JobAppliedStudents}
           />
         </div>
       </Provider>

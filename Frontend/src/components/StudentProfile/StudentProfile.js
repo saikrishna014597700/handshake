@@ -31,64 +31,6 @@ class StudentProfile extends Component {
     this.props.fetchStudentDetails(studentId);
     this.props.fetchEduDetails(studentId);
     this.props.fetchWorkExpDetails(studentId);
-    // const data = {
-    //   studentId: this.props.studentId
-    // };
-
-    // axios
-    //   .get(`http://localhost:3001/profilestudent/${this.props.studentId}`)
-    //   .then(response => {
-    //     //update the state with the response data
-    //     console.log("res 2 is  :::", response);
-    //     this.setState({
-    //       studentBasicDetailsResult: this.props.studentBasicDetailsResult.concat(
-    //         response.data
-    //       )
-    //     });
-    //   });
-    // console.log("data is", data);
-    // axios
-    //   .get(
-    //     `http://localhost:3001/profilestudentDetails/${this.props.studentId}`
-    //   )
-    //   .then(response => {
-    //     console.log("res 1 is  :::", response);
-    //     //update the state with the response data
-    //     this.setState({
-    //       studentAllDetailsResult: this.props.studentAllDetailsResult.concat(
-    //         response.data
-    //       )
-    //     });
-    //     this.setState({
-    //       myJourney: this.props.myJourney.concat(response.data)
-    //     });
-    //   });
-    // this.timer = setInterval(
-    //   () => this.setState(prevState => ({ test: !prevState.test })),
-    //   3000
-    // );
-    // axios
-    //   .get(`http://localhost:3001/profileEduDetails/${this.props.studentId}`)
-    //   .then(response => {
-    //     //update the state with the response data
-    //     console.log("res 3 is  :::", response);
-    //     this.setState({
-    //       studentAllEduDetailsResult: this.props.studentAllEduDetailsResult.concat(
-    //         response.data
-    //       )
-    //     });
-    //   });
-    // axios
-    //   .get(`http://localhost:3001/profileWorkDetails/${this.props.studentId}`)
-    //   .then(response => {
-    //     //update the state with the response data
-    //     console.log("res 4 is  :::", response);
-    //     this.setState({
-    //       studentAllWorkDetailsResult: this.props.studentAllWorkDetailsResult.concat(
-    //         response.data
-    //       )
-    //     });
-    //   });
   }
 
   redirecttoUpdateProfilePage() {

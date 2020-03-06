@@ -64,6 +64,9 @@
   padding: 10;
   border-radius: 10px;
 }
+.radios {
+  margin-left: 110px;
+}
 .button {
   padding: 12px 10px;
   width: 10%;

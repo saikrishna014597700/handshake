@@ -6,6 +6,7 @@ import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
 import { fetchCompanyProfile } from "../../actions/fetchStudent";
 import { connect } from "react-redux";
+import Background from "./companyBackground.png";
 
 class CompanyProfile extends Component {
   constructor() {
@@ -19,8 +20,10 @@ class CompanyProfile extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("this.props", this.props);
-    var companyId = cookie.load("cookie").split("+")[0];
-    this.props.fetchCompanyProfile(companyId);
+    if (cookie.load("cookie")) {
+      var companyId = cookie.load("cookie").split("+")[0];
+      this.props.fetchCompanyProfile(companyId);
+    }
   }
 
   redirecttoUpdateProfilePage() {
@@ -30,25 +33,79 @@ class CompanyProfile extends Component {
   render() {
     //iterate over books to create a table row
 
-    let companyProfiledata = this.props.companyProfile.map(companyProfilee => {
+    let header = this.props.companyProfile.map(companyProfilee => {
       return (
-        <div class="card">
+        <div
+          class="card6 card5"
+          style={{ backgroundImage: "url(" + Background + ")" }}
+        ></div>
+      );
+    });
+    let headerData = this.props.companyProfile.map(companyProfilee => {
+      return (
+        <div>
           <h2>{companyProfilee.companyname}</h2>
           <br />
           <div class="wrapper">
             <img src={require("./company.jpg")} class="image--cover3"></img>
           </div>
           <br />
-          <h4>
-            {companyProfilee.email} {"in"} {companyProfilee.location}
-          </h4>
-          <h4>{companyProfilee.description}</h4>
-          <h4>
-            {"Url: "}
-            {companyProfilee.websiteUrl}
-          </h4>
+          <h4>{companyProfilee.companyName}</h4>
+          <h4>{companyProfilee.location}</h4>
+          <h4>{companyProfilee.shortDesc}</h4>
+          <h4>{companyProfilee.comapnySize}</h4>
         </div>
       );
+    });
+    let headerData1 = this.props.companyProfile.map(companyProfilee => {
+      return (
+        <div class="card">
+          <h3>About {companyProfilee.companyname}</h3>
+          <br />
+          <h4>{companyProfilee.description}</h4>
+        </div>
+      );
+    });
+    let headerData2 = this.props.companyProfile.map(companyProfilee => {
+      return (
+        <div class="card">
+          <h3>About Founders</h3>
+          <br />
+          <h4>{companyProfilee.founders}</h4>
+          <br />
+          <h4>{companyProfilee.founderInfo}</h4>
+        </div>
+      );
+    });
+    let contactInfo = this.props.companyProfile.map(companyProfilee => {
+      return (
+        <div class="card">
+          <h3>Contact Information</h3>
+          <br />
+          <h4>Email:</h4>
+          <h5>{companyProfilee.email}</h5>
+          <br />
+          <br />
+          <h4>Phone:</h4>
+          <h5>{companyProfilee.phoneNumber}</h5>
+          <br />
+          <h4>Website Url:</h4>
+          <h5>{companyProfilee.websiteUrl}</h5>
+          <br />
+        </div>
+      );
+    });
+    let availPostions = this.props.companyProfile.map(companyProfilee => {
+      return (
+        <div class="card">
+          <h4>Available Postions</h4>
+
+          <h5>{companyProfilee.availPostions}</h5>
+        </div>
+      );
+    });
+    let postSomething = this.props.companyProfile.map(companyProfilee => {
+      return <div class="card"></div>;
     });
 
     let redirectVar = null;
@@ -59,38 +116,22 @@ class CompanyProfile extends Component {
       <div>
         {redirectVar}
         <body>
-          <button
-            class="btn success"
-            onClick={this.redirecttoUpdateProfilePage.bind(this)}
-          >
-            Edit Profile
-          </button>
           <div class="row">
             <div class="leftcolumn">
-              <h2>My Journey</h2>
-              <div class="card">{/* <p>{myJourneys}</p> */}</div>
-              <br />
-              <h2 class="Profileheading">Education</h2>
+              <div class="card">
+                {header}
+                {headerData}
+              </div>
 
-              {/* {studentEducationDetails} */}
-              <br />
-              <h2 class="Profileheading">Work Experience</h2>
+              {headerData1}
 
-              {/* {studentWorkDetails} */}
+              {headerData2}
             </div>
             <div class="rightcolumn">
-              {companyProfiledata}
-              {/* {studentDetails2} */}
-              <div class="card">
-                <h3>Skills</h3>
-                {/* {studentDetails3} */}
-              </div>
+              {contactInfo}
+              {availPostions}
             </div>
           </div>
-
-          {/* <div class="footer">
-            <h2></h2>
-          </div> */}
         </body>
       </div>
     );

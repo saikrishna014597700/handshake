@@ -68,7 +68,7 @@ body {
   padding-bottom: 15px;
   text-align: center;
   font-size: 18px;
-  width: 800px;
+  width: 700px;
   height: 80px;
 }
 .editableinput3 {
@@ -90,7 +90,7 @@ body {
   padding-bottom: 15px;
   text-align: center;
   font-size: 18px;
-  width: 400px;
+  width: 280px;
   height: 30px;
 }
 .editableinput5 {
@@ -190,15 +190,18 @@ img {
 .leftcolumn {
   float: left;
   width: 65%;
-  padding-left: 30px;
+  padding-left: 150px;
+  margin-top: 40px;
+  padding-right: 40px;
 }
 
 /* Right column */
 .rightcolumn {
   float: left;
-  width: 35%;
-  padding-left: 30px;
+  width: 25%;
   padding-right: 30px;
+  margin-top: 40px;
+  margin-left: 10px;
 }
 
 /* Fake image */
@@ -217,9 +220,13 @@ img {
 /* Add a card effect for articles */
 .card {
   background-color: white;
-  padding: 20px;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  padding: 30px;
+  /* padding-left: 30px;
+  padding-right: 30px;
+  padding-bottom: 30px; */
+  margin-bottom: 30px;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
 }
 
 .card2 {
@@ -230,6 +237,8 @@ img {
   margin-left: 13%;
   margin-right: 20%;
   float: center;
+  border-radius: 7px;
+  border-color: rgb(221, 235, 248);
 }
 
 .card3 {
@@ -238,18 +247,71 @@ img {
   margin-top: 20px;
   margin-bottom: 20px;
   margin-left: 20px;
-  margin-right: 30%;
   float: center;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
 }
 
 .card4 {
   background-color: white;
   padding: 20px;
-  margin-top: 60px;
+  margin-top: 100px;
   margin-bottom: 20px;
-  margin-left: 20px;
-  margin-right: 30%;
+  margin-left: 40px;
+  margin-right: 0%;
   float: center;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
+}
+.card5 {
+  background-color: #1569e0;
+  height: 150px;
+  background-repeat: repeat;
+  position: relative;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
+}
+
+card6 {
+  display: block;
+  margin-left: 50px;
+  margin-right: 60px;
+  margin-top: 50px;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
+}
+
+.card7 {
+  display: block;
+  margin-left: 10%;
+  margin-right: 10%;
+  background-color: white;
+  padding: 20px;
+  float: center;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
+}
+
+.card9 {
+  display: block;
+  margin-left: 10%;
+  margin-right: 10%;
+  background-color: white;
+  padding: 20px;
+  float: center;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
+}
+
+.card10 {
+  display: block;
+  margin-left: 10%;
+  margin-right: 10%;
+  background-color: white;
+  padding: 20px;
+  float: center;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
 }
 
 .btn {
@@ -326,7 +388,7 @@ img {
 @media screen and (max-width: 800px) {
   .leftcolumn,
   .rightcolumn {
-    width: 100%;
+    width: 80%;
     padding: 0;
   }
 }

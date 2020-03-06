@@ -10,9 +10,11 @@ class JobDescription extends Component {
     super();
     this.state = {
       jobDetails: [],
-      companyDetails: []
+      companyDetails: [],
+      redirect: null
     };
     this.registerToJobDetails = this.registerToJobDetails.bind(this);
+    this.getAppliedStudents = this.getAppliedStudents.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -25,8 +27,10 @@ class JobDescription extends Component {
         this.setState({
           jobDetails: this.state.jobDetails.concat(response.data)
         });
-        var comapnyDetails = this.state.jobDetails[0].fk_companyId;
-        console.log("Abc is ", comapnyDetails);
+        if (this.state.jobDetails[0]) {
+          var comapnyDetails = this.state.jobDetails[0].fk_companyId;
+          console.log("Abc is ", comapnyDetails);
+        }
         axios
           .get(`http://localhost:3001/companyDetails/${comapnyDetails}`)
           .then(response => {
@@ -40,6 +44,9 @@ class JobDescription extends Component {
   }
 
   render() {
+    if (this.state.redirect) {
+      return <Redirect to={this.state.redirect} />;
+    }
     //iterate over books to create a table row
     let jobDetails = this.state.jobDetails.map(jobPosting => {
       console.log("xxxx::::", jobPosting);
@@ -86,21 +93,22 @@ class JobDescription extends Component {
           <h4> Location : {companyDetail.location}</h4>
           <h4>Website Url: {companyDetail.websiteUrl}</h4>
           <h4>Phone: {companyDetail.phoneNumber}</h4>
-          <h4>
-            Email: {companyDetail.email}
-            <button
-              class="btn success"
-              // onClick={event =>
-              //   this.registerToJobDetails(
-              //     event,
-              //     jobPosting.jobId,
-              //     jobPosting.fk_companyId
-              //   )
-              // }
-            >
-              Profile
-            </button>
-          </h4>
+          <h4>Email: {companyDetail.email} </h4>
+          <br />
+          <button
+            class="btn success"
+            // onClick={event =>
+            //   this.registerToJobDetails(
+            //     event,
+            //     jobPosting.jobId,
+            //     jobPosting.fk_companyId
+            //   )
+            // }
+          >
+            Profile
+          </button>
+          <br />
+          <br />
         </div>
       );
     });
@@ -110,20 +118,18 @@ class JobDescription extends Component {
     if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
+    let viewRegisteredStudents;
+    console.log("ABC", cookie.load("cookie"));
+    console.log("ABCC", cookie.load("cookie").split("+")[1] === "company");
     if (
       cookie.load("cookie") &&
       cookie.load("cookie").split("+")[1] === "company"
     ) {
-      let viewRegisteredStudents = (
+      console.log("ABCcccc", cookie.load("cookie"));
+      viewRegisteredStudents = (
         <button
           class="btn success"
-          onClick={event =>
-            this.registerToJobDetails(
-              event,
-              jobPosting.jobId,
-              jobPosting.fk_companyId
-            )
-          }
+          onClick={event => this.getAppliedStudents()}
         >
           Students Applied
         </button>
@@ -134,7 +140,11 @@ class JobDescription extends Component {
         {redirectVar}
         <div class="row">
           <div class="leftcolumn">
-            <h3 class="heading"> Job Description</h3>
+            <h3 class="heading">
+              {" "}
+              Job Description
+              {viewRegisteredStudents}
+            </h3>
             <br />
             {jobDetails}
           </div>
@@ -145,6 +155,7 @@ class JobDescription extends Component {
                 <img src={require("../jobs.png")} class="image--cover2"></img>
               </div>
               {companyDetails}
+              <br />
             </div>
           </div>
         </div>
@@ -166,6 +177,12 @@ class JobDescription extends Component {
       }
     });
   };
+
+  getAppliedStudents() {
+    this.setState({
+      redirect: `/jobAppliedStudents/${this.props.match.params.id}`
+    });
+  }
 }
 //export Home Component
 export default JobDescription;

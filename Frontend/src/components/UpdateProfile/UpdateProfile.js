@@ -127,6 +127,7 @@ class UpdateProfile extends Component {
         fileType: fileType
       })
       .then(response => {
+        console.log("Return Data is", response);
         var returnData = response.data.data.returnData;
         var signedRequest = returnData.signedRequest;
         var url = returnData.url;
@@ -146,6 +147,7 @@ class UpdateProfile extends Component {
             this.setState({ success: true });
           })
           .catch(error => {
+            console.log("Error is,", JSON.stringify(error));
             alert("ERROR " + JSON.stringify(error));
           });
       })

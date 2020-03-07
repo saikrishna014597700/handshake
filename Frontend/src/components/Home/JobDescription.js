@@ -164,18 +164,21 @@ class JobDescription extends Component {
   }
 
   registerToJobDetails = (event, jobId, companyId) => {
-    const data = {
-      jobId: jobId,
-      companyId: companyId
-    };
-    axios.post("http://localhost:3001/applyToJob", data).then(response => {
-      console.log("Status Code : ", response.status);
-      if (response.status === 200) {
-        console.log("Applied successfully");
-      } else {
-        console.log("Error Applying for this Job");
-      }
-    });
+    if (cookie.load("cookie")) {
+      const data = {
+        jobId: jobId,
+        companyId: companyId,
+        studentId: cookie.load("cookie").split("+")[0]
+      };
+      axios.post("http://localhost:3001/applyToJob", data).then(response => {
+        console.log("Status Code : ", response.status);
+        if (response.status === 200) {
+          console.log("Applied successfully");
+        } else {
+          console.log("Error Applying for this Job");
+        }
+      });
+    }
   };
 
   getAppliedStudents() {

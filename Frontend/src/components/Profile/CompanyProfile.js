@@ -9,8 +9,8 @@ import { connect } from "react-redux";
 import Background from "./companyBackground.png";
 
 class CompanyProfile extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     console.log("Hii");
     this.initialState = {
       companyProfile: []
@@ -28,6 +28,14 @@ class CompanyProfile extends Component {
 
   redirecttoUpdateProfilePage() {
     this.props.history.push("/companyUpdateProfile");
+  }
+
+  redirecttoeventPage() {
+    this.props.history.push("/companyevents");
+  }
+
+  redirecttojobsPage() {
+    this.props.history.push("/companyDashboard");
   }
 
   render() {
@@ -105,7 +113,34 @@ class CompanyProfile extends Component {
       );
     });
     let postSomething = this.props.companyProfile.map(companyProfilee => {
-      return <div class="card"></div>;
+      return (
+        <div class="card">
+          <br />
+          <button
+            class="btn4 success"
+            onClick={this.redirecttojobsPage.bind(this)}
+          >
+            Jobs Posted
+          </button>
+          <br />
+          <br />
+          <button
+            class="btn4 success"
+            onClick={this.redirecttoeventPage.bind(this)}
+          >
+            Events Created
+          </button>
+          <br />
+          <br />
+          <button
+            class="btn4 success"
+            onClick={this.redirecttoUpdateProfilePage.bind(this)}
+          >
+            Edit Profile
+          </button>
+          <br />
+        </div>
+      );
     });
 
     let redirectVar = null;
@@ -130,6 +165,7 @@ class CompanyProfile extends Component {
             <div class="rightcolumn">
               {contactInfo}
               {availPostions}
+              {postSomething}
             </div>
           </div>
         </body>

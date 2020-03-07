@@ -17,6 +17,7 @@ import UpdateProfile from "./UpdateProfile/UpdateProfile";
 import CompanyUpdateProfile from "./UpdateProfile/CompanyUpdateProfile";
 import StudentProfile from "./StudentProfile/StudentProfile";
 import Navbar from "./LandingPage/Navbar";
+import StudentApplications from "./Applications/StudentApplication";
 import CompanyDashboard from "./Home/CompanyDashboard";
 import store from "../store";
 import { Provider } from "react-redux";
@@ -40,6 +41,7 @@ class Main extends Component {
           <Route path="/delete" component={Delete} />
           <Route path="/student" component={Students} />
           <Route path="/UpdateProfile" component={UpdateProfile} />
+          <Route path="/applications" component={StudentApplications} />
           {/* <Route path="/myjourney" component={UpdateProfile} /> */}
           <Route path="/create" component={Create} />
           <Route path="/studentprofile/:id" component={StudentProfile} />

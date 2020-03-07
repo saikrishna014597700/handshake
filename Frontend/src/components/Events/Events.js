@@ -90,21 +90,26 @@ class Events extends Component {
   }
 
   registerToEventDetails = (event, eventId, companyId) => {
-    const data = {
-      eventid: eventId,
-      companyId: companyId
-    };
-    axios.post("http://localhost:3001/registerToEvent", data).then(response => {
-      console.log("Status Code : ", response.status);
-      if (response.status === 200) {
-        console.log("Registered successfully");
-        this.setState({
-          showingAlert: true
+    if (cookie.load("cookie")) {
+      const data = {
+        eventid: eventId,
+        companyId: companyId,
+        studentId: cookie.load("cookie").split("+")[0]
+      };
+      axios
+        .post("http://localhost:3001/registerToEvent", data)
+        .then(response => {
+          console.log("Status Code : ", response.status);
+          if (response.status === 200) {
+            console.log("Registered successfully");
+            this.setState({
+              showingAlert: true
+            });
+          } else {
+            console.log("Error Registering for this event");
+          }
         });
-      } else {
-        console.log("Error Registering for this event");
-      }
-    });
+    }
   };
 }
 //export Home Component

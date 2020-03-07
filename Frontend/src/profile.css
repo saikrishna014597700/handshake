@@ -116,6 +116,39 @@ body {
   width: 900px;
   height: 120px;
 }
+.editableinput7 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 280px;
+  height: 30px;
+}
+.editableinput8 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 700px;
+  height: 120px;
+}
+.editableinput9 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 400px;
+  height: 30px;
+}
 img {
   float: right;
 }
@@ -322,6 +355,16 @@ card6 {
   font-size: 16px;
   cursor: pointer;
   float: right;
+}
+.btn4 {
+  border: 2px solid black;
+  background-color: white;
+  color: black;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  float: center;
+  width: 80%;
 }
 
 .btn2 {

@@ -68,16 +68,6 @@ class Navbar extends Component {
         <div class="navbar-header">
           <a class="navbar-brand">Handshake</a>
           <ul class="nav navbar-nav">
-            <li>
-              <div class="active-cyan-3 active-cyan-4 mb-4">
-                <input
-                  class="form-control"
-                  type="text"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
-              </div>
-            </li>
             <li class="li-class">
               <Link to="/home">Jobs</Link>
             </li>
@@ -85,16 +75,10 @@ class Navbar extends Component {
               <Link to="/events">Events</Link>
             </li>
             <li>
-              <Link to="/QA">Q-A</Link>
+              <Link to="/applications">Applications</Link>
             </li>
             <li>
               <Link to="/student">Students</Link>
-            </li>
-            <li>
-              <Link to="/messages">Messages</Link>
-            </li>
-            <li>
-              <Link to="/carriercenter">Carrier Center</Link>
             </li>
             <li>
               <Link to="/profile">Profile</Link>

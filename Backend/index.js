@@ -229,6 +229,22 @@ app.get("/home", async function(req, response) {
   });
 });
 
+app.get("/studentjobs/:id", async function(req, response) {
+  var studentId = req.params.id;
+  connection.query(
+    "select * from jobPostings JOIN job_application where jobPostings.jobId = job_application.fk_jobId and job_application.studentId=?",
+    studentId,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  );
+});
+
 app.get("/getjobDetails/:id", async function(req, response) {
   connection.query(
     "SELECT * FROM jobPostings where jobId = ?",
@@ -379,6 +395,33 @@ app.get("/profilestudentDetails/:id", async function(req, response) {
   console.log("results are  for student details ", results);
   studentresult = await results;
   response.send(studentresult);
+});
+
+app.post("/updateCompanyProfile/:id", async function(req, response) {
+  var companyprofile = req.body;
+  console.log("studentAllEduDetailsResult", companyprofile);
+  companyprofile.map(async companyprofilee => {
+    var data = [
+      companyprofilee.companyName,
+      companyprofilee.location,
+      companyprofilee.shortDesc,
+      companyprofilee.comapnySize,
+      companyprofilee.description,
+      companyprofilee.founders,
+      companyprofilee.founderInfo,
+      companyprofilee.email,
+      companyprofilee.phoneNumber,
+      companyprofilee.websiteUrl,
+      companyprofilee.availPostions,
+      req.params.id
+    ];
+    var studentEduQuery =
+      "UPDATE company SET companyName = ?,location = ?,shortDesc = ?,comapnySize = ?,description = ?,founders = ?,founderInfo = ?,email = ?,phoneNumber = ?,websiteUrl = ?,availPostions = ? WHERE companyId = ?";
+    results = await getResults(studentEduQuery, data);
+    //console.log(results[1].job_desc);
+    updateResult = await results;
+    response.send("Updated successfully");
+  });
 });
 
 app.get("/eventRegisteredStudents/:id", async function(req, response) {
@@ -631,7 +674,7 @@ app.post("/registerToEvent", async function(req, response) {
   console.log("req is::", req.body);
   var eventId = req.body.eventid;
   var companyId = req.body.companyId;
-  var studentId = "1";
+  var studentId = req.body.studentId;
   var data = [studentId, eventId];
   var registerEventQuery =
     "INSERT INTO events_registration SET studentId = ?, fk_eventId = ?";
@@ -644,12 +687,25 @@ app.post("/registerToEvent", async function(req, response) {
 app.post("/applyToJob", async function(req, response) {
   var jobId = req.body.jobId;
   var companyId = req.body.companyId;
-  var studentId = "1";
+  var studentId = req.body.studentId;
   var applicationStatus = "Applied";
-  var data = [studentId, jobId, applicationStatus];
+  var today = new Date();
+
+  var month = today.getMonth() + 1;
+  var day = today.getDate();
+  var year = today.getFullYear();
+  if (month < 10) {
+    month = "0" + month;
+  }
+  if (day < 10) {
+    day = "0" + day;
+  }
+  var applicationDate = year + "/" + day + "/" + month;
+  console.log("Application Date", applicationDate);
+  var data = [studentId, jobId, applicationStatus, applicationDate];
   console.log("data is::", data);
   var applyToJobQuery =
-    "INSERT INTO job_application SET studentId = ?, fk_jobId = ?, applicationStatus = ?";
+    "INSERT INTO job_application SET studentId = ?, fk_jobId = ?, applicationStatus = ?,applicationDate=?";
   results = await getResults(applyToJobQuery, data);
   //console.log(results[1].job_desc);
   updateResult = await results;
@@ -674,8 +730,8 @@ app.post("/changeJobApplicationsStatus", async function(req, response) {
 // Configure aws with your accessKeyId and your secretAccessKey
 aws.config.update({
   region: "us-east-2", // Put your aws region here
-  accessKeyId: "AKIAIEGURI5FGBKERRTQ",
-  secretAccessKey: "8AiAob9WMzS/tpbwcGETufNbQYr2CzRK+mLOHj65"
+  accessKeyId: "AKIA4JSQ7Q3AMXZ3DA7X",
+  secretAccessKey: "xFpWLR7TbeXyKFurNVDrEr56zXGjFjqMU/k3emYd"
 });
 
 const S3_BUCKET = "handshakefiles";

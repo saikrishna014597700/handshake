@@ -17,10 +17,10 @@ class CompanyDashboard extends Component {
       applicationDeadline: "",
       salary: "",
       jobDescription: "",
-      jobCategory: "",
       duties: "",
       requirements: "",
-      qualifications: ""
+      qualifications: "",
+      jobCategory: "Full Time"
     };
     this.getJobDetail = this.getJobDetail.bind(this);
     this.createJob = this.createJob.bind(this);
@@ -155,7 +155,7 @@ class CompanyDashboard extends Component {
               />
             </label>
             <br />
-            <label style={{ marginTop: "18px", marginLeft: "40px" }}>
+            {/* <label style={{ marginTop: "18px", marginLeft: "40px" }}>
               Category:
               <br />
               <input
@@ -171,6 +171,21 @@ class CompanyDashboard extends Component {
                 name="jobCategory"
                 style={{ marginTop: "20px" }}
               />
+            </label> */}
+            <label style={{ marginTop: "18px", marginLeft: "40px" }}>
+              Job Category :
+              <br />
+              <br />
+              <select
+                value={this.state.jobCategory}
+                class="editableinput4"
+                onChange={e => this.handleChange(e, "jobCategory")}
+              >
+                <option value="Full Time">Full Time</option>
+                <option value="Internship">Internship</option>
+                <option value="Part Time">Part Time</option>
+                <option value="On Campus">On Campus</option>
+              </select>
             </label>
             <br />
             <label style={{ marginTop: "18px", marginLeft: "40px" }}>
@@ -257,16 +272,30 @@ class CompanyDashboard extends Component {
       return <Redirect to={this.state.redirect} />;
     }
     let companyJobPosting = this.state.companyJobPostings.map(jobPosting => {
-      console.log("Student is ", jobPosting);
+      if (jobPosting.applicationDeadline) {
+        var applicationDeadline = jobPosting.applicationDeadline.slice(0, 10);
+      }
+      if (jobPosting.postingDate) {
+        var postingDate = jobPosting.postingDate.slice(0, 10);
+      }
       return (
         <div class="card2">
           <div class="wrapper">
-            <img src={require("../jobs.png")} class="image--cover2"></img>
+            <img
+              src={require("./companyImage.jpg")}
+              class="image--cover2"
+            ></img>
           </div>
-          <h4>Job Title : {jobPosting.jobTitle}</h4>
-          <h4>Category : {jobPosting.jobCategory}</h4>
           <h4>
-            Posting Date: {jobPosting.postingDate}
+            Job Title&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;&nbsp;&nbsp;
+            {jobPosting.jobTitle}
+          </h4>
+          <h4>
+            Category &nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;&nbsp;&nbsp;
+            {jobPosting.jobCategory}
+          </h4>
+          <h4>
+            Posted On&nbsp;&nbsp;: &nbsp;&nbsp;&nbsp;{postingDate}
             <button
               class="btn success"
               onClick={event => this.getJobDetail(event, jobPosting.jobId)}
@@ -275,8 +304,15 @@ class CompanyDashboard extends Component {
             </button>
           </h4>
           {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
-          <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
-          <h4>Salary : {jobPosting.salary}</h4>
+          <h4>
+            Deadline&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            {applicationDeadline}
+          </h4>
+          <h4>
+            Salary &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            {jobPosting.salary}
+          </h4>
         </div>
       );
     });

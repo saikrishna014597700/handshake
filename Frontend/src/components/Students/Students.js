@@ -41,7 +41,7 @@ class Students extends Component {
     const data = {
       studentId: this.state.studentId
     };
-    axios.get(`http://localhost:3001/student`).then(response => {
+    axios.get(`http://localhost:3001/allstudentDetails`).then(response => {
       //update the state with the response data
       console.log("res 2 is  :::", response);
       this.setState({

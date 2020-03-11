@@ -13,6 +13,18 @@ const jwt = require("jsonwebtoken");
 const exjwt = require("express-jwt");
 var aws = require("aws-sdk");
 require("dotenv").config();
+var multer = require("multer");
+
+var storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, "./Desktop/");
+  },
+  filename: function(req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+var upload = multer({ storage: storage }).single("file");
 
 //use cors to allow cross origin resource sharing
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -64,6 +76,19 @@ const jwtMW = exjwt({
 app.get("/", jwtMW /* Using the express jwt MW here */, (req, res) => {
   console.log("Web Token Checked.");
   res.send("You are authenticated"); //Sending some response when authenticated
+});
+
+app.post("/upload", function(req, res) {
+  upload(req, res, function(err) {
+    if (err instanceof multer.MulterError) {
+      console.log("1 is", err);
+      return res.status(500).json(err);
+    } else if (err) {
+      console.log("2 is", err);
+      return res.status(500).json(err);
+    }
+    return res.status(200).send(req.file);
+  });
 });
 
 //Route to handle Post Request Call
@@ -245,6 +270,46 @@ app.get("/studentjobs/:id", async function(req, response) {
   );
 });
 
+app.post("/studentjobsOnStatus/:id", async function(req, response) {
+  var studentId = req.params.id;
+  var status = req.body.status;
+  var data = [studentId, status];
+  console.log("Data is ", data);
+  connection.query(
+    "select * from jobPostings JOIN job_application where jobPostings.jobId = job_application.fk_jobId and job_application.studentId=? and applicationStatus = ?",
+    data,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  );
+});
+
+app.get("/studentAppliedjob/", async function(req, response) {
+  console.log("IN APPLOIEDDD", data);
+  var studentId = req.body.studentId;
+  var jobId = req.body.jobId;
+  var data = [jobId, studentId];
+  console.log("IN APPLOIEDDD", data);
+  connection.query(
+    "select * from job_application JOIN student where job_application.studentId = student.studentId and job_application.fk_jobId=? and job_application.studentId = ?",
+    data,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+        console.log("results HTMLTextAreaElement", results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  );
+});
+
 app.get("/getjobDetails/:id", async function(req, response) {
   connection.query(
     "SELECT * FROM jobPostings where jobId = ?",
@@ -279,6 +344,17 @@ app.get("/companyJobPostings/:id", async function(req, response) {
 app.post("/postJob", async function(req, response) {
   console.log("In postJob");
   var jobDetails = req.body;
+  var today = new Date();
+  var month = today.getMonth() + 1;
+  var day = today.getDate();
+  var year = today.getFullYear();
+  if (month < 10) {
+    month = "0" + month;
+  }
+  if (day < 10) {
+    day = "0" + day;
+  }
+  var todayDate = year + "/" + month + "/" + day;
   var data = [
     jobDetails.jobTitle,
     jobDetails.location,
@@ -289,11 +365,12 @@ app.post("/postJob", async function(req, response) {
     jobDetails.duties,
     jobDetails.requirements,
     jobDetails.qualifications,
+    todayDate,
     jobDetails.companyId
   ];
   console.log("data is", data);
   var jobQuery =
-    "INSERT INTO jobPostings SET jobTitle = ?,location = ?,applicationDeadline = ?,salary = ?, jobDescription = ?,jobCategory = ?,duties = ?,requirements = ?,qualifications = ?,fk_companyId=?";
+    "INSERT INTO jobPostings SET jobTitle = ?,location = ?,applicationDeadline = ?,salary = ?, jobDescription = ?,jobCategory = ?,duties = ?,requirements = ?,qualifications = ?,postingDate = ?,fk_companyId=?";
   results = await getResults(jobQuery, data);
   //console.log(results[1].job_desc);
   updateResult = await results;
@@ -371,8 +448,17 @@ app.get("/profileWorkDetails/:id", async function(req, response) {
 
 app.get("/events", async function(req, response) {
   var eventresult;
-  var eventQuery = "SELECT * FROM events";
+  var eventQuery = "SELECT * FROM events order by eventtime ASC";
   results = await getResults(eventQuery);
+  eventresult = await results;
+  response.send(eventresult);
+});
+
+app.get("/eventsRegistered/:id", async function(req, response) {
+  var studentId = req.params.id;
+  var eventQuery =
+    "SELECT * FROM events  JOIN events_registration where events.eventId = events_registration.fk_eventId and events_registration.studentId=? order by eventtime ASC";
+  results = await getResults(eventQuery, studentId);
   eventresult = await results;
   response.send(eventresult);
 });
@@ -446,7 +532,7 @@ app.get("/jobAppliedStudents/:id", async function(req, response) {
   response.send(studentresult);
 });
 
-app.get("/student", async function(req, response) {
+app.get("/allstudentDetails", async function(req, response) {
   var studentresult;
   var studentQuery = "SELECT * FROM student";
   results = await getResults(studentQuery);
@@ -456,10 +542,14 @@ app.get("/student", async function(req, response) {
 });
 
 app.get("/studentSearch/:name", async function(req, response) {
-  var data = ["%" + req.params.name + "%", "%" + req.params.name + "%"];
+  var data = [
+    "%" + req.params.name + "%",
+    "%" + req.params.name + "%",
+    "%" + req.params.name + "%"
+  ];
 
   connection.query(
-    `SELECT * FROM student where (firstName LIKE ? OR collegeName LIKE ? )`,
+    `SELECT * FROM student JOIN studentDetails ON student.studentId= studentDetails.studentId AND (student.firstName LIKE ? OR student.collegeName LIKE ? OR studentDetails.skillSet LIKE ?)`,
     data,
     function(error, results, fields) {
       console.log("Results areeeee", results);
@@ -483,7 +573,11 @@ app.get("/profilestudent/:id", async function(req, response) {
   results = await getResults(studentQuery, studentId);
   console.log("results are  ", results);
   studentresult = await results;
-  response.send(studentresult);
+  if (results.length > 0) {
+    response.send(studentresult);
+  } else {
+    response.send("No Job postings!");
+  }
 });
 
 app.get("/profileCompany/:id", async function(req, response) {
@@ -688,7 +782,7 @@ app.post("/applyToJob", async function(req, response) {
   var jobId = req.body.jobId;
   var companyId = req.body.companyId;
   var studentId = req.body.studentId;
-  var applicationStatus = "Applied";
+  var applicationStatus = "Pending";
   var today = new Date();
 
   var month = today.getMonth() + 1;

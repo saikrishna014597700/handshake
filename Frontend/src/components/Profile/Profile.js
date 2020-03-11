@@ -4,6 +4,7 @@ import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
+import listReactFiles from "list-react-files";
 import {
   fetchStudent,
   fetchStudentDetails,
@@ -47,9 +48,10 @@ class Profile extends Component {
             to={`/profile/carrierObjective/${myJourne.studentDetailsId}`}
             activeClassName="active"
           ></Link>
-
+          <h4>Carrier Objective</h4>
           <br />
-          <h4>{myJourne.carrierObjective}</h4>
+
+          <h5>{myJourne.carrierObjective}</h5>
         </div>
       );
     });
@@ -57,24 +59,24 @@ class Profile extends Component {
       studentBasicDetailResult => {
         return (
           <div class="card">
-            <h2>
+            <h3>
               {studentBasicDetailResult.firstName}{" "}
               {studentBasicDetailResult.lastName}
-            </h2>
+            </h3>
             <br />
-            <div class="wrapper">
+            <br />
+
+            <div class="wrapper2">
               <img src={require("../profile.jpg")} class="image--cover3"></img>
             </div>
             <br />
-            <h4>
-              {studentBasicDetailResult.presentlevelOfEducation} {"in"}{" "}
-              {studentBasicDetailResult.presentCourse}
-            </h4>
-            <h4>{studentBasicDetailResult.collegeName}</h4>
-            <h4>
-              {"Graduation Year: "}
+            <h5>Degree : {studentBasicDetailResult.presentlevelOfEducation}</h5>
+            <h5>Major : {studentBasicDetailResult.presentCourse}</h5>
+            <h5>University : {studentBasicDetailResult.collegeName}</h5>
+            <h5>
+              {"Graduation Year : "}
               {studentBasicDetailResult.graduationYear}
-            </h4>
+            </h5>
           </div>
         );
       }
@@ -83,17 +85,17 @@ class Profile extends Component {
       studentBasicDetailResult => {
         return (
           <div class="card">
-            <h3>Contact Information</h3>
+            <h4>Contact Information</h4>
             <br />
-            <h4>Phone Number : {studentBasicDetailResult.phoneNumber}</h4>
-            <h4>
+            <h5>Phone Number : {studentBasicDetailResult.phoneNumber}</h5>
+            <h5>
               Address : {studentBasicDetailResult.city}
               {","}
               {studentBasicDetailResult.state}
               {","}
               {studentBasicDetailResult.country}
-            </h4>
-            <h4>DOB : {studentBasicDetailResult.dob}</h4>
+            </h5>
+            <h5>DOB : {studentBasicDetailResult.dob}</h5>
           </div>
         );
       }
@@ -103,7 +105,7 @@ class Profile extends Component {
         return (
           <div>
             <br />
-            <h4>{studentBasicDetailResult.skillSet}</h4>
+            <h5>{studentBasicDetailResult.skillSet}</h5>
           </div>
         );
       }
@@ -115,11 +117,11 @@ class Profile extends Component {
         console.log("xxxx::::", studentAllEduDetailResult);
         return (
           <div class="card">
-            <h3>{studentAllEduDetailResult.collegeName}</h3>
-            <h4>{studentAllEduDetailResult.degree}</h4>
-            <h4>{studentAllEduDetailResult.major}</h4>
-            <h4>Year of Passing: {studentAllEduDetailResult.yearofPassing}</h4>
-            <h4>CGPA: {studentAllEduDetailResult.cgpa}</h4>
+            <h5>College Name : {studentAllEduDetailResult.collegeName}</h5>
+            <h5>Level of Education : {studentAllEduDetailResult.degree}</h5>
+            <h5>Major : {studentAllEduDetailResult.major}</h5>
+            <h5>Graduating Year : {studentAllEduDetailResult.yearofPassing}</h5>
+            <h5>CGPA : {studentAllEduDetailResult.cgpa}</h5>
           </div>
         );
       }
@@ -131,14 +133,14 @@ class Profile extends Component {
         console.log("xxxx::::", studentAllWorkDetailResult);
         return (
           <div class="card">
-            <h3>{studentAllWorkDetailResult.companyName}</h3>
-            <h4>{studentAllWorkDetailResult.title}</h4>
-            <h4>
+            <h5>{studentAllWorkDetailResult.companyName}</h5>
+            <h5>{studentAllWorkDetailResult.title}</h5>
+            <h5>
               {studentAllWorkDetailResult.startDate}
               {"-"}
               {studentAllWorkDetailResult.endDate}
-            </h4>
-            <h4>{studentAllWorkDetailResult.description}</h4>
+            </h5>
+            <h5>{studentAllWorkDetailResult.description}</h5>
           </div>
         );
       }
@@ -159,16 +161,15 @@ class Profile extends Component {
           </button>
           <div class="row">
             <div class="leftcolumn">
-              <h2>My Journey</h2>
               <div class="card">
                 <p>{myJourneys}</p>
               </div>
-              <br />
-              <h2 class="Profileheading">Education</h2>
+
+              <h4 class="Profileheading">Education</h4>
 
               {studentEducationDetails}
-              <br />
-              <h2 class="Profileheading">Work Experience</h2>
+
+              <h4 class="Profileheading">Work Experience</h4>
 
               {studentWorkDetails}
             </div>
@@ -176,7 +177,7 @@ class Profile extends Component {
               {studentDetails}
               {studentDetails2}
               <div class="card">
-                <h3>Skills</h3>
+                <h4>Skills</h4>
                 {studentDetails3}
               </div>
             </div>

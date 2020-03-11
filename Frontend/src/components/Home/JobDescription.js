@@ -47,6 +47,30 @@ class JobDescription extends Component {
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
+    let comyJobId = this.state.jobDetails.map(jobPosting => {
+      console.log("xxxx::::", jobPosting);
+      return (
+        <div class="card3">
+          <h4>Job Title : {jobPosting.jobTitle}</h4>
+          <h4>Category : {jobPosting.jobCategory}</h4>
+          <h4>Posting Date: {jobPosting.postingDate}</h4>
+          <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
+          <h4>Salary : {jobPosting.salary}</h4>
+          <br />
+          <br />
+          <h3>Job Description: </h3>
+          <h4>{jobPosting.jobdescription}</h4>
+          <h3>Job Duties: </h3>
+          <h4>{jobPosting.duties}</h4>
+          <h3>Job Qualification: </h3>
+          <h4>{jobPosting.qualifications}</h4>
+
+          <h3>Job Requirements: </h3>
+          <h4>{jobPosting.requirements}</h4>
+        </div>
+      );
+    });
+
     //iterate over books to create a table row
     let jobDetails = this.state.jobDetails.map(jobPosting => {
       console.log("xxxx::::", jobPosting);
@@ -54,21 +78,7 @@ class JobDescription extends Component {
         <div class="card3">
           <h4>Job Title : {jobPosting.jobTitle}</h4>
           <h4>Category : {jobPosting.jobCategory}</h4>
-          <h4>
-            Posting Date: {jobPosting.postingDate}
-            <button
-              class="btn success"
-              onClick={event =>
-                this.registerToJobDetails(
-                  event,
-                  jobPosting.jobId,
-                  jobPosting.fk_companyId
-                )
-              }
-            >
-              Apply
-            </button>
-          </h4>
+          <h4>Posting Date: {jobPosting.postingDate}</h4>
           <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
           <h4>Salary : {jobPosting.salary}</h4>
           <br />
@@ -132,6 +142,26 @@ class JobDescription extends Component {
           onClick={event => this.getAppliedStudents()}
         >
           Students Applied
+        </button>
+      );
+    }
+
+    if (
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "student"
+    ) {
+      viewRegisteredStudents = (
+        <button
+          class="btn success"
+          onClick={event =>
+            this.registerToJobDetails(
+              event,
+              this.props.match.params.id,
+              this.state.jobDetails[0].fk_companyId
+            )
+          }
+        >
+          Apply
         </button>
       );
     }

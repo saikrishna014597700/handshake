@@ -45,7 +45,7 @@ class StudentProfile extends Component {
             to={`/profile/carrierObjective/${myJourne.studentDetailsId}`}
             activeClassName="active"
           ></Link>
-
+          <h3>Carrier Objective</h3>
           <br />
           <h4>{myJourne.carrierObjective}</h4>
         </div>
@@ -149,7 +149,6 @@ class StudentProfile extends Component {
         <body>
           <div class="row">
             <div class="leftcolumn">
-              <h2>My Journey</h2>
               <div class="card">
                 <p>{myJourneys}</p>
               </div>

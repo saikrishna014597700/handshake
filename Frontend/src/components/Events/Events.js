@@ -3,44 +3,104 @@ import "../../App.css";
 import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import Popup from "../Popup/Popup";
 
 class Events extends Component {
   constructor() {
     super();
     this.state = {
       events: [],
-      showingAlert: false
+      showingAlert: false,
+      showPopup: false,
+      searchValue: "",
+      studentprofile: [],
+      studentMajor: ""
     };
+    this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
+
+    if (cookie.load("cookie")) {
+      axios
+        .get(
+          `http://localhost:3001/profilestudent/${
+            cookie.load("cookie").split("+")[0]
+          }`
+        )
+        .then(response => {
+          this.setState({
+            studentprofile: this.state.studentprofile.concat(response.data)
+          });
+          this.state.studentprofile.map(student => {
+            this.setState({
+              studentMajor: student.presentCourse
+            });
+          });
+        });
+      axios.get("http://localhost:3001/events").then(response => {
+        //update the state with the response data
+        console.log("res is  :::", response);
+        this.setState({
+          events: this.state.events.concat(response.data)
+        });
+      });
+    }
+  }
+
+  handleOnChange = event => {
+    this.setState({ searchValue: event.target.value });
+  };
+  handleSearch = () => {
+    var events = this.state.events
+      .filter(function(item) {
+        return item.eventName == this.state.searchValue;
+      })
+      .map(function({ eventName, eventLocation }) {
+        console.log(eventName, eventLocation);
+      });
+  };
+
+  viewRegisteredEvents() {
+    axios
+      .get(
+        `http://localhost:3001/eventsRegistered/${
+          cookie.load("cookie").split("+")[0]
+        }`
+      )
+      .then(response => {
+        this.setState({
+          upComingEvents: true
+        });
+        //update the state with the response data
+        console.log("res is  :::", response);
+        this.setState({
+          events: response.data
+        });
+      });
+  }
+
+  viewUpcomingEvents() {
     axios.get("http://localhost:3001/events").then(response => {
       //update the state with the response data
       console.log("res is  :::", response);
       this.setState({
-        events: this.state.events.concat(response.data)
+        events: response.data
       });
     });
   }
 
   render() {
     //iterate over books to create a table row
-    if (this.state.showingAlert) {
-      let alert = (
-        <div
-          className={`alert alert-success ${
-            this.state.showingAlert ? "alert-shown" : "alert-hidden"
-          }`}
-        >
-          <strong>Hurray!!</strong> You have successfully registered to this
-          event
-        </div>
-      );
-    }
-
     let events = this.state.events.map(event => {
+      if (event.eventtime) {
+        var eventTime = event.eventtime.slice(0, 10);
+      }
+      if (this.state.studentMajor === event.eventEligibility) {
+      }
       return (
         <div class="card2">
           <div class="wrapper">
@@ -49,7 +109,7 @@ class Events extends Component {
           <h4>Event Name : {event.eventName}</h4>
           <h4>Location : {event.eventLocation}</h4>
           <h4>
-            Event Date: {event.eventtime}
+            Event Date: {eventTime}
             <button
               class="btn success"
               onClick={event1 =>
@@ -77,12 +137,41 @@ class Events extends Component {
     }
     return (
       <div>
-        {alert}
-
         {redirectVar}
         <div class="row">
-          <h3 class="heading"> Upcoming Events</h3>
+          <h3 class="heading">
+            {" "}
+            Events
+            <button
+              class="btn5 success"
+              onClick={this.viewRegisteredEvents.bind(this)}
+            >
+              {" "}
+              Registered Events
+            </button>
+            <button
+              class="btn6 success"
+              onClick={this.viewUpcomingEvents.bind(this)}
+            >
+              {" "}
+              Upcoming Events
+            </button>
+          </h3>
           <br />
+          <br />
+          <div>
+            <input
+              name="text"
+              type="text"
+              class="searchComponent"
+              placeholder="  Search for an Event Name / Location"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
+            <button class="button" onClick={this.handleSearch}>
+              Search
+            </button>
+          </div>
           <div>{events}</div>
         </div>
       </div>

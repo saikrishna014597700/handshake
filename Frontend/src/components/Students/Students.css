@@ -1,0 +1,80 @@
+/* Add a card effect for articles */
+
+* {
+  box-sizing: border-box;
+}
+.card {
+  background-color: white;
+  padding: 30px;
+  /* padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 30px; */
+  margin-bottom: 30px;
+  border-radius: 5px;
+  border-color: rgb(221, 235, 248);
+}
+
+.card2 {
+  background-color: white;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 1%;
+  margin-right: 20%;
+  float: center;
+  border-radius: 7px;
+  border-color: rgb(221, 235, 248);
+  width: 100%;
+}
+.button10 {
+  padding: 12px 10px;
+  width: 40%;
+  border-radius: 4px;
+  background-color: #4286f4;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 18px;
+  float: center;
+  border-radius: 10px;
+}
+.searchComponent2 {
+  margin-left: 0px;
+  width: 80%;
+  height: 50px;
+  color: #353434;
+  font-size: 16px;
+  line-height: 50px;
+  padding: 10;
+  border-radius: 6px;
+}
+
+.leftcolumn2 {
+  float: left;
+  width: 25%;
+  padding-right: 10px;
+  margin-top: 60px;
+  margin-left: 50px;
+}
+
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Right column */
+.rightcolumn {
+  float: left;
+  width: 65%;
+  padding-left: 50px;
+  margin-top: 40px;
+  padding-right: 40px;
+}
+
+@media screen and (max-width: 800px) {
+  .leftcolumn,
+  .rightcolumn {
+    width: 80%;
+    padding: 0;
+  }
+}

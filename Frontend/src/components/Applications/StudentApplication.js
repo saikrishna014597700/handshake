@@ -9,9 +9,11 @@ class StudentApplication extends Component {
     super();
     this.state = {
       jobPostings: [],
-      redirect: null
+      redirect: null,
+      jobStatus: ""
     };
     this.getJobDetail = this.getJobDetail.bind(this);
+    this.handleStatusChange = this.handleStatusChange.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -32,13 +34,56 @@ class StudentApplication extends Component {
     }
   }
 
+  handleStatusChange = e => {
+    if (e.target.value === "Applied Jobs") {
+      axios
+        .get(
+          `http://localhost:3001/studentjobs/${
+            cookie.load("cookie").split("+")[0]
+          }`
+        )
+        .then(response => {
+          //update the state with the response data
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            this.setState({
+              jobPostings: response.data
+            });
+          }
+        });
+    } else {
+      const data = {
+        status: e.target.value
+      };
+      console.log("Data is", data);
+      axios
+        .post(
+          `http://localhost:3001/studentjobsOnStatus/${
+            cookie.load("cookie").split("+")[0]
+          }`,
+          data
+        )
+        .then(response => {
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            console.log("response is", response);
+            //update the state with the response data
+            this.setState({
+              jobPostings: response.data
+            });
+          }
+        });
+    }
+  };
+
   render() {
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
     //iterate over books to create a table row
     let jobPostings = this.state.jobPostings.map(jobPosting => {
-      console.log("xxxx::::", jobPosting);
       return (
         <div class="card2">
           <div class="wrapper">
@@ -69,7 +114,22 @@ class StudentApplication extends Component {
       <div>
         {redirectVar}
         <div class="row">
-          <h3 class="heading"> Job Postings</h3>
+          <h3 class="heading">
+            Jobs Applied
+            <select
+              placeholder="Select Status"
+              defaultValue=""
+              class="editableinput10"
+              name="jobStatus"
+              onChange={e => this.handleStatusChange(e)}
+            >
+              <option value="Applied Jobs">Applied Jobs</option>
+              <option value="Pending">Pending</option>
+              <option value="Reviewed">Reviewed</option>
+              <option value="Declined">Declined</option>
+              <option value="Accepted">Accepted</option>
+            </select>
+          </h3>
           <br />
           <div>{jobPostings}</div>
         </div>

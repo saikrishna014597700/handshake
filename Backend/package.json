@@ -19,9 +19,12 @@
     "express-sessions": "^1.0.6",
     "jsonwebtoken": "^8.5.1",
     "mocha": "^5.2.0",
+    "multer": "^1.4.2",
     "mysql": "^2.18.1",
+    "path": "^0.12.7",
     "react-bootstrap": "^1.0.0-beta.16",
     "react-redux": "^7.2.0",
+    "react-select": "^3.0.8",
     "react-thunk": "^1.0.0",
     "redux-thunk": "^2.3.0",
     "util": "^0.12.1"

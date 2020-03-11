@@ -91,16 +91,6 @@ class Navbar extends Component {
         <div class="navbar-header">
           <a class="navbar-brand">Handshake</a>
           <ul class="nav navbar-nav">
-            <li>
-              <div class="active-cyan-3 active-cyan-4 mb-4">
-                <input
-                  class="form-control"
-                  type="text"
-                  placeholder="Search"
-                  aria-label="Search"
-                />
-              </div>
-            </li>
             <li class="li-class">
               <Link to="/companyDashboard">Dashboard</Link>
             </li>

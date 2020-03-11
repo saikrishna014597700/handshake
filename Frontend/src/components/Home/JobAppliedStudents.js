@@ -13,7 +13,8 @@ class JobAppliedStudents extends Component {
       studentAllDetailsResult: [],
       redirect: null,
       searchValue: "",
-      status: ""
+      status: "",
+      status2: "Applied"
     };
     this.getProfileDetails = this.getProfileDetails.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
@@ -86,7 +87,6 @@ class JobAppliedStudents extends Component {
     //iterate over books to create a table row
     let studentDetails = this.state.studentBasicDetailsResult.map(
       studentBasicDetailResult => {
-        console.log("Student is ", studentBasicDetailResult);
         return (
           <div class="card2">
             <div class="wrapper">
@@ -121,47 +121,24 @@ class JobAppliedStudents extends Component {
                 this.handleSubmit(e, studentBasicDetailResult.studentId)
               }
             >
-              <label>
-                <input
-                  type="radio"
-                  value="Pending"
-                  checked={this.state.status === "Pending"}
-                  onChange={this.handleChange2}
-                />
-                Pending
+              <label style={{ marginTop: "6px", marginLeft: "40px" }}>
+                Status :
+                <select
+                  defaultValue={studentBasicDetailResult.applicationStatus}
+                  onChange={e => this.handleChange2(e)}
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Reviewed">Reviewed</option>
+                  <option value="Declined">Declined</option>
+                  <option value="Accepted">Accepted</option>
+                </select>
               </label>
-
-              <label>
-                <input
-                  type="radio"
-                  value="Reviewed"
-                  checked={this.state.status === "Reviewed"}
-                  onChange={this.handleChange2}
-                />
-                Reviewed
-              </label>
-
-              <label>
-                <input
-                  type="radio"
-                  value="Declined"
-                  checked={this.state.status === "Declined"}
-                  onChange={this.handleChange2}
-                />
-                Declined
-              </label>
-
-              <label>
-                <input
-                  type="radio"
-                  value="Accepted"
-                  checked={this.state.status === "Accepted"}
-                  onChange={this.handleChange2}
-                />
-                Accepted
-              </label>
-
-              <button type="submit">Update Status</button>
+              <button
+                type="submit"
+                style={{ marginTop: "6px", marginLeft: "20px" }}
+              >
+                Update Status
+              </button>
             </form>
           </div>
         );

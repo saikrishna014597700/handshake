@@ -55,12 +55,16 @@ class Events extends Component {
     this.setState({ searchValue: event.target.value });
   };
   handleSearch = () => {
-    var events = this.state.events
-      .filter(function(item) {
-        return item.eventName == this.state.searchValue;
-      })
-      .map(function({ eventName, eventLocation }) {
-        console.log(eventName, eventLocation);
+    axios
+      .get(`http://localhost:3001/eventSearch/${this.state.searchValue}`)
+      .then(response => {
+        if (response.data === "No event postings!") {
+          alert(response.data);
+        } else {
+          this.setState({
+            events: response.data
+          });
+        }
       });
   };
 

@@ -103,7 +103,7 @@ class Navbar extends Component {
             </li>
 
             <li>
-              <Link to="/companyprofile">Profile</Link>
+              <Link to="/companyprofile/:id">Profile</Link>
             </li>
           </ul>
         </div>

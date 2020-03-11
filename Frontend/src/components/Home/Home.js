@@ -9,9 +9,12 @@ class Home extends Component {
     super();
     this.state = {
       jobPostings: [],
-      redirect: null
+      redirect: null,
+      searchValue: ""
     };
     this.getJobDetail = this.getJobDetail.bind(this);
+    this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -23,6 +26,62 @@ class Home extends Component {
       });
     });
   }
+
+  handleOnChange = event => {
+    this.setState({ searchValue: event.target.value });
+  };
+  handleSearch = () => {
+    axios
+      .get(`http://localhost:3001/jobPostingSearch/${this.state.searchValue}`)
+      .then(response => {
+        if (response.data === "No Job postings!") {
+          alert(response.data);
+        } else {
+          this.setState({
+            jobPostings: response.data
+          });
+        }
+      });
+  };
+
+  handleStatusChange = e => {
+    if (e.target.value === "All Jobs") {
+      axios
+        .get(`http://localhost:3001/jobPostingSearch/${this.state.searchValue}`)
+        .then(response => {
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            this.setState({
+              jobPostings: response.data
+            });
+          }
+        });
+    } else {
+      const data = {
+        status: e.target.value
+      };
+      console.log("Data is", data);
+      axios
+        .post(
+          `http://localhost:3001/studentjobsOnCategory/${
+            cookie.load("cookie").split("+")[0]
+          }`,
+          data
+        )
+        .then(response => {
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            console.log("response is", response);
+            //update the state with the response data
+            this.setState({
+              jobPostings: response.data
+            });
+          }
+        });
+    }
+  };
 
   render() {
     if (this.state.redirect) {
@@ -49,7 +108,7 @@ class Home extends Component {
           </h4>
           {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
           <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
-          <h4>Salary : {jobPosting.salary}</h4>
+          <h4>Location : {jobPosting.jobLocation}</h4>
         </div>
       );
     });
@@ -62,8 +121,38 @@ class Home extends Component {
       <div>
         {redirectVar}
         <div class="row">
-          <h3 class="heading"> Job Postings</h3>
+          <h3 class="heading">
+            {" "}
+            Job Postings
+            <select
+              placeholder="Select Status"
+              defaultValue=""
+              class="editableinput10"
+              name="jobStatus"
+              onChange={e => this.handleStatusChange(e)}
+            >
+              <option value="All Jobs">All Jobs</option>
+              <option value="Part Time">Part Time</option>
+              <option value="On Campus">On Campus</option>
+              <option value="Internship">Internship</option>
+              <option value="Full Time">Full Time</option>
+            </select>
+          </h3>
           <br />
+          <br />
+          <div>
+            <input
+              name="text"
+              type="text"
+              class="searchComponent"
+              placeholder="  Search for an Job Posting with Title / Location / company Name"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
+            <button class="button" onClick={this.handleSearch}>
+              Search
+            </button>
+          </div>
           <div>{jobPostings}</div>
         </div>
       </div>

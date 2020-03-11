@@ -15,6 +15,7 @@ class JobDescription extends Component {
     };
     this.registerToJobDetails = this.registerToJobDetails.bind(this);
     this.getAppliedStudents = this.getAppliedStudents.bind(this);
+    this.gotoCompanyProfile = this.gotoCompanyProfile.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -107,15 +108,11 @@ class JobDescription extends Component {
           <br />
           <button
             class="btn success"
-            // onClick={event =>
-            //   this.registerToJobDetails(
-            //     event,
-            //     jobPosting.jobId,
-            //     jobPosting.fk_companyId
-            //   )
-            // }
+            onClick={event =>
+              this.gotoCompanyProfile(event, companyDetail.companyId)
+            }
           >
-            Profile
+            View Profile
           </button>
           <br />
           <br />
@@ -214,6 +211,12 @@ class JobDescription extends Component {
   getAppliedStudents() {
     this.setState({
       redirect: `/jobAppliedStudents/${this.props.match.params.id}`
+    });
+  }
+
+  gotoCompanyProfile(e, id) {
+    this.setState({
+      redirect: `/profileCompany/${id}`
     });
   }
 }

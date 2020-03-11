@@ -20,13 +20,16 @@ class CompanyDashboard extends Component {
       duties: "",
       requirements: "",
       qualifications: "",
-      jobCategory: "Full Time"
+      jobCategory: "Full Time",
+      searchValue: ""
     };
     this.getJobDetail = this.getJobDetail.bind(this);
     this.createJob = this.createJob.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.submitJobPosting = this.submitJobPosting.bind(this);
     this.cancelJobPosting = this.cancelJobPosting.bind(this);
+    this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -47,6 +50,71 @@ class CompanyDashboard extends Component {
         });
     }
   }
+
+  handleOnChange = event => {
+    this.setState({ searchValue: event.target.value });
+  };
+
+  handleSearch = () => {
+    if (cookie.load("cookie")) {
+      const data = {
+        companyId: cookie.load("cookie").split("+")[0]
+      };
+      axios
+        .post(
+          `http://localhost:3001/companyjobPostingSearch/${this.state.searchValue}`,
+          data
+        )
+        .then(response => {
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            this.setState({
+              companyJobPostings: response.data
+            });
+          }
+        });
+    }
+  };
+
+  handleStatusChange = e => {
+    if (e.target.value === "All Jobs") {
+      axios
+        .get(`http://localhost:3001/jobPostingSearch/${this.state.searchValue}`)
+        .then(response => {
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            this.setState({
+              jobPostings: response.data
+            });
+          }
+        });
+    } else {
+      const data = {
+        status: e.target.value
+      };
+      console.log("Data is", data);
+      axios
+        .post(
+          `http://localhost:3001/studentjobsOnCategory/${
+            cookie.load("cookie").split("+")[0]
+          }`,
+          data
+        )
+        .then(response => {
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            console.log("response is", response);
+            //update the state with the response data
+            this.setState({
+              jobPostings: response.data
+            });
+          }
+        });
+    }
+  };
 
   handleChange = (e, name) => {
     console.log(name, this.state.qualifications);
@@ -321,8 +389,20 @@ class CompanyDashboard extends Component {
       <div>
         {redirectVar}
         <div class="row">
-          <h3 class="heading">
-            {" "}
+          <h3>
+            <select
+              placeholder="Select Status"
+              defaultValue=""
+              class="editableinput11"
+              name="jobStatus"
+              onChange={e => this.handleStatusChange(e)}
+            >
+              <option value="All Jobs">All Jobs</option>
+              <option value="Part Time">Part Time</option>
+              <option value="On Campus">On Campus</option>
+              <option value="Internship">Internship</option>
+              <option value="Full Time">Full Time</option>
+            </select>
             Job Postings
             <button
               class="btn3 success"
@@ -332,6 +412,20 @@ class CompanyDashboard extends Component {
             </button>
           </h3>
           <br />
+          <br />
+          <div>
+            <input
+              name="text"
+              type="text"
+              class="searchComponent"
+              placeholder="  Search for an Job Posting with Title / Location / company Name"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
+            <button class="button" onClick={this.handleSearch}>
+              Search
+            </button>
+          </div>
           {createJob}
           <br />
           <div>{companyJobPosting}</div>

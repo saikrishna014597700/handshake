@@ -240,18 +240,18 @@ app.post("/register", function(req, res) {
 });
 
 app.get("/home", async function(req, response) {
-  connection.query("SELECT * FROM jobPostings", null, function(
-    error,
-    results,
-    fields
-  ) {
-    if (results.length > 0) {
-      response.send(results);
-    } else {
-      response.send("No Job postings!");
+  connection.query(
+    "SELECT * FROM jobPostings JOIN company ON jobPostings.fk_companyId=company.companyId",
+    null,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
     }
-    // response.end();
-  });
+  );
 });
 
 app.get("/studentjobs/:id", async function(req, response) {
@@ -278,6 +278,25 @@ app.post("/studentjobsOnStatus/:id", async function(req, response) {
   connection.query(
     "select * from jobPostings JOIN job_application where jobPostings.jobId = job_application.fk_jobId and job_application.studentId=? and applicationStatus = ?",
     data,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  );
+});
+
+app.post("/studentjobsOnCategory/:id", async function(req, response) {
+  var studentId = req.params.id;
+  var status = req.body.status;
+  var data = [studentId, status];
+  console.log("Data is ", data);
+  connection.query(
+    "select * from jobPostings where jobCategory LIKE ?",
+    status,
     function(error, results, fields) {
       if (results.length > 0) {
         response.send(results);
@@ -559,6 +578,78 @@ app.get("/studentSearch/:name", async function(req, response) {
           response.send(results);
         } else {
           response.send("No Job postings!");
+        }
+      }
+      // response.end();
+    }
+  );
+});
+
+app.get("/eventSearch/:name", async function(req, response) {
+  var data = ["%" + req.params.name + "%", "%" + req.params.name + "%"];
+
+  connection.query(
+    `SELECT * FROM events  WHERE eventName LIKE ? OR eventLocation LIKE ?`,
+    data,
+    function(error, results, fields) {
+      console.log("Results areeeee", results);
+      if (results) {
+        if (results.length > 0) {
+          console.log("Results areeeee", results);
+          response.send(results);
+        } else {
+          response.send("No event postings!");
+        }
+      }
+      // response.end();
+    }
+  );
+});
+
+app.get("/jobPostingSearch/:name", async function(req, response) {
+  var data = [
+    "%" + req.params.name + "%",
+    "%" + req.params.name + "%",
+    "%" + req.params.name + "%"
+  ];
+
+  connection.query(
+    `SELECT * FROM jobPostings JOIN company ON jobPostings.fk_companyId=company.companyId  WHERE (jobPostings.jobTitle LIKE ? OR jobPostings.jobLocation LIKE ? OR company.companyName LIKE ?)`,
+    data,
+    function(error, results, fields) {
+      console.log("Results areeeee", results);
+      if (results) {
+        if (results.length > 0) {
+          console.log("Results areeeee", results);
+          response.send(results);
+        } else {
+          response.send("No job postings!");
+        }
+      }
+      // response.end();
+    }
+  );
+});
+
+app.post("/companyjobPostingSearch/:name", async function(req, response) {
+  var data = [
+    "%" + req.params.name + "%",
+    "%" + req.params.name + "%",
+    "%" + req.params.name + "%",
+    req.body.companyId
+  ];
+  console.log("In data", data);
+  connection.query(
+    `SELECT * FROM jobPostings JOIN company ON jobPostings.fk_companyId=company.companyId  WHERE (jobPostings.jobTitle LIKE ? OR jobPostings.jobLocation LIKE ? OR company.companyName LIKE ?) AND jobPostings.fk_companyId=?`,
+    data,
+    function(error, results, fields) {
+      console.log("Results areeeee", results);
+      if (results) {
+        if (results.length > 0) {
+          console.log("Results areeeee", results);
+          response.send(results);
+        } else {
+          response.send("No job postings!");
         }
       }
       // response.end();

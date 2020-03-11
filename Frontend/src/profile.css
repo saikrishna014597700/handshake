@@ -168,6 +168,18 @@ body {
   height: 30px;
   margin-left: 140px;
 }
+.editableinput11 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 280px;
+  height: 30px;
+  margin-left: 200px;
+}
 img {
   float: right;
 }
@@ -406,7 +418,7 @@ card6 {
   padding: 12px 24px;
   font-size: 16px;
   cursor: pointer;
-  margin-right: 180px;
+  margin-right: 340px;
   float: right;
   width: 160px;
   border-radius: 6px;

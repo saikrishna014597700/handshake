@@ -20,8 +20,17 @@ class CompanyProfile extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("this.props", this.props);
-    if (cookie.load("cookie")) {
-      var companyId = cookie.load("cookie").split("+")[0];
+    var companyId = "";
+    if (
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "company"
+    ) {
+      companyId = cookie.load("cookie").split("+")[0];
+      console.log("this.props 1", companyId);
+      this.props.fetchCompanyProfile(companyId);
+    } else {
+      companyId = this.props.match.params.id;
+      console.log("this.props 2", companyId);
       this.props.fetchCompanyProfile(companyId);
     }
   }

@@ -78,26 +78,30 @@ class CompanyDashboard extends Component {
   };
 
   handleStatusChange = e => {
+    console.log("e.target.value", e.target.value);
     if (e.target.value === "All Jobs") {
       axios
-        .get(`http://localhost:3001/jobPostingSearch/${this.state.searchValue}`)
+        .get(
+          `http://localhost:3001/companyJobPostings/${
+            cookie.load("cookie").split("+")[0]
+          }`
+        )
         .then(response => {
-          if (response.data === "No Job postings!") {
-            alert(response.data);
-          } else {
-            this.setState({
-              jobPostings: response.data
-            });
-          }
+          this.setState({
+            companyJobPostings: this.state.companyJobPostings.concat(
+              response.data
+            )
+          });
         });
     } else {
       const data = {
-        status: e.target.value
+        category: e.target.value,
+        searchValue: this.state.searchValue
       };
       console.log("Data is", data);
       axios
         .post(
-          `http://localhost:3001/studentjobsOnCategory/${
+          `http://localhost:3001/companyjobPostingSearchOnCategory/${
             cookie.load("cookie").split("+")[0]
           }`,
           data
@@ -109,7 +113,7 @@ class CompanyDashboard extends Component {
             console.log("response is", response);
             //update the state with the response data
             this.setState({
-              jobPostings: response.data
+              companyJobPostings: response.data
             });
           }
         });
@@ -389,20 +393,7 @@ class CompanyDashboard extends Component {
       <div>
         {redirectVar}
         <div class="row">
-          <h3>
-            <select
-              placeholder="Select Status"
-              defaultValue=""
-              class="editableinput11"
-              name="jobStatus"
-              onChange={e => this.handleStatusChange(e)}
-            >
-              <option value="All Jobs">All Jobs</option>
-              <option value="Part Time">Part Time</option>
-              <option value="On Campus">On Campus</option>
-              <option value="Internship">Internship</option>
-              <option value="Full Time">Full Time</option>
-            </select>
+          <h3 class="heading">
             Job Postings
             <button
               class="btn3 success"
@@ -417,11 +408,24 @@ class CompanyDashboard extends Component {
             <input
               name="text"
               type="text"
-              class="searchComponent"
+              class="searchComponent3"
               placeholder="  Search for an Job Posting with Title / Location / company Name"
               onChange={event => this.handleOnChange(event)}
               value={this.state.searchValue}
             />
+            <select
+              placeholder="Select Status"
+              defaultValue=""
+              class="editableinput11"
+              name="jobStatus"
+              onChange={e => this.handleStatusChange(e)}
+            >
+              <option value="All Jobs">All Jobs</option>
+              <option value="Part Time">Part Time</option>
+              <option value="On Campus">On Campus</option>
+              <option value="Internship">Internship</option>
+              <option value="Full Time">Full Time</option>
+            </select>
             <button class="button" onClick={this.handleSearch}>
               Search
             </button>

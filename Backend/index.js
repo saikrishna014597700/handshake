@@ -657,6 +657,36 @@ app.post("/companyjobPostingSearch/:name", async function(req, response) {
   );
 });
 
+app.post("/companyjobPostingSearchOnCategory/:companyId", async function(
+  req,
+  response
+) {
+  var data = [
+    "%" + req.body.searchValue + "%",
+    "%" + req.body.searchValue + "%",
+    "%" + req.body.searchValue + "%",
+    "%" + req.body.category + "%",
+    req.params.companyId
+  ];
+  console.log("In data", data);
+  connection.query(
+    `SELECT * FROM jobPostings JOIN company ON jobPostings.fk_companyId=company.companyId  WHERE (jobPostings.jobTitle LIKE ? OR jobPostings.jobLocation LIKE ? OR company.companyName LIKE ?) AND jobPostings.jobCategory LIKE ? AND jobPostings.fk_companyId=?`,
+    data,
+    function(error, results, fields) {
+      console.log("Results areeeee", results);
+      if (results) {
+        if (results.length > 0) {
+          console.log("Results areeeee", results);
+          response.send(results);
+        } else {
+          response.send("No job postings!");
+        }
+      }
+      // response.end();
+    }
+  );
+});
+
 app.get("/profilestudent/:id", async function(req, response) {
   var studentId = req.params.id;
   console.log("In student", studentId);

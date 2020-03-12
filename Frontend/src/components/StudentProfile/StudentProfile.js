@@ -22,6 +22,7 @@ class StudentProfile extends Component {
       studentBasicDetails: []
     };
     this.props = this.initialState;
+    this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -37,6 +38,11 @@ class StudentProfile extends Component {
     this.props.history.push("/UpdateProfile");
   }
 
+  buildAvatarUrl(fileName) {
+    console.log("calling jaffa", fileName);
+    return "http://localhost:3001/file/" + fileName + "/?role=students";
+  }
+
   render() {
     let myJourneys = this.props.studentBasicDetails.map(myJourne => {
       return (
@@ -45,34 +51,62 @@ class StudentProfile extends Component {
             to={`/profile/carrierObjective/${myJourne.studentDetailsId}`}
             activeClassName="active"
           ></Link>
-          <h3>Carrier Objective</h3>
+          <h4>
+            <b>Carrier Objective</b>
+          </h4>
           <br />
-          <h4>{myJourne.carrierObjective}</h4>
+          <h5>{myJourne.carrierObjective}</h5>
         </div>
       );
+    });
+    let profilePic = this.props.studentObject.map(obj => {
+      if (obj.studentProfilePic) {
+        var path = obj.studentProfilePic;
+        console.log("Jaffapath,", path);
+        return (
+          <div key={obj.studentId} className="wrapper2">
+            <img
+              src={this.buildAvatarUrl(path)}
+              className="image--cover3"
+              alt="Loading.."
+            />
+          </div>
+        );
+      } else {
+        var path4 = "default.png";
+        return (
+          <div key={obj.studentId} className="wrapper2">
+            <img
+              src={this.buildAvatarUrl(path4)}
+              className="image--cover3"
+              alt="Loading.."
+            />
+          </div>
+        );
+      }
     });
     let studentDetails = this.props.studentObject.map(
       studentBasicDetailResult => {
         return (
           <div class="card">
-            <h2>
+            <h3>
               {studentBasicDetailResult.firstName}{" "}
               {studentBasicDetailResult.lastName}
-            </h2>
-            <br />
-            <div class="wrapper">
-              <img src={require("../profile.jpg")} class="image--cover3"></img>
-            </div>
+            </h3>
             <br />
             <br />
-            <h4>
+            {profilePic}
+            <br />
+            <br />
+            <h5>
+              <b>{"Education : "}</b>
               {studentBasicDetailResult.presentlevelOfEducation} {"in"}{" "}
               {studentBasicDetailResult.presentCourse}
-            </h4>
-            <h4>
-              {"Graduation Year: "}
+            </h5>
+            <h5>
+              <b>{"Graduation Year : "}</b>
               {studentBasicDetailResult.graduationYear}
-            </h4>
+            </h5>
           </div>
         );
       }
@@ -81,17 +115,23 @@ class StudentProfile extends Component {
       studentBasicDetailResult => {
         return (
           <div class="card">
-            <h3>Contact Information</h3>
-            <br />
-            <h4>Phone Number : {studentBasicDetailResult.phoneNumber}</h4>
             <h4>
-              Address : {studentBasicDetailResult.city}
+              <b>Contact Information</b>
+            </h4>
+            <br />
+            <h5>
+              <b>Phone Number </b>: {studentBasicDetailResult.phoneNumber}
+            </h5>
+            <h5>
+              <b>Address </b>: {studentBasicDetailResult.city}
               {","}
               {studentBasicDetailResult.state}
               {","}
               {studentBasicDetailResult.country}
-            </h4>
-            <h4>DOB : {studentBasicDetailResult.dob}</h4>
+            </h5>
+            <h5>
+              <b>DOB </b>: {studentBasicDetailResult.dob}
+            </h5>
           </div>
         );
       }
@@ -101,7 +141,7 @@ class StudentProfile extends Component {
         return (
           <div>
             <br />
-            <h4>{studentBasicDetailResult.skillSet}</h4>
+            <h5>{studentBasicDetailResult.skillSet}</h5>
           </div>
         );
       }
@@ -110,13 +150,24 @@ class StudentProfile extends Component {
     //iterate over books to create a table row
     let studentEducationDetails = this.props.studentEducation.map(
       studentAllEduDetailResult => {
+        console.log("xxxx::::", studentAllEduDetailResult);
         return (
           <div class="card">
-            <h3>{studentAllEduDetailResult.collegeName}</h3>
-            <h4>{studentAllEduDetailResult.degree}</h4>
-            <h4>{studentAllEduDetailResult.major}</h4>
-            <h4>Year of Passing: {studentAllEduDetailResult.yearofPassing}</h4>
-            <h4>CGPA: {studentAllEduDetailResult.cgpa}</h4>
+            <h5>
+              <b>College</b> : {studentAllEduDetailResult.collegeName}
+            </h5>
+            <h5>
+              <b>Degree </b>: {studentAllEduDetailResult.degree}
+            </h5>
+            <h5>
+              <b>Major </b>: {studentAllEduDetailResult.major}
+            </h5>
+            <h5>
+              <b>CGPA </b>: {studentAllEduDetailResult.cgpa}
+            </h5>
+            <h5>
+              <b>Graduating Year</b> : {studentAllEduDetailResult.yearofPassing}
+            </h5>
           </div>
         );
       }
@@ -125,20 +176,28 @@ class StudentProfile extends Component {
     //iterate over books to create a table row
     let studentWorkDetails = this.props.studentExperience.map(
       studentAllWorkDetailResult => {
+        console.log("xxxx::::", studentAllWorkDetailResult);
         return (
           <div class="card">
-            <h3>{studentAllWorkDetailResult.companyName}</h3>
-            <h4>{studentAllWorkDetailResult.title}</h4>
-            <h4>
-              {studentAllWorkDetailResult.startDate}
+            <h5>
+              <b>Company</b> : {studentAllWorkDetailResult.companyName}
+            </h5>
+            <h5>
+              <b>Title</b> : {studentAllWorkDetailResult.title}
+            </h5>
+            <h5>
+              <b>Duration</b> : {studentAllWorkDetailResult.startDate}
               {"-"}
               {studentAllWorkDetailResult.endDate}
-            </h4>
-            <h4>{studentAllWorkDetailResult.description}</h4>
+            </h5>
+            <h5>
+              <b>Description</b> : {studentAllWorkDetailResult.description}
+            </h5>
           </div>
         );
       }
     );
+
     let redirectVar = null;
     if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
@@ -153,11 +212,15 @@ class StudentProfile extends Component {
                 <p>{myJourneys}</p>
               </div>
               <br />
-              <h2 class="Profileheading">Education</h2>
+              <h4 class="Profileheading">
+                <b>Education</b>
+              </h4>
 
               {studentEducationDetails}
               <br />
-              <h2 class="Profileheading">Work Experience</h2>
+              <h4 class="Profileheading">
+                <b>Work Experience</b>
+              </h4>
 
               {studentWorkDetails}
             </div>
@@ -165,14 +228,16 @@ class StudentProfile extends Component {
               {studentDetails}
               {studentDetails2}
               <div class="card">
-                <h3>Skills</h3>
+                <h4>
+                  <b>Skills</b>
+                </h4>
                 {studentDetails3}
               </div>
             </div>
           </div>
 
           <div class="footer">
-            <h2></h2>
+            <h4></h4>
           </div>
         </body>
       </div>

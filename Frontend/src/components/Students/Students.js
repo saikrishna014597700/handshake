@@ -77,7 +77,7 @@ class Students extends Component {
         return (
           <div class="card2">
             <div class="wrapper">
-              <img src={require("../profile.jpg")} class="image--cover2"></img>
+              <img src={require("../default.png")} class="image--cover2"></img>
             </div>
             <h4>
               Student Name : {studentBasicDetailResult.firstName}{" "}

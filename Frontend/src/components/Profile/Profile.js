@@ -202,6 +202,7 @@ class Profile extends Component {
         );
       }
     );
+
     let redirectVar = null;
     if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;

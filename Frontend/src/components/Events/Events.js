@@ -263,6 +263,7 @@ class Events extends Component {
           this.setState({
             showingAlert: true
           });
+          alert("Successfully Registered for this event");
         } else {
           console.log("Error Registering for this event");
         }

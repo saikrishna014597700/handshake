@@ -29,24 +29,27 @@ class CompanyEvents extends Component {
 
   //get the books data from backend
   componentDidMount() {
-    console.log("Cookie is", cookie.load("cookie").split("+")[0]);
-    this.setState({
-      companyId: cookie.load("cookie").split("+")[0]
-    });
-    console.log("in componentDidMount", this.state.companyId);
-    axios
-      .get(
-        `http://localhost:3001/companyevents/${
-          cookie.load("cookie").split("+")[0]
-        }`
-      )
-      .then(response => {
-        //update the state with the response data
-        console.log("res is  :::", response);
-        this.setState({
-          events: this.state.events.concat(response.data)
-        });
+    if (cookie.load("cookie")) {
+      this.setState({
+        companyId: cookie.load("cookie").split("+")[0]
       });
+    }
+    console.log("in componentDidMount", this.state.companyId);
+    if (cookie.load("cookie")) {
+      axios
+        .get(
+          `http://localhost:3001/companyevents/${
+            cookie.load("cookie").split("+")[0]
+          }`
+        )
+        .then(response => {
+          //update the state with the response data
+          console.log("res is  :::", response);
+          this.setState({
+            events: this.state.events.concat(response.data)
+          });
+        });
+    }
   }
 
   handleChange = (e, name) => {

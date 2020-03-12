@@ -87,8 +87,9 @@ class UpdateProfile extends Component {
   }
   //get the books data from backend
   componentDidMount() {
-    console.log("this.props", cookie.load("cookie").split("+"));
-    var studentId = cookie.load("cookie").split("+")[0];
+    if (cookie.load("cookie")) {
+      var studentId = cookie.load("cookie").split("+")[0];
+    }
     this.setState({
       studentId: studentId
     });

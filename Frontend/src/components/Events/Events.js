@@ -52,24 +52,26 @@ class Events extends Component {
       });
       if (cookie.load("cookie")) {
         var eventIdss = [];
-        axios
-          .get(
-            `http://localhost:3001/getStudentRegisteredEvents/${
-              cookie.load("cookie").split("+")[0]
-            }`
-          )
-          .then(response => {
-            //update the state with the response data
-            this.setState({
-              registeredEvents: response.data
+        if (cookie.load("cookie")) {
+          axios
+            .get(
+              `http://localhost:3001/getStudentRegisteredEvents/${
+                cookie.load("cookie").split("+")[0]
+              }`
+            )
+            .then(response => {
+              //update the state with the response data
+              this.setState({
+                registeredEvents: response.data
+              });
+              this.state.registeredEvents.map(registeredEvent => {
+                eventIdss.push(registeredEvent.fk_eventId);
+              });
+              this.setState({
+                registeredEventIds: eventIdss
+              });
             });
-            this.state.registeredEvents.map(registeredEvent => {
-              eventIdss.push(registeredEvent.fk_eventId);
-            });
-            this.setState({
-              registeredEventIds: eventIdss
-            });
-          });
+        }
       }
     }
   }
@@ -92,22 +94,24 @@ class Events extends Component {
   };
 
   viewRegisteredEvents() {
-    axios
-      .get(
-        `http://localhost:3001/eventsRegistered/${
-          cookie.load("cookie").split("+")[0]
-        }`
-      )
-      .then(response => {
-        this.setState({
-          upComingEvents: true
+    if (cookie.load("cookie")) {
+      axios
+        .get(
+          `http://localhost:3001/eventsRegistered/${
+            cookie.load("cookie").split("+")[0]
+          }`
+        )
+        .then(response => {
+          this.setState({
+            upComingEvents: true
+          });
+          //update the state with the response data
+          console.log("res is  :::", response);
+          this.setState({
+            events: response.data
+          });
         });
-        //update the state with the response data
-        console.log("res is  :::", response);
-        this.setState({
-          events: response.data
-        });
-      });
+    }
   }
 
   viewUpcomingEvents() {
@@ -125,20 +129,41 @@ class Events extends Component {
     let events = this.state.events.map(event => {
       let viewButton = "";
       if (!this.state.registeredEventIds.includes(event.eventId)) {
-        viewButton = (
-          <button
-            class="btn success"
-            onClick={event1 =>
-              this.registerToEventDetails(
-                event1,
-                event.eventId,
-                event.fk_companyId
-              )
-            }
-          >
-            Register
-          </button>
-        );
+        console.log(this.state.studentMajor);
+        console.log(event.eventEligibility);
+        console.log(this.state.studentMajor === event.eventEligibility);
+        if (this.state.studentMajor === event.eventEligibility) {
+          viewButton = (
+            <button
+              class="btn success"
+              onClick={event1 =>
+                this.registerToEventDetails(
+                  event1,
+                  event.eventId,
+                  event.fk_companyId
+                )
+              }
+            >
+              Register
+            </button>
+          );
+        } else {
+          viewButton = (
+            <button
+              class="btn success"
+              disabled
+              onClick={event1 =>
+                this.registerToEventDetails(
+                  event1,
+                  event.eventId,
+                  event.fk_companyId
+                )
+              }
+            >
+              Not Eligible
+            </button>
+          );
+        }
       } else {
         viewButton = (
           <button

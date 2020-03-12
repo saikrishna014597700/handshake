@@ -223,8 +223,9 @@ class JobDescription extends Component {
     if (cookie.load("cookie")) {
       const dataArray = new FormData();
       dataArray.append("file", this.state.fileData);
-      var studentId = cookie.load("cookie").split("+")[0];
-
+      if (cookie.load("cookie")) {
+        var studentId = cookie.load("cookie").split("+")[0];
+      }
       var resumePath;
       console.log("JobId::", this.props.match.params.id);
       var uploadData = {
@@ -248,22 +249,23 @@ class JobDescription extends Component {
             console.log("Error in saving application");
           }
         });
-
-      const data = {
-        jobId: jobId,
-        companyId: companyId,
-        studentId: cookie.load("cookie").split("+")[0],
-        resumePath: resumePath
-      };
-      axios.post("http://localhost:3001/applyToJob", data).then(response => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          console.log("Applied successfully");
-          alert("Applied successfully");
-        } else {
-          console.log("Error Applying for this Job");
-        }
-      });
+      if (cookie.load("cookie")) {
+        const data = {
+          jobId: jobId,
+          companyId: companyId,
+          studentId: cookie.load("cookie").split("+")[0],
+          resumePath: resumePath
+        };
+        axios.post("http://localhost:3001/applyToJob", data).then(response => {
+          console.log("Status Code : ", response.status);
+          if (response.status === 200) {
+            console.log("Applied successfully");
+            alert("Applied successfully");
+          } else {
+            console.log("Error Applying for this Job");
+          }
+        });
+      }
     }
   }
 

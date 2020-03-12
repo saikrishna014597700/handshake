@@ -36,45 +36,49 @@ class StudentApplication extends Component {
 
   handleStatusChange = e => {
     if (e.target.value === "Applied Jobs") {
-      axios
-        .get(
-          `http://localhost:3001/studentjobs/${
-            cookie.load("cookie").split("+")[0]
-          }`
-        )
-        .then(response => {
-          //update the state with the response data
-          if (response.data === "No Job postings!") {
-            alert(response.data);
-          } else {
-            this.setState({
-              jobPostings: response.data
-            });
-          }
-        });
+      if (cookie.load("cookie")) {
+        axios
+          .get(
+            `http://localhost:3001/studentjobs/${
+              cookie.load("cookie").split("+")[0]
+            }`
+          )
+          .then(response => {
+            //update the state with the response data
+            if (response.data === "No Job postings!") {
+              alert(response.data);
+            } else {
+              this.setState({
+                jobPostings: response.data
+              });
+            }
+          });
+      }
     } else {
       const data = {
         status: e.target.value
       };
       console.log("Data is", data);
-      axios
-        .post(
-          `http://localhost:3001/studentjobsOnStatus/${
-            cookie.load("cookie").split("+")[0]
-          }`,
-          data
-        )
-        .then(response => {
-          if (response.data === "No Job postings!") {
-            alert(response.data);
-          } else {
-            console.log("response is", response);
-            //update the state with the response data
-            this.setState({
-              jobPostings: response.data
-            });
-          }
-        });
+      if (cookie.load("cookie")) {
+        axios
+          .post(
+            `http://localhost:3001/studentjobsOnStatus/${
+              cookie.load("cookie").split("+")[0]
+            }`,
+            data
+          )
+          .then(response => {
+            if (response.data === "No Job postings!") {
+              alert(response.data);
+            } else {
+              console.log("response is", response);
+              //update the state with the response data
+              this.setState({
+                jobPostings: response.data
+              });
+            }
+          });
+      }
     }
   };
 

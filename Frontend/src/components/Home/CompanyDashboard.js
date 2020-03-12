@@ -79,44 +79,48 @@ class CompanyDashboard extends Component {
 
   handleStatusChange = e => {
     console.log("e.target.value", e.target.value);
-    if (e.target.value === "All Jobs") {
-      axios
-        .get(
-          `http://localhost:3001/companyJobPostings/${
-            cookie.load("cookie").split("+")[0]
-          }`
-        )
-        .then(response => {
-          this.setState({
-            companyJobPostings: this.state.companyJobPostings.concat(
-              response.data
-            )
+    if (cookie.load("cookie")) {
+      if (e.target.value === "All Jobs") {
+        axios
+          .get(
+            `http://localhost:3001/companyJobPostings/${
+              cookie.load("cookie").split("+")[0]
+            }`
+          )
+          .then(response => {
+            this.setState({
+              companyJobPostings: this.state.companyJobPostings.concat(
+                response.data
+              )
+            });
           });
-        });
+      }
     } else {
       const data = {
         category: e.target.value,
         searchValue: this.state.searchValue
       };
-      console.log("Data is", data);
-      axios
-        .post(
-          `http://localhost:3001/companyjobPostingSearchOnCategory/${
-            cookie.load("cookie").split("+")[0]
-          }`,
-          data
-        )
-        .then(response => {
-          if (response.data === "No Job postings!") {
-            alert(response.data);
-          } else {
-            console.log("response is", response);
-            //update the state with the response data
-            this.setState({
-              companyJobPostings: response.data
-            });
-          }
-        });
+      if (cookie.load("cookie")) {
+        console.log("Data is", data);
+        axios
+          .post(
+            `http://localhost:3001/companyjobPostingSearchOnCategory/${
+              cookie.load("cookie").split("+")[0]
+            }`,
+            data
+          )
+          .then(response => {
+            if (response.data === "No Job postings!") {
+              alert(response.data);
+            } else {
+              console.log("response is", response);
+              //update the state with the response data
+              this.setState({
+                companyJobPostings: response.data
+              });
+            }
+          });
+      }
     }
   };
 

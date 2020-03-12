@@ -131,6 +131,8 @@ class Students extends Component {
               Search
             </button>
           </div>
+          <br />
+          <br />
           <div>{studentDetails}</div>
         </div>
       </div>

@@ -86,24 +86,26 @@ class Home extends Component {
         searchValue: this.state.searchValue
       };
       console.log("Data is", data);
-      axios
-        .post(
-          `http://localhost:3001/studentjobsOnCategory/${
-            cookie.load("cookie").split("+")[0]
-          }`,
-          data
-        )
-        .then(response => {
-          if (response.data === "No Job postings!") {
-            alert(response.data);
-          } else {
-            console.log("response is", response);
-            //update the state with the response data
-            this.setState({
-              jobPostings: response.data
-            });
-          }
-        });
+      if (cookie.load("cookie")) {
+        axios
+          .post(
+            `http://localhost:3001/studentjobsOnCategory/${
+              cookie.load("cookie").split("+")[0]
+            }`,
+            data
+          )
+          .then(response => {
+            if (response.data === "No Job postings!") {
+              alert(response.data);
+            } else {
+              console.log("response is", response);
+              //update the state with the response data
+              this.setState({
+                jobPostings: response.data
+              });
+            }
+          });
+      }
     }
   };
 
@@ -115,7 +117,12 @@ class Home extends Component {
     //iterate over books to create a table row
     let jobPostings = this.state.jobPostings.map(jobPosting => {
       let viewButton = "";
-
+      if (jobPosting.applicationDeadline) {
+        var applicationDeadline = jobPosting.applicationDeadline.slice(0, 10);
+      }
+      if (jobPosting.postingDate) {
+        var postingDate = jobPosting.postingDate.slice(0, 10);
+      }
       console.log("Outside", jobPosting.jobId);
       if (!this.state.jobIds.includes(jobPosting.jobId)) {
         viewButton = (
@@ -145,11 +152,11 @@ class Home extends Component {
           <h4>Job Title : {jobPosting.jobTitle}</h4>
           <h4>Category : {jobPosting.jobCategory}</h4>
           <h4>
-            Posting Date: {jobPosting.postingDate}
+            Posting Date: {postingDate}
             {viewButton}
           </h4>
           {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
-          <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
+          <h4>Application Deadline:{applicationDeadline}</h4>
           <h4>Location : {jobPosting.jobLocation}</h4>
         </div>
       );

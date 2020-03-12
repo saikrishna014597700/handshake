@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -24,7 +25,7 @@ class Students extends Component {
   };
   handleSearch = () => {
     axios
-      .get(`http://localhost:3001/studentSearch/${this.state.searchValue}`)
+      .get(backend + `/studentSearch/${this.state.searchValue}`)
       .then(response => {
         if (response.status == 200) {
           this.setState({
@@ -41,7 +42,7 @@ class Students extends Component {
     const data = {
       studentId: this.state.studentId
     };
-    axios.get(`http://localhost:3001/allstudentDetails`).then(response => {
+    axios.get(backend + `/allstudentDetails`).then(response => {
       //update the state with the response data
       console.log("res 2 is  :::", response);
       this.setState({
@@ -52,9 +53,7 @@ class Students extends Component {
     });
     console.log("data is", data);
     axios
-      .get(
-        `http://localhost:3001/profilestudentDetails/${this.state.studentId}`
-      )
+      .get(backend + `/profilestudentDetails/${this.state.studentId}`)
       .then(response => {
         console.log("res 1 is  :::", response);
         //update the state with the response data
@@ -80,13 +79,10 @@ class Students extends Component {
               <img src={require("../default.png")} class="image--cover2"></img>
             </div>
             <h4>
-              Student Name : {studentBasicDetailResult.firstName}{" "}
+              Full Name : {studentBasicDetailResult.firstName}{" "}
               {studentBasicDetailResult.lastName}
             </h4>
-            <h4>
-              Education Level :{" "}
-              {studentBasicDetailResult.presentlevelOfEducation}
-            </h4>
+            <h4>Degree : {studentBasicDetailResult.presentlevelOfEducation}</h4>
             <h4>
               Course : {studentBasicDetailResult.presentCourse}
               <button
@@ -101,8 +97,9 @@ class Students extends Component {
                 View Profile
               </button>
             </h4>
-            <h4>University: {studentBasicDetailResult.collegeName}</h4>
-            <h4>Graduation Year :{studentBasicDetailResult.graduationYear}</h4>
+            <h4>University : {studentBasicDetailResult.collegeName}</h4>
+            <h4>Graduation : {studentBasicDetailResult.graduationYear}</h4>
+            <h4>Skillset : {studentBasicDetailResult.skillSet}</h4>
           </div>
         );
       }

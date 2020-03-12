@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -37,9 +38,7 @@ class CompanyDashboard extends Component {
     if (cookie.load("cookie")) {
       axios
         .get(
-          `http://localhost:3001/companyJobPostings/${
-            cookie.load("cookie").split("+")[0]
-          }`
+          backend + `/companyJobPostings/${cookie.load("cookie").split("+")[0]}`
         )
         .then(response => {
           this.setState({
@@ -62,7 +61,7 @@ class CompanyDashboard extends Component {
       };
       axios
         .post(
-          `http://localhost:3001/companyjobPostingSearch/${this.state.searchValue}`,
+          backend + `/companyjobPostingSearch/${this.state.searchValue}`,
           data
         )
         .then(response => {
@@ -83,9 +82,8 @@ class CompanyDashboard extends Component {
       if (e.target.value === "All Jobs") {
         axios
           .get(
-            `http://localhost:3001/companyJobPostings/${
-              cookie.load("cookie").split("+")[0]
-            }`
+            backend +
+              `/companyJobPostings/${cookie.load("cookie").split("+")[0]}`
           )
           .then(response => {
             this.setState({
@@ -104,9 +102,10 @@ class CompanyDashboard extends Component {
         console.log("Data is", data);
         axios
           .post(
-            `http://localhost:3001/companyjobPostingSearchOnCategory/${
-              cookie.load("cookie").split("+")[0]
-            }`,
+            backend +
+              `/companyjobPostingSearchOnCategory/${
+                cookie.load("cookie").split("+")[0]
+              }`,
             data
           )
           .then(response => {
@@ -461,7 +460,7 @@ class CompanyDashboard extends Component {
       qualifications: this.state.qualifications,
       companyId: cookie.load("cookie").split("+")[0]
     };
-    axios.post("http://localhost:3001/postJob", data).then(response => {
+    axios.post(backend+"/postJob", data).then(response => {
       this.setState({
         companyJobPostings: response.data
       });

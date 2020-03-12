@@ -19,7 +19,7 @@ var fs = require("fs");
 var fileStorage = multer.diskStorage({
   destination: function(req, file, cb) {
     console.log("req in storage", req.query.id);
-    cb(null, "./HandshakeFiles/Resumes");
+    cb(null, "./HandshakeFiles/resumes");
   },
   filename: function(req, file, cb) {
     cb(null, req.query.studentId + "_" + req.query.jobId + ".pdf");
@@ -29,7 +29,7 @@ var fileStorage = multer.diskStorage({
 var studentProfileStorage = multer.diskStorage({
   destination: function(req, file, cb) {
     console.log("req in storage", req.query.studentId);
-    cb(null, ".//HandshakeFiles/students/");
+    cb(null, "./HandshakeFiles/students/");
   },
   filename: function(req, file, cb) {
     cb(null, req.query.studentId + ".jpeg");
@@ -709,7 +709,8 @@ app.get("/jobAppliedStudents/:id", async function(req, response) {
 
 app.get("/allstudentDetails", async function(req, response) {
   var studentresult;
-  var studentQuery = "SELECT * FROM student";
+  var studentQuery =
+    "SELECT * FROM student JOIN studentDetails ON student.studentId = studentDetails.studentId";
   results = await getResults(studentQuery);
   //console.log(results[1].job_desc);
   studentresult = await results;

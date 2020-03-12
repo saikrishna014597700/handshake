@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../profile.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
@@ -74,7 +75,8 @@ class CompanyUpdateProfile extends Component {
     var resumePath;
     await axios
       .post(
-        "http://localhost:3001/uploadFile/?companyId=" +
+        backend +
+          "/uploadFile/?companyId=" +
           this.props.companyProfile[0].companyId +
           "&type=companyProfilePic",
         this.props.companyProfile[0].companyProfilePic
@@ -97,11 +99,10 @@ class CompanyUpdateProfile extends Component {
     if (cookie.load("cookie")) {
       axios
         .post(
-          `http://localhost:3001/updateCompanyProfile/${cookie
-            .load("cookie")
-            .split("+")[0] +
-            "/?filePath=" +
-            resumePath}`,
+          backend +
+            `/updateCompanyProfile/${cookie.load("cookie").split("+")[0] +
+              "/?filePath=" +
+              resumePath}`,
           this.props.companyProfile
         )
         .then(response => {
@@ -119,7 +120,7 @@ class CompanyUpdateProfile extends Component {
 
   buildAvatarUrl(fileName) {
     console.log("fileName in avatar,", fileName);
-    return "http://localhost:3001/file/" + fileName + "/?role=company";
+    return backend + "/file/" + fileName + "/?role=company";
   }
 
   render() {

@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "../../profile.css";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import { backend } from "../../webConfig";
 import { Link } from "react-router-dom";
 import {
   fetchStudent,
@@ -40,7 +41,7 @@ class StudentProfile extends Component {
 
   buildAvatarUrl(fileName) {
     console.log("calling jaffa", fileName);
-    return "http://localhost:3001/file/" + fileName + "/?role=students";
+    return backend + "/file/" + fileName + "/?role=students";
   }
 
   render() {

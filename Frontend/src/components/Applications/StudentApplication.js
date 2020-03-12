@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -20,11 +21,7 @@ class StudentApplication extends Component {
     console.log("in componentDidMount");
     if (cookie.load("cookie")) {
       axios
-        .get(
-          `http://localhost:3001/studentjobs/${
-            cookie.load("cookie").split("+")[0]
-          }`
-        )
+        .get(backend + `/studentjobs/${cookie.load("cookie").split("+")[0]}`)
         .then(response => {
           //update the state with the response data
           this.setState({
@@ -38,11 +35,7 @@ class StudentApplication extends Component {
     if (e.target.value === "Applied Jobs") {
       if (cookie.load("cookie")) {
         axios
-          .get(
-            `http://localhost:3001/studentjobs/${
-              cookie.load("cookie").split("+")[0]
-            }`
-          )
+          .get(backend + `/studentjobs/${cookie.load("cookie").split("+")[0]}`)
           .then(response => {
             //update the state with the response data
             if (response.data === "No Job postings!") {
@@ -62,9 +55,8 @@ class StudentApplication extends Component {
       if (cookie.load("cookie")) {
         axios
           .post(
-            `http://localhost:3001/studentjobsOnStatus/${
-              cookie.load("cookie").split("+")[0]
-            }`,
+            backend +
+              `/studentjobsOnStatus/${cookie.load("cookie").split("+")[0]}`,
             data
           )
           .then(response => {
@@ -88,6 +80,12 @@ class StudentApplication extends Component {
     }
     //iterate over books to create a table row
     let jobPostings = this.state.jobPostings.map(jobPosting => {
+      if (jobPosting.applicationDate) {
+        var applicationDate = jobPosting.applicationDate.slice(0, 10);
+      }
+      if (jobPosting.postingDate) {
+        var postingDate = jobPosting.postingDate.slice(0, 10);
+      }
       return (
         <div class="card2">
           <div class="wrapper">
@@ -96,7 +94,7 @@ class StudentApplication extends Component {
           <h4>Job Title : {jobPosting.jobTitle}</h4>
           <h4>Category : {jobPosting.jobCategory}</h4>
           <h4>
-            Posting Date: {jobPosting.postingDate}
+            Posting Date: {postingDate}
             <button
               class="btn success"
               onClick={event => this.getJobDetail(event, jobPosting.jobId)}
@@ -104,7 +102,7 @@ class StudentApplication extends Component {
               View Details
             </button>
           </h4>
-          <h4>Application Date : {jobPosting.applicationDate}</h4>
+          <h4>Application Date : {applicationDate}</h4>
           <h4>Application Status : {jobPosting.applicationStatus}</h4>
         </div>
       );

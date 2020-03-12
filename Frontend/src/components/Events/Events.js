@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import Popup from "../Popup/Popup";
@@ -28,11 +29,7 @@ class Events extends Component {
 
     if (cookie.load("cookie")) {
       axios
-        .get(
-          `http://localhost:3001/profilestudent/${
-            cookie.load("cookie").split("+")[0]
-          }`
-        )
+        .get(backend + `/profilestudent/${cookie.load("cookie").split("+")[0]}`)
         .then(response => {
           this.setState({
             studentprofile: this.state.studentprofile.concat(response.data)
@@ -43,7 +40,7 @@ class Events extends Component {
             });
           });
         });
-      axios.get("http://localhost:3001/events").then(response => {
+      axios.get(backend+"/events").then(response => {
         //update the state with the response data
         console.log("res is  :::", response);
         this.setState({
@@ -55,9 +52,10 @@ class Events extends Component {
         if (cookie.load("cookie")) {
           axios
             .get(
-              `http://localhost:3001/getStudentRegisteredEvents/${
-                cookie.load("cookie").split("+")[0]
-              }`
+              backend +
+                `/getStudentRegisteredEvents/${
+                  cookie.load("cookie").split("+")[0]
+                }`
             )
             .then(response => {
               //update the state with the response data
@@ -81,7 +79,7 @@ class Events extends Component {
   };
   handleSearch = () => {
     axios
-      .get(`http://localhost:3001/eventSearch/${this.state.searchValue}`)
+      .get(backend + `/eventSearch/${this.state.searchValue}`)
       .then(response => {
         if (response.data === "No event postings!") {
           alert(response.data);
@@ -97,9 +95,7 @@ class Events extends Component {
     if (cookie.load("cookie")) {
       axios
         .get(
-          `http://localhost:3001/eventsRegistered/${
-            cookie.load("cookie").split("+")[0]
-          }`
+          backend + `/eventsRegistered/${cookie.load("cookie").split("+")[0]}`
         )
         .then(response => {
           this.setState({
@@ -115,7 +111,7 @@ class Events extends Component {
   }
 
   viewUpcomingEvents() {
-    axios.get("http://localhost:3001/events").then(response => {
+    axios.get(backend+"/events").then(response => {
       //update the state with the response data
       console.log("res is  :::", response);
       this.setState({
@@ -260,7 +256,7 @@ class Events extends Component {
         studentId: cookie.load("cookie").split("+")[0]
       };
       axios
-        .post("http://localhost:3001/registerToEvent", data)
+        .post(backend+"/registerToEvent", data)
         .then(response => {
           console.log("Status Code : ", response.status);
           if (response.status === 200) {

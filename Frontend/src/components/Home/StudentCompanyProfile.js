@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../profile.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
@@ -49,7 +50,7 @@ class StudentCompanyProfile extends Component {
   }
 
   buildAvatarUrl(fileName) {
-    return "http://localhost:3001/file/" + fileName + "/?role=company";
+    return backend+"/file/" + fileName + "/?role=company";
   }
 
   render() {

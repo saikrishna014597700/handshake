@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import "../../profile.css";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -22,7 +23,7 @@ class JobDescription extends Component {
   componentDidMount() {
     console.log("in componentDidMount");
     axios
-      .get(`http://localhost:3001/getjobDetails/${this.props.match.params.id}`)
+      .get(backend + `/getjobDetails/${this.props.match.params.id}`)
       .then(response => {
         //update the state with the response data
         console.log("res is  :::", response);
@@ -34,7 +35,7 @@ class JobDescription extends Component {
           console.log("Abc is ", comapnyDetails);
         }
         axios
-          .get(`http://localhost:3001/companyDetails/${comapnyDetails}`)
+          .get(backend + `/companyDetails/${comapnyDetails}`)
           .then(response => {
             //update the state with the response data
             console.log("res is  :::", response);
@@ -233,7 +234,7 @@ class JobDescription extends Component {
       };
       await axios
         .post(
-          "http://localhost:3001/uploadFile/?studentId=" +
+          backend+"/uploadFile/?studentId=" +
             studentId +
             "&jobId=" +
             this.props.match.params.id +
@@ -256,7 +257,7 @@ class JobDescription extends Component {
           studentId: cookie.load("cookie").split("+")[0],
           resumePath: resumePath
         };
-        axios.post("http://localhost:3001/applyToJob", data).then(response => {
+        axios.post(backend+"/applyToJob", data).then(response => {
           console.log("Status Code : ", response.status);
           if (response.status === 200) {
             console.log("Applied successfully");

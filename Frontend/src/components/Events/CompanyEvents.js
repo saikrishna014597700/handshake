@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -37,11 +38,7 @@ class CompanyEvents extends Component {
     console.log("in componentDidMount", this.state.companyId);
     if (cookie.load("cookie")) {
       axios
-        .get(
-          `http://localhost:3001/companyevents/${
-            cookie.load("cookie").split("+")[0]
-          }`
-        )
+        .get(backend + `/companyevents/${cookie.load("cookie").split("+")[0]}`)
         .then(response => {
           //update the state with the response data
           console.log("res is  :::", response);
@@ -66,10 +63,7 @@ class CompanyEvents extends Component {
       companyId: this.state.companyId
     };
     axios
-      .post(
-        `http://localhost:3001/companyeventSearch/${this.state.searchValue}`,
-        data
-      )
+      .post(backend + `/companyeventSearch/${this.state.searchValue}`, data)
       .then(response => {
         if (response.data === "No event postings!") {
           alert(response.data);
@@ -281,7 +275,7 @@ class CompanyEvents extends Component {
       eventEligibility: this.state.eventEligibility,
       companyId: cookie.load("cookie").split("+")[0]
     };
-    axios.post("http://localhost:3001/postEvent", data).then(response => {
+    axios.post(backend+"/postEvent", data).then(response => {
       this.setState({
         events: response.data
       });

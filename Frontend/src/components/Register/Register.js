@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../register.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { connect } from "react-redux";
@@ -93,7 +94,7 @@ class Register extends Component {
     }
 
     //make a post request with the user data
-    // axios.post("http://localhost:3001/register", data).then(response => {
+    // axios.post(backend+"/register", data).then(response => {
     //   console.log("Status Code : ", response.status);
     //   if (response.status === 200) {
     //     this.setState({

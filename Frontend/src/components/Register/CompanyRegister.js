@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../register.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { connect } from "react-redux";

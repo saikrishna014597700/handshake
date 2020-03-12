@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -21,7 +22,7 @@ class Home extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
-    axios.get("http://localhost:3001/home").then(response => {
+    axios.get(backend+"/home").then(response => {
       //update the state with the response data
       this.setState({
         jobPostings: this.state.jobPostings.concat(response.data)
@@ -31,9 +32,8 @@ class Home extends Component {
       var jobIdss = [];
       axios
         .get(
-          `http://localhost:3001/getStudentAppliedJobIds/${
-            cookie.load("cookie").split("+")[0]
-          }`
+          backend +
+            `/getStudentAppliedJobIds/${cookie.load("cookie").split("+")[0]}`
         )
         .then(response => {
           //update the state with the response data
@@ -55,7 +55,7 @@ class Home extends Component {
   };
   handleSearch = () => {
     axios
-      .get(`http://localhost:3001/jobPostingSearch/${this.state.searchValue}`)
+      .get(backend + `/jobPostingSearch/${this.state.searchValue}`)
       .then(response => {
         if (response.data === "No Job postings!") {
           alert(response.data);
@@ -70,7 +70,7 @@ class Home extends Component {
   handleStatusChange = e => {
     if (e.target.value === "All Jobs") {
       axios
-        .get(`http://localhost:3001/jobPostingSearch/${this.state.searchValue}`)
+        .get(backend + `/jobPostingSearch/${this.state.searchValue}`)
         .then(response => {
           if (response.data === "No Job postings!") {
             alert(response.data);
@@ -89,9 +89,8 @@ class Home extends Component {
       if (cookie.load("cookie")) {
         axios
           .post(
-            `http://localhost:3001/studentjobsOnCategory/${
-              cookie.load("cookie").split("+")[0]
-            }`,
+            backend +
+              `/studentjobsOnCategory/${cookie.load("cookie").split("+")[0]}`,
             data
           )
           .then(response => {

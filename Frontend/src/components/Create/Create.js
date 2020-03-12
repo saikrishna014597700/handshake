@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -49,7 +50,7 @@ class Create extends Component {
     axios.defaults.withCredentials = true;
     let redirectVar = null;
     //make a post request with the user data
-    axios.post("http://localhost:3001/create", data).then(response => {
+    axios.post(backend+"/create", data).then(response => {
       console.log("Status Code : ", response.status);
       if (response.status === 200) {
         <Redirect to={{ pathname: "/" }} />;

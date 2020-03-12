@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../profile.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
@@ -128,7 +129,7 @@ class UpdateProfile extends Component {
     const data = new FormData();
     data.append("file", this.state.selectedFile);
     axios
-      .post("http://localhost:3001/upload", data, {
+      .post(backend + "/upload", data, {
         // receive two    parameter endpoint url ,form data
       })
       .then(res => {
@@ -254,7 +255,7 @@ class UpdateProfile extends Component {
     var response = this.props.addEducation(data);
     console.log("response is", response);
     // console.log("Dataaaa is", data);
-    // axios.post("http://localhost:3001/addEduDetails", data).then(response => {
+    // axios.post(backend+"/addEduDetails", data).then(response => {
     //   console.log("Status Code : ", response.status);
     //   if (response.status === 200) {
     //     console.log("Updated work details successfully");
@@ -294,7 +295,7 @@ class UpdateProfile extends Component {
 
   buildAvatarUrl(fileName) {
     console.log("calling jaffa", fileName);
-    return "http://localhost:3001/file/" + fileName + "/?role=students";
+    return backend + "/file/" + fileName + "/?role=students";
   }
 
   render() {
@@ -436,7 +437,7 @@ class UpdateProfile extends Component {
         return (
           <div class="card">
             <h3>
-              <b>Contact Information</b>
+              <b>Contact Info</b>
               <button
                 class="btn success"
                 onClick={event =>

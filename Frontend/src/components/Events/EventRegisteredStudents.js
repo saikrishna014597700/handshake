@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 
@@ -23,7 +24,7 @@ class EventRegisteredStudents extends Component {
   };
   handleSearch = () => {
     axios
-      .get(`http://localhost:3001/studentSearch/${this.state.searchValue}`)
+      .get(backend + `/studentSearch/${this.state.searchValue}`)
       .then(response => {
         if (response.status == 200) {
           this.setState({
@@ -39,7 +40,7 @@ class EventRegisteredStudents extends Component {
     console.log("in componentDidMount");
     var eventId = this.props.match.params.id;
     axios
-      .get(`http://localhost:3001/eventRegisteredStudents/${eventId}`)
+      .get(backend + `/eventRegisteredStudents/${eventId}`)
       .then(response => {
         //update the state with the response data
         console.log("res 2 is  :::", response);
@@ -51,7 +52,7 @@ class EventRegisteredStudents extends Component {
       });
     // axios
     //   .get(
-    //     `http://localhost:3001/profilestudentDetails/${this.state.studentId}`
+    //     backend+`/profilestudentDetails/${this.state.studentId}`
     //   )
     //   .then(response => {
     //     console.log("res 1 is  :::", response);

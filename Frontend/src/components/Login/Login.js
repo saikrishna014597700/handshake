@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { login } from "../../actions/fetchStudent";
@@ -80,7 +81,7 @@ class Login extends Component {
       }
     } else {
       console.log("In companylogin");
-      axios.post("http://localhost:3001/companylogin", data).then(response => {
+      axios.post(backend+"/companylogin", data).then(response => {
         console.log("Status Code : ", response.status);
         if (response.status === 200) {
           console.log("Status Code : ", this.state.loginFlag);

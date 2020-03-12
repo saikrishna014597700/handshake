@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
+import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+// import PDFViewer from "pdf-viewer-reactjs";
 
 class JobAppliedStudents extends Component {
   constructor(props) {
@@ -27,7 +29,7 @@ class JobAppliedStudents extends Component {
   };
   handleSearch = () => {
     axios
-      .get(`http://localhost:3001/studentSearch/${this.state.searchValue}`)
+      .get(backend + `/studentSearch/${this.state.searchValue}`)
       .then(response => {
         if (response.status == 200) {
           this.setState({
@@ -43,23 +45,29 @@ class JobAppliedStudents extends Component {
     console.log("in componentDidMount");
     var jobId = this.props.match.params.id;
     console.log("in componentDidMount", jobId);
-    axios
-      .get(`http://localhost:3001/jobAppliedStudents/${jobId}`)
-      .then(response => {
-        //update the state with the response data
-        console.log("res 2 is  :::", response);
-        this.setState({
-          studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
-            response.data
-          )
-        });
+    axios.get(backend + `/jobAppliedStudents/${jobId}`).then(response => {
+      //update the state with the response data
+      console.log("res 2 is  :::", response);
+      this.setState({
+        studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
+          response.data
+        )
       });
+    });
   }
 
   handleChange2(event) {
     this.setState({
       status: event.target.value
     });
+  }
+
+  previewResume(e, url) {
+    // <PDFViewer
+    //   document={{
+    //     url: "http://localhost:3001/file/44_11.pdf/?role=resumes"
+    //   }}
+    // />;
   }
 
   handleSubmit(event, studentId) {
@@ -71,7 +79,7 @@ class JobAppliedStudents extends Component {
       status: this.state.status
     };
     axios
-      .post("http://localhost:3001/changeJobApplicationsStatus/", data)
+      .post(backend + "/changeJobApplicationsStatus/", data)
       .then(response => {
         //update the state with the response data
         alert(
@@ -121,6 +129,17 @@ class JobAppliedStudents extends Component {
                 this.handleSubmit(e, studentBasicDetailResult.studentId)
               }
             >
+              <button
+                onClick={event =>
+                  this.previewResume(
+                    event,
+                    studentBasicDetailResult.studentProfilePic
+                  )
+                }
+                style={{ marginTop: "6px" }}
+              >
+                Preview Resume
+              </button>
               <label style={{ marginTop: "6px", marginLeft: "40px" }}>
                 Status :
                 <select

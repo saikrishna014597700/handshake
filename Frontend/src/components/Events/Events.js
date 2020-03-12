@@ -14,7 +14,9 @@ class Events extends Component {
       showPopup: false,
       searchValue: "",
       studentprofile: [],
-      studentMajor: ""
+      studentMajor: "",
+      registeredEventIds: [],
+      registeredEvents: []
     };
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
@@ -48,6 +50,27 @@ class Events extends Component {
           events: this.state.events.concat(response.data)
         });
       });
+      if (cookie.load("cookie")) {
+        var eventIdss = [];
+        axios
+          .get(
+            `http://localhost:3001/getStudentRegisteredEvents/${
+              cookie.load("cookie").split("+")[0]
+            }`
+          )
+          .then(response => {
+            //update the state with the response data
+            this.setState({
+              registeredEvents: response.data
+            });
+            this.state.registeredEvents.map(registeredEvent => {
+              eventIdss.push(registeredEvent.fk_eventId);
+            });
+            this.setState({
+              registeredEventIds: eventIdss
+            });
+          });
+      }
     }
   }
 
@@ -100,6 +123,39 @@ class Events extends Component {
   render() {
     //iterate over books to create a table row
     let events = this.state.events.map(event => {
+      let viewButton = "";
+      if (!this.state.registeredEventIds.includes(event.eventId)) {
+        viewButton = (
+          <button
+            class="btn success"
+            onClick={event1 =>
+              this.registerToEventDetails(
+                event1,
+                event.eventId,
+                event.fk_companyId
+              )
+            }
+          >
+            Register
+          </button>
+        );
+      } else {
+        viewButton = (
+          <button
+            disabled
+            class="btn success"
+            onClick={event1 =>
+              this.registerToEventDetails(
+                event1,
+                event.eventId,
+                event.fk_companyId
+              )
+            }
+          >
+            Registered
+          </button>
+        );
+      }
       if (event.eventtime) {
         var eventTime = event.eventtime.slice(0, 10);
       }
@@ -112,21 +168,8 @@ class Events extends Component {
           </div>
           <h4>Event Name : {event.eventName}</h4>
           <h4>Location : {event.eventLocation}</h4>
-          <h4>
-            Event Date: {eventTime}
-            <button
-              class="btn success"
-              onClick={event1 =>
-                this.registerToEventDetails(
-                  event1,
-                  event.eventId,
-                  event.fk_companyId
-                )
-              }
-            >
-              Register
-            </button>
-          </h4>
+          <h4>Event Date: {eventTime}</h4>
+          {viewButton}
           {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
           <h4>Event Eligibility : {event.eventEligibility}</h4>
           <h5>Description : {event.eventDescription}</h5>
@@ -175,6 +218,8 @@ class Events extends Component {
             <button class="button" onClick={this.handleSearch}>
               Search
             </button>
+            <br />
+            <br />
           </div>
           <div>{events}</div>
         </div>

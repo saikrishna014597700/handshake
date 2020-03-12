@@ -8,7 +8,7 @@ import { fetchCompanyProfile } from "../../actions/fetchStudent";
 import { connect } from "react-redux";
 import Background from "./companyBackground.png";
 
-class CompanyProfile extends Component {
+class StudentCompanyProfile extends Component {
   constructor(props) {
     super(props);
     console.log("Hii");
@@ -166,14 +166,14 @@ class CompanyProfile extends Component {
           >
             Events Created
           </button>
-          <br />
+          {/* <br />
           <br />
           <button
             class="btn4 success"
             onClick={this.redirecttoUpdateProfilePage.bind(this)}
           >
             Edit Profile
-          </button>
+          </button> */}
           <br />
         </div>
       );
@@ -216,4 +216,4 @@ const mapStateToProps = state => ({
 //export Profile Component
 export default connect(mapStateToProps, {
   fetchCompanyProfile
-})(CompanyProfile);
+})(StudentCompanyProfile);

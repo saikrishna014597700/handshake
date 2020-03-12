@@ -22,7 +22,7 @@ class Navbar extends Component {
     if (cookie.load("cookie")) {
       console.log("Able to read cookie");
       navLogin = (
-        <ul class="nav navbar-nav navbar-righ">
+        <ul class="nav navbar-nav navbar-right">
           <li>
             <Link to="/" onClick={this.handleLogout}>
               <span class="glyphicon glyphicon-user"></span>Logout

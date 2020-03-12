@@ -11,7 +11,8 @@ class JobDescription extends Component {
     this.state = {
       jobDetails: [],
       companyDetails: [],
-      redirect: null
+      redirect: null,
+      fileData: null
     };
     this.registerToJobDetails = this.registerToJobDetails.bind(this);
     this.getAppliedStudents = this.getAppliedStudents.bind(this);
@@ -43,56 +44,68 @@ class JobDescription extends Component {
           });
       });
   }
+  onFileChange(e, id) {
+    let fileData = new FormData();
+    console.log("fileData in state", this.state.fileData);
+    fileData.append("file", e.target.files[0]);
+    console.log("fileData modified", fileData);
+    this.setState({
+      fileData: e.target.files[0]
+    });
+  }
 
   render() {
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
-    let comyJobId = this.state.jobDetails.map(jobPosting => {
-      console.log("xxxx::::", jobPosting);
-      return (
-        <div class="card3">
-          <h4>Job Title : {jobPosting.jobTitle}</h4>
-          <h4>Category : {jobPosting.jobCategory}</h4>
-          <h4>Posting Date: {jobPosting.postingDate}</h4>
-          <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
-          <h4>Salary : {jobPosting.salary}</h4>
-          <br />
-          <br />
-          <h3>Job Description: </h3>
-          <h4>{jobPosting.jobdescription}</h4>
-          <h3>Job Duties: </h3>
-          <h4>{jobPosting.duties}</h4>
-          <h3>Job Qualification: </h3>
-          <h4>{jobPosting.qualifications}</h4>
-
-          <h3>Job Requirements: </h3>
-          <h4>{jobPosting.requirements}</h4>
-        </div>
-      );
-    });
 
     //iterate over books to create a table row
     let jobDetails = this.state.jobDetails.map(jobPosting => {
       console.log("xxxx::::", jobPosting);
       return (
         <div class="card3">
-          <h4>Job Title : {jobPosting.jobTitle}</h4>
-          <h4>Category : {jobPosting.jobCategory}</h4>
-          <h4>Posting Date: {jobPosting.postingDate}</h4>
-          <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
-          <h4>Salary : {jobPosting.salary}</h4>
+          <h4>
+            <b>Job Title </b>: {jobPosting.jobTitle}
+          </h4>
+          <h4>
+            <b>Category </b>: {jobPosting.jobCategory}
+          </h4>
+          <h4>
+            <b>Posting Date</b>: {jobPosting.postingDate}
+          </h4>
+          <h4>
+            <b>Application Deadline</b>:{jobPosting.applicationDeadline}
+          </h4>
+          <h4>
+            <b>Salary </b>: {jobPosting.salary}
+          </h4>
           <br />
           <br />
-          <h3>Job Description: </h3>
+          <h3>
+            <b>Job Description</b>:{" "}
+          </h3>
           <h4>{jobPosting.jobdescription}</h4>
-          <h3>Job Duties: </h3>
+          <br />
+          <br />
+          <h4>
+            <b>Job Duties</b>:{" "}
+          </h4>
           <h4>{jobPosting.duties}</h4>
-          <h3>Job Qualification: </h3>
+          <br />
+          <br />
+          <h4>
+            <b>Job Qualification</b>:{" "}
+          </h4>
           <h4>{jobPosting.qualifications}</h4>
+          <br />
+          <br />
 
-          <h3>Job Requirements: </h3>
+          <h4>
+            <b>Job Requirements</b>:{" "}
+          </h4>
           <h4>{jobPosting.requirements}</h4>
+          <br />
+          <br />
         </div>
       );
     });
@@ -107,7 +120,7 @@ class JobDescription extends Component {
           <h4>Email: {companyDetail.email} </h4>
           <br />
           <button
-            class="btn success"
+            class="btn4 success"
             onClick={event =>
               this.gotoCompanyProfile(event, companyDetail.companyId)
             }
@@ -148,18 +161,29 @@ class JobDescription extends Component {
       cookie.load("cookie").split("+")[1] === "student"
     ) {
       viewRegisteredStudents = (
-        <button
-          class="btn success"
-          onClick={event =>
-            this.registerToJobDetails(
-              event,
-              this.props.match.params.id,
-              this.state.jobDetails[0].fk_companyId
-            )
-          }
-        >
-          Apply
-        </button>
+        <div>
+          <p style={{ fontSize: "18px" }}>
+            Upload your Resume with your skills and experiences
+          </p>
+          <input
+            type="file"
+            name="file"
+            className="editableinput12"
+            onChange={e => this.onFileChange(e, this.props.match.params.id)}
+          />
+          <button
+            class="btn success"
+            onClick={event =>
+              this.registerToJobDetails(
+                event,
+                this.props.match.params.id,
+                this.state.jobDetails[0].fk_companyId
+              )
+            }
+          >
+            Apply
+          </button>
+        </div>
       );
     }
     return (
@@ -167,18 +191,18 @@ class JobDescription extends Component {
         {redirectVar}
         <div class="row">
           <div class="leftcolumn">
-            <h3 class="heading">
-              {" "}
-              Job Description
-              {viewRegisteredStudents}
-            </h3>
+            <h4 class="heading"> Job Description</h4>
             <br />
             {jobDetails}
           </div>
           <div class="rightcolumn">
             <div class="card4">
-              <h3>Company</h3>
-              <div class="wrapper">
+              <h4>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Company
+                Profile
+              </h4>
+              <br />
+              <div class="wrapper2">
                 <img src={require("../jobs.png")} class="image--cover2"></img>
               </div>
               {companyDetails}
@@ -186,27 +210,62 @@ class JobDescription extends Component {
             </div>
           </div>
         </div>
+        <div class="footer">
+          <div class="card">
+            <div>{viewRegisteredStudents}</div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  registerToJobDetails = (event, jobId, companyId) => {
+  async registerToJobDetails(event, jobId, companyId) {
     if (cookie.load("cookie")) {
+      const dataArray = new FormData();
+      dataArray.append("file", this.state.fileData);
+      var studentId = cookie.load("cookie").split("+")[0];
+
+      var resumePath;
+      console.log("JobId::", this.props.match.params.id);
+      var uploadData = {
+        dataArray: dataArray
+      };
+      await axios
+        .post(
+          "http://localhost:3001/uploadFile/?studentId=" +
+            studentId +
+            "&jobId=" +
+            this.props.match.params.id +
+            "&type=resume",
+          dataArray
+        )
+        .then(response => {
+          console.log("Status Code : ", response);
+          if (response.status === 200) {
+            resumePath = response.data.path;
+            console.log("path:", resumePath);
+          } else {
+            console.log("Error in saving application");
+          }
+        });
+
       const data = {
         jobId: jobId,
         companyId: companyId,
-        studentId: cookie.load("cookie").split("+")[0]
+        studentId: cookie.load("cookie").split("+")[0],
+        resumePath: resumePath
       };
       axios.post("http://localhost:3001/applyToJob", data).then(response => {
         console.log("Status Code : ", response.status);
         if (response.status === 200) {
           console.log("Applied successfully");
+          alert("Applied successfully");
         } else {
           console.log("Error Applying for this Job");
         }
       });
     }
-  };
+  }
 
   getAppliedStudents() {
     this.setState({
@@ -216,7 +275,7 @@ class JobDescription extends Component {
 
   gotoCompanyProfile(e, id) {
     this.setState({
-      redirect: `/profileCompany/${id}`
+      redirect: `/studentcompanyprofile/${id}`
     });
   }
 }

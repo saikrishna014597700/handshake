@@ -14,17 +14,47 @@ const exjwt = require("express-jwt");
 var aws = require("aws-sdk");
 require("dotenv").config();
 var multer = require("multer");
+var fs = require("fs");
 
-var storage = multer.diskStorage({
+var fileStorage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, "./Desktop/");
+    console.log("req in storage", req.query.id);
+    cb(null, "./HandshakeFiles/Resumes");
   },
   filename: function(req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
+    cb(null, req.query.studentId + "_" + req.query.jobId + ".pdf");
   }
 });
 
-var upload = multer({ storage: storage }).single("file");
+var studentProfileStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    console.log("req in storage", req.query.studentId);
+    cb(null, ".//HandshakeFiles/students/");
+  },
+  filename: function(req, file, cb) {
+    cb(null, req.query.studentId + ".jpeg");
+  }
+});
+
+var companyProfileStorage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    console.log("req in storage", req.query.studentId);
+    cb(null, "./HandshakeFiles/company/");
+  },
+  filename: function(req, file, cb) {
+    cb(null, req.query.companyId + ".jpeg");
+  }
+});
+
+var imageUpload = multer({ storage: studentProfileStorage }).single(
+  "studentProfileStorage"
+);
+
+var upload = multer({ storage: fileStorage }).single("file");
+
+var companyImageUpload = multer({ storage: companyProfileStorage }).single(
+  "companyProfileStorage"
+);
 
 //use cors to allow cross origin resource sharing
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
@@ -152,29 +182,21 @@ app.post("/login", function(request, response) {
 app.post("/companylogin", function(request, response) {
   var username = request.body.username;
   var password = request.body.password;
+  console.log("Results are:", username, password);
   if (username && password) {
     connection.query(
-      "SELECT * FROM company WHERE email = ? AND companyPassword = ?",
+      "SELECT * FROM company WHERE email = ? and companyPassword = ?",
       [username, password],
       function(error, results, fields) {
-        console.log("Results are:", results);
-        if (results.length > 0) {
-          response.cookie("cookie", results[0].companyId + "+" + "company", {
-            maxAge: 900000,
-            httpOnly: false,
-            path: "/"
-          });
-          // request.session.user = user;
-          response.writeHead(200, {
-            "Content-Type": "text/plain"
-          });
-          // response.end("Successful Login");
-          // response.redirect("/home");
-          // response.send("Correct Username and/or Password!");
-        } else {
-          response.send("Incorrect Username and/or Password!");
+        if (error) {
+          response.send("Login Failed");
         }
-        response.end();
+        response.cookie("cookie", results[0].companyId + "+" + "company", {
+          maxAge: 900000,
+          httpOnly: false,
+          path: "/"
+        });
+        response.send("Login successed");
       }
     );
   } else {
@@ -239,15 +261,141 @@ app.post("/register", function(req, res) {
   });
 });
 
+app.post("/companyregister", function(req, res) {
+  var today = new Date();
+  const saltRounds = 10;
+  companyPassword = req.body.companyPassword;
+  bcrypt.hash(companyPassword, saltRounds, function(err, hash) {
+    console.log("Password is", hash);
+    var company = {
+      email: req.body.email,
+      companyName: req.body.companyName,
+      companyPassword: companyPassword,
+      location: req.body.location
+    };
+    console.log("Company is", company);
+    connection.query("INSERT INTO company SET ?", company, function(
+      error,
+      results,
+      fields
+    ) {
+      if (error) {
+        console.log("error ocurred", error);
+        res.send({
+          code: 400,
+          failed: "error ocurred"
+        });
+      } else {
+        // console.log("The solution is: ", results);
+        // connection.query(
+        //   "INSERT INTO studentDetails SET studentId = ?",
+        //   results.insertId,
+        //   function(error, results, fields) {
+        //     if (error) {
+        //       console.log("error ocurred", error);
+        //       res.send({
+        //         code: 400,
+        //         failed: "error ocurred"
+        //       });
+        //     } else {
+        //       console.log("The solution is: ", results);
+        res.send({
+          code: 200,
+          success: "Company Registered & created an entry for student details"
+        });
+        //   }
+        // }
+        // );
+        // res.send({
+        //   code: 200,
+        //   success: "User Registered"
+        // });
+      }
+    });
+  });
+});
+
+app.post("/uploadFile", async function(req, res) {
+  if (req.query.type === "resume") {
+    upload(req, res, function(err) {
+      if (err instanceof multer.MulterError) {
+        // console.log('error',err)
+        return res.status(500).json(err);
+      } else if (err) {
+        // console.log('error',err)
+        return res.status(500).json(err);
+      }
+      // console.log('response',res.file)
+      return res.status(200).send(req.file);
+    });
+  } else if (req.query.type === "studentProfilePic") {
+    console.log("Image uplaoding");
+    imageUpload(req, res, function(err) {
+      if (err instanceof multer.MulterError) {
+        console.log("error", err);
+        return res.status(500).json(err);
+      } else if (err) {
+        console.log("error", err);
+        return res.status(500).json(err);
+      }
+      console.log("response issss", res.file);
+      return res.status(200).send(req.file);
+    });
+  } else if (req.query.type === "companyProfilePic") {
+    console.log("Image uplaoding");
+    companyImageUpload(req, res, function(err) {
+      if (err instanceof multer.MulterError) {
+        console.log("error", err);
+        return res.status(500).json(err);
+      } else if (err) {
+        console.log("error", err);
+        return res.status(500).json(err);
+      }
+      console.log("response", res.file);
+      return res.status(200).send(req.file);
+    });
+  }
+});
+
 app.get("/home", async function(req, response) {
+  connection.query("SELECT * FROM jobPostings", null, function(
+    error,
+    results,
+    fields
+  ) {
+    if (results.length > 0) {
+      response.send(results);
+    } else {
+      response.send("No Job postings!");
+    }
+    // response.end();
+  });
+});
+
+app.get("/getStudentAppliedJobIds/:id", async function(req, response) {
   connection.query(
-    "SELECT * FROM jobPostings JOIN company ON jobPostings.fk_companyId=company.companyId",
-    null,
+    "SELECT fk_jobId FROM job_application where studentId = ?",
+    req.params.id,
     function(error, results, fields) {
       if (results.length > 0) {
         response.send(results);
       } else {
         response.send("No Job postings!");
+      }
+      // response.end();
+    }
+  );
+});
+
+app.get("/getStudentRegisteredEvents/:id", async function(req, response) {
+  connection.query(
+    "SELECT fk_eventId FROM events_registration where studentId = ?",
+    req.params.id,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        response.send(results);
+      } else {
+        response.send("No event postings!");
       }
       // response.end();
     }
@@ -292,11 +440,17 @@ app.post("/studentjobsOnStatus/:id", async function(req, response) {
 app.post("/studentjobsOnCategory/:id", async function(req, response) {
   var studentId = req.params.id;
   var status = req.body.status;
-  var data = [studentId, status];
+  var data = [
+    "%" + req.body.searchValue + "%",
+    "%" + req.body.searchValue + "%",
+    "%" + req.body.searchValue + "%",
+    req.body.category
+  ];
+
   console.log("Data is ", data);
   connection.query(
-    "select * from jobPostings where jobCategory LIKE ?",
-    status,
+    "SELECT * FROM jobPostings JOIN company ON jobPostings.fk_companyId=company.companyId  WHERE (jobPostings.jobTitle LIKE ? OR jobPostings.jobLocation LIKE ? OR company.companyName LIKE ?) and jobPostings.jobCategory like ?",
+    data,
     function(error, results, fields) {
       if (results.length > 0) {
         response.send(results);
@@ -389,7 +543,7 @@ app.post("/postJob", async function(req, response) {
   ];
   console.log("data is", data);
   var jobQuery =
-    "INSERT INTO jobPostings SET jobTitle = ?,location = ?,applicationDeadline = ?,salary = ?, jobDescription = ?,jobCategory = ?,duties = ?,requirements = ?,qualifications = ?,postingDate = ?,fk_companyId=?";
+    "INSERT INTO jobPostings SET jobTitle = ?,jobLocation = ?,applicationDeadline = ?,salary = ?, jobDescription = ?,jobCategory = ?,duties = ?,requirements = ?,qualifications = ?,postingDate = ?,fk_companyId=?";
   results = await getResults(jobQuery, data);
   //console.log(results[1].job_desc);
   updateResult = await results;
@@ -518,10 +672,12 @@ app.post("/updateCompanyProfile/:id", async function(req, response) {
       companyprofilee.phoneNumber,
       companyprofilee.websiteUrl,
       companyprofilee.availPostions,
+      req.query.filePath,
       req.params.id
     ];
+    console.log("studentAllEduDetailsResult222", data);
     var studentEduQuery =
-      "UPDATE company SET companyName = ?,location = ?,shortDesc = ?,comapnySize = ?,description = ?,founders = ?,founderInfo = ?,email = ?,phoneNumber = ?,websiteUrl = ?,availPostions = ? WHERE companyId = ?";
+      "UPDATE company SET companyName = ?,location = ?,shortDesc = ?,comapnySize = ?,description = ?,founders = ?,founderInfo = ?,email = ?,phoneNumber = ?,websiteUrl = ?,availPostions = ?,companyProfilePic=? WHERE companyId = ?";
     results = await getResults(studentEduQuery, data);
     //console.log(results[1].job_desc);
     updateResult = await results;
@@ -590,6 +746,51 @@ app.get("/eventSearch/:name", async function(req, response) {
 
   connection.query(
     `SELECT * FROM events  WHERE eventName LIKE ? OR eventLocation LIKE ?`,
+    data,
+    function(error, results, fields) {
+      console.log("Results areeeee", results);
+      if (results) {
+        if (results.length > 0) {
+          console.log("Results areeeee", results);
+          response.send(results);
+        } else {
+          response.send("No event postings!");
+        }
+      }
+      // response.end();
+    }
+  );
+});
+
+app.get("/file/:name", (req, res) => {
+  const name = req.params.name;
+  console.log("/file req.params: " + JSON.stringify(req.params));
+  const path = __dirname + "/HandshakeFiles/" + req.query.role + "/" + name;
+  console.log("/PATHHH" + path);
+  try {
+    if (fs.existsSync(path)) {
+      res.sendFile(path);
+    } else {
+      res.status(400);
+      res.statusMessage("Not Found");
+      res.end();
+    }
+  } catch (err) {
+    res.status(500);
+    console.log("/file/:name error: " + err);
+    res.end();
+  }
+});
+
+app.post("/companyeventSearch/:name", async function(req, response) {
+  var data = [
+    "%" + req.params.name + "%",
+    "%" + req.params.name + "%",
+    req.body.companyId
+  ];
+
+  connection.query(
+    `SELECT * FROM events  WHERE (eventName LIKE ? OR eventLocation LIKE ?) and fk_companyId=? `,
     data,
     function(error, results, fields) {
       console.log("Results areeeee", results);
@@ -866,20 +1067,26 @@ app.put("/updateContactdetails", async function(req, response) {
   response.send("Updated successfully");
 });
 
-app.put("/updatePersonalInfo", async function(req, response) {
-  console.log("In updatePersonalInfo");
+app.post("/updatePersonalInfo/:id", async function(req, response) {
+  var path = req.query.filePath;
+  console.log("In updatePersonalInfo", path);
   console.log(req.body[0]);
   var data = [
     req.body[0].presentlevelOfEducation,
     req.body[0].presentCourse,
     req.body[0].graduationYear,
     req.body[0].collegeName,
+    path,
     req.body[0].studentId
   ];
+  // var data2 = [path, req.body[0].studentId];
   console.log("data is", data);
   var studentQuery =
-    "UPDATE student SET presentlevelOfEducation = ?, presentCourse = ?,graduationYear = ?,collegeName=? WHERE studentId = ?";
+    "UPDATE student SET presentlevelOfEducation = ?, presentCourse = ?,graduationYear = ?,collegeName=?,studentProfilePic = ? WHERE studentId = ?";
   results = await getResults(studentQuery, data);
+  // var student2Query =
+  //   "UPDATE studentDetails SET profilePicture = ? WHERE studentId = ?";
+  // results = await getResults(student2Query, data2);
   //console.log(results[1].job_desc);
   updateResult = await results;
   response.send("Updated successfully");
@@ -903,6 +1110,7 @@ app.post("/applyToJob", async function(req, response) {
   var jobId = req.body.jobId;
   var companyId = req.body.companyId;
   var studentId = req.body.studentId;
+  var resumePath = req.body.resumePath;
   var applicationStatus = "Pending";
   var today = new Date();
 
@@ -917,10 +1125,10 @@ app.post("/applyToJob", async function(req, response) {
   }
   var applicationDate = year + "/" + day + "/" + month;
   console.log("Application Date", applicationDate);
-  var data = [studentId, jobId, applicationStatus, applicationDate];
+  var data = [studentId, jobId, applicationStatus, applicationDate, resumePath];
   console.log("data is::", data);
   var applyToJobQuery =
-    "INSERT INTO job_application SET studentId = ?, fk_jobId = ?, applicationStatus = ?,applicationDate=?";
+    "INSERT INTO job_application SET studentId = ?, fk_jobId = ?, applicationStatus = ?,applicationDate=?,studentJobResume=?";
   results = await getResults(applyToJobQuery, data);
   //console.log(results[1].job_desc);
   updateResult = await results;

@@ -381,9 +381,9 @@ class CompanyDashboard extends Component {
             {applicationDeadline}
           </h4>
           <h4>
-            Salary &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
+            Location &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:
             &nbsp;&nbsp;&nbsp;&nbsp;
-            {jobPosting.salary}
+            {jobPosting.jobLocation}
           </h4>
         </div>
       );

@@ -8,11 +8,13 @@ import Events from "./Events/Events";
 import EventRegisteredStudents from "./Events/EventRegisteredStudents";
 import CompanyEvents from "./Events/CompanyEvents";
 import Register from "./Register/Register";
+import CompanyRegister from "./Register/CompanyRegister";
 import Delete from "./Delete/Delete";
 import Create from "./Create/Create";
 import Students from "./Students/Students";
 import Profile from "./Profile/Profile";
 import CompanyProfile from "./Profile/CompanyProfile";
+import StudentCompanyProfile from "./Home/StudentCompanyProfile";
 import UpdateProfile from "./UpdateProfile/UpdateProfile";
 import CompanyUpdateProfile from "./UpdateProfile/CompanyUpdateProfile";
 import StudentProfile from "./StudentProfile/StudentProfile";
@@ -37,6 +39,7 @@ class Main extends Component {
           <Route path="/profile" component={Profile} />
           <Route path="/profile/:id" component={Profile} />
           <Route path="/register" component={Register} />
+          <Route path="/CompanyRegister" component={CompanyRegister} />
           <Route path="/events" component={Events} />
           <Route path="/delete" component={Delete} />
           <Route path="/student" component={Students} />
@@ -48,6 +51,10 @@ class Main extends Component {
           <Route path="/jobDetails/:id" component={JobDescription} />
           <Route path="/companyDashboard" component={CompanyDashboard} />
           <Route path="/companyprofile/:id" component={CompanyProfile} />
+          <Route
+            path="/studentcompanyprofile/:id"
+            component={StudentCompanyProfile}
+          />
           <Route
             path="/companyUpdateProfile"
             component={CompanyUpdateProfile}

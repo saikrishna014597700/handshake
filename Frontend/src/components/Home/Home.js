@@ -10,7 +10,9 @@ class Home extends Component {
     this.state = {
       jobPostings: [],
       redirect: null,
-      searchValue: ""
+      searchValue: "",
+      studentJobIds: [],
+      jobIds: []
     };
     this.getJobDetail = this.getJobDetail.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
@@ -25,6 +27,27 @@ class Home extends Component {
         jobPostings: this.state.jobPostings.concat(response.data)
       });
     });
+    if (cookie.load("cookie")) {
+      var jobIdss = [];
+      axios
+        .get(
+          `http://localhost:3001/getStudentAppliedJobIds/${
+            cookie.load("cookie").split("+")[0]
+          }`
+        )
+        .then(response => {
+          //update the state with the response data
+          this.setState({
+            studentJobIds: response.data
+          });
+          this.state.studentJobIds.map(studentJobId => {
+            jobIdss.push(studentJobId.fk_jobId);
+          });
+          this.setState({
+            jobIds: jobIdss
+          });
+        });
+    }
   }
 
   handleOnChange = event => {
@@ -59,7 +82,8 @@ class Home extends Component {
         });
     } else {
       const data = {
-        status: e.target.value
+        category: e.target.value,
+        searchValue: this.state.searchValue
       };
       console.log("Data is", data);
       axios
@@ -84,12 +108,35 @@ class Home extends Component {
   };
 
   render() {
+    console.log("IDS are", this.state.jobIds);
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
     //iterate over books to create a table row
     let jobPostings = this.state.jobPostings.map(jobPosting => {
-      console.log("xxxx::::", jobPosting);
+      let viewButton = "";
+
+      console.log("Outside", jobPosting.jobId);
+      if (!this.state.jobIds.includes(jobPosting.jobId)) {
+        viewButton = (
+          <button
+            class="btn success"
+            onClick={event => this.getJobDetail(event, jobPosting.jobId)}
+          >
+            View Details
+          </button>
+        );
+      } else {
+        viewButton = (
+          <button
+            disabled
+            class="btn success"
+            onClick={event => this.getJobDetail(event, jobPosting.jobId)}
+          >
+            Already Applied
+          </button>
+        );
+      }
       return (
         <div class="card2">
           <div class="wrapper">
@@ -99,12 +146,7 @@ class Home extends Component {
           <h4>Category : {jobPosting.jobCategory}</h4>
           <h4>
             Posting Date: {jobPosting.postingDate}
-            <button
-              class="btn success"
-              onClick={event => this.getJobDetail(event, jobPosting.jobId)}
-            >
-              View Details
-            </button>
+            {viewButton}
           </h4>
           {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
           <h4>Application Deadline:{jobPosting.applicationDeadline}</h4>
@@ -121,13 +163,22 @@ class Home extends Component {
       <div>
         {redirectVar}
         <div class="row">
-          <h3 class="heading">
-            {" "}
-            Job Postings
+          <h3 class="heading"> Job Postings</h3>
+          <br />
+          <br />
+          <div>
+            <input
+              name="text"
+              type="text"
+              class="searchComponent3"
+              placeholder="  Search for an Job Posting with Title / Location / company Name"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
             <select
               placeholder="Select Status"
               defaultValue=""
-              class="editableinput10"
+              class="editableinput11"
               name="jobStatus"
               onChange={e => this.handleStatusChange(e)}
             >
@@ -137,21 +188,11 @@ class Home extends Component {
               <option value="Internship">Internship</option>
               <option value="Full Time">Full Time</option>
             </select>
-          </h3>
-          <br />
-          <br />
-          <div>
-            <input
-              name="text"
-              type="text"
-              class="searchComponent"
-              placeholder="  Search for an Job Posting with Title / Location / company Name"
-              onChange={event => this.handleOnChange(event)}
-              value={this.state.searchValue}
-            />
             <button class="button" onClick={this.handleSearch}>
               Search
             </button>
+            <br />
+            <br />
           </div>
           <div>{jobPostings}</div>
         </div>

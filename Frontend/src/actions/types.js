@@ -16,4 +16,5 @@ export const ADD_WORK = "ADD_WORK";
 
 export const LOGIN = "LOGIN";
 export const STUDENT_REGISTER = "STUDENT_REGISTER";
+export const COMPANY_REGISTER = "COMPANY_REGISTER";
 export const FETCH_COMPANY_PROFILE = "FETCH_COMPANY_PROFILE";

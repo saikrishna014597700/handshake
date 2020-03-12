@@ -56,6 +56,15 @@ body {
   object-fit: cover;
   object-position: center;
 }
+.image--cover4 {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  margin: 20px;
+  margin-top: 30px;
+  object-fit: cover;
+  object-position: center;
+}
 .editableinput {
   background: white;
   margin-top: 4px;
@@ -75,7 +84,7 @@ body {
   padding-bottom: 15px;
   text-align: center;
   font-size: 18px;
-  width: 700px;
+  width: 650px;
   height: 80px;
 }
 .editableinput3 {
@@ -179,6 +188,18 @@ body {
   width: 280px;
   height: 45px;
   margin-left: 50px;
+}
+.editableinput12 {
+  background: white;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+  width: 280px;
+  height: 45px;
+  margin-left: 40%;
 }
 img {
   float: right;
@@ -491,10 +512,13 @@ card6 {
 
 /* Footer */
 .footer {
-  padding: 20px;
+  padding: 10px;
   text-align: center;
-  background: #ddd;
+  background: white;
   margin-top: 20px;
+  margin-left: 10%;
+  margin-right: 10%;
+  margin-bottom: 5%;
 }
 .Profileheading {
   padding: 20px;

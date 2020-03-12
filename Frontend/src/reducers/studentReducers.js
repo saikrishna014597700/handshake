@@ -15,6 +15,7 @@ import {
   EDIT_PERSONALINFO,
   LOGIN,
   STUDENT_REGISTER,
+  COMPANY_REGISTER,
   FETCH_COMPANY_PROFILE
 } from "../actions/types";
 
@@ -111,6 +112,13 @@ export default function(state = initialState, action) {
         // studentExperience: [].concat(action.payload)
       };
     case STUDENT_REGISTER:
+      return {
+        ...state,
+        signupResponse: action.payload
+
+        // studentExperience: [].concat(action.payload)
+      };
+    case COMPANY_REGISTER:
       return {
         ...state,
         signupResponse: action.payload

@@ -35,7 +35,7 @@ class UpdateProfile extends Component {
       collegeName: "",
       degree: "",
       major: "",
-      studentId: cookie.load("cookie"),
+      studentId: "",
       addEduFlag: false,
       addWorkFlag: false,
       addMyJourneyFlag: false,
@@ -49,7 +49,9 @@ class UpdateProfile extends Component {
       studentDetailsId: "",
       success: false,
       url: "",
-      selectedFile: null
+      selectedFile: null,
+      fileData: null,
+      profileUpdate: false
     };
     // };
     // constructor() {
@@ -62,6 +64,7 @@ class UpdateProfile extends Component {
     };
     this.props = this.initialState;
     // }
+    this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
     this.handlemyChange = this.handlemyChange.bind(this);
     this.handlemyEduChange = this.handlemyEduChange.bind(this);
     this.submitmyJourney = this.submitmyJourney.bind(this);
@@ -86,6 +89,9 @@ class UpdateProfile extends Component {
   componentDidMount() {
     console.log("this.props", cookie.load("cookie").split("+"));
     var studentId = cookie.load("cookie").split("+")[0];
+    this.setState({
+      studentId: studentId
+    });
     this.props.fetchStudent(studentId);
     this.props.fetchStudentDetails(studentId);
     this.props.fetchEduDetails(studentId);
@@ -96,12 +102,7 @@ class UpdateProfile extends Component {
       });
     });
   }
-  onFileChange(e) {
-    this.setState({
-      selectedFile: e.target.files[0],
-      loaded: 0
-    });
-  }
+
   addEducation() {
     this.setState({
       addEduFlag: true
@@ -138,6 +139,10 @@ class UpdateProfile extends Component {
     this.props.history.push("/Profile");
   }
 
+  // refreshPage() {
+  //   window.location.reload(false);
+  // }
+
   handlemyChange = (e, id, name) => {
     const studentBasicDetails = this.props.studentBasicDetails;
     studentBasicDetails.map(studentBasicDetail => {
@@ -154,6 +159,10 @@ class UpdateProfile extends Component {
         studentBasicDetailResult[name] = e.target.value;
       }
     });
+    this.setState({
+      profileUpdate: true
+    });
+    // refreshPage()
   };
 
   handlemyEduChange = (e, id, name) => {
@@ -181,11 +190,14 @@ class UpdateProfile extends Component {
     console.log("response is", response);
   };
 
-  submitpersonalInfoDetails = (event, id) => {
+  async submitpersonalInfoDetails(event, id) {
     console.log("submitpersonalInfoDetails2", this.props.studentObject);
-    var response = this.props.editPersonalInfo(this.props.studentObject);
+    var response = await this.props.editPersonalInfo(this.props.studentObject);
     console.log("response is", response);
-  };
+    this.setState({
+      jaffa: "jaffa"
+    });
+  }
 
   submitmyskillSet = (event, id) => {
     console.log("submitmyskillSet", this.props.studentBasicDetails);
@@ -264,37 +276,66 @@ class UpdateProfile extends Component {
     console.log("response is", response);
   };
 
+  onFileChange(e, id) {
+    const studObj = this.props.studentObject;
+    console.log("in edit handler", studObj);
+    studObj.map(obj => {
+      if (obj.studentId === id) {
+        let fileData = new FormData();
+        console.log("fileData in state", this.state.fileData);
+        fileData.append("studentProfileStorage", e.target.files[0]);
+        obj.studentProfilePic = fileData;
+        console.log(e.target.files[0]);
+      }
+    });
+    console.log("in edit handler222", this.props.studentObject);
+  }
+
+  buildAvatarUrl(fileName) {
+    console.log("calling jaffa", fileName);
+    return "http://localhost:3001/file/" + fileName + "/?role=students";
+  }
+
   render() {
+    console.log("jaffa", this.props.studentObject);
     let redirectVar = null;
     if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
-    const Success_message = () => (
-      <div style={{ padding: 50 }}>
-        <h3 style={{ color: "green" }}>SUCCESSFUL UPLOAD</h3>
-        <a href={this.state.url}>Access the file here</a>
-        <br />
-      </div>
-    );
-    let fileUpload = (
-      <div>
-        <input type="file" name="file" onChange={this.onFileChange} />
-        <button
-          type="button"
-          class="btn btn-success btn-block"
-          onClick={this.onClickHandler}
-        >
-          Upload
-        </button>
-      </div>
-    );
-    //iterate over books to create a table row
+
     let studentDetails1 = this.props.studentBasicDetails.map(
       studentAllDetailResult => {
         console.log("Id iss::::::" + studentAllDetailResult.studentDetailsId);
         return studentAllDetailResult.carrierObjective;
       }
     );
+    let profilePic = this.props.studentObject.map(obj => {
+      if (obj.studentProfilePic) {
+        var path = obj.studentProfilePic;
+        console.log("Jaffapath,", path);
+        return (
+          <div key={obj.studentId} className="wrapper">
+            <img
+              src={this.buildAvatarUrl(path)}
+              className="image--cover3"
+              alt="Loading.."
+            />
+          </div>
+        );
+      } else {
+        var path2 = "default.png";
+        return (
+          <div key={obj.studentId} className="wrapper">
+            <img
+              src={this.buildAvatarUrl(path2)}
+              className="image--cover3"
+              alt="Loading.."
+            />
+          </div>
+        );
+      }
+    });
+
     console.log("StudentDetails isssss:", studentDetails1);
     let studentDetails = this.props.studentObject.map(
       studentBasicDetailResult => {
@@ -317,9 +358,17 @@ class UpdateProfile extends Component {
             </h3>
             <br />
             <br />
-            <div class="wrapper">
-              <img src={require("../profile.jpg")} class="image--cover3"></img>
+            <div>
+              {profilePic}
+              <input
+                type="file"
+                name="file"
+                onChange={e =>
+                  this.onFileChange(e, studentBasicDetailResult.studentId)
+                }
+              />
             </div>
+
             <br />
             <br />
             <input
@@ -386,7 +435,7 @@ class UpdateProfile extends Component {
         return (
           <div class="card">
             <h3>
-              Contact Information
+              <b>Contact Information</b>
               <button
                 class="btn success"
                 onClick={event =>
@@ -474,7 +523,7 @@ class UpdateProfile extends Component {
         return (
           <div>
             <h3>
-              Skills
+              <b> Skills</b>
               <button
                 class="btn success"
                 onClick={event =>
@@ -557,6 +606,7 @@ class UpdateProfile extends Component {
                 name="collegeName"
                 class="editableinput3"
                 type="text"
+                placeholder="University"
                 defaultValue={studentAllEduDetailResult.collegeName}
               ></input>
               <br />
@@ -571,6 +621,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="degree"
+                placeholder="Degree"
                 defaultValue={studentAllEduDetailResult.degree}
               ></input>
               <br />
@@ -585,6 +636,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="major"
+                placeholder="Major"
                 defaultValue={studentAllEduDetailResult.major}
               ></input>
               <br />
@@ -599,6 +651,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="yearofPassing"
+                placeholder="Graduation year"
                 defaultValue={studentAllEduDetailResult.yearofPassing}
               ></input>
               <button
@@ -712,6 +765,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="companyName"
+                placeholder="Company"
                 defaultValue={studentAllWorkDetailResult.companyName}
               ></input>
               <br />
@@ -726,6 +780,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="title"
+                placeholder="Title"
                 defaultValue={studentAllWorkDetailResult.title}
               ></input>
               <br />
@@ -740,6 +795,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="startDate"
+                placeholder="StartDate"
                 defaultValue={studentAllWorkDetailResult.startDate}
               ></input>
               <br />
@@ -754,6 +810,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="endDate"
+                placeholder="EndDate"
                 defaultValue={studentAllWorkDetailResult.endDate}
               ></input>
               <br />
@@ -768,6 +825,7 @@ class UpdateProfile extends Component {
                 }
                 class="editableinput"
                 name="description"
+                placeholder="Description"
                 defaultValue={studentAllWorkDetailResult.description}
               ></input>
               <button
@@ -887,7 +945,7 @@ class UpdateProfile extends Component {
           <div class="row">
             <div class="leftcolumn">
               <h4>
-                My Journey
+                <b>My Journey</b>
                 {/* <button class="btn success" onClick={e => this.addSkills()}>
                   Add Skills
                 </button> */}
@@ -910,7 +968,6 @@ class UpdateProfile extends Component {
                             )
                           }
                         />
-                        <br />
                         <button
                           class="btn success"
                           onClick={event =>
@@ -931,7 +988,7 @@ class UpdateProfile extends Component {
                 }
               </div>
               <h4 class="Profileheading">
-                Education
+                <b>Education</b>
                 <button class="btn success" onClick={e => this.addEducation()}>
                   Add Education
                 </button>
@@ -943,11 +1000,12 @@ class UpdateProfile extends Component {
 
               <br />
               <h4 class="Profileheading">
-                Work Experience
+                <b>Work Experience</b>
                 <button class="btn success" onClick={e => this.addWork()}>
                   Add Work
                 </button>
               </h4>
+              <br />
               {Addexperience}
               {studentWorkDetails}
             </div>
@@ -955,7 +1013,6 @@ class UpdateProfile extends Component {
               {studentDetails}
               {studentDetails2}
               <div class="card">{studentDetails3}</div>
-              <div class="card">{fileUpload}</div>
             </div>
           </div>
         </body>

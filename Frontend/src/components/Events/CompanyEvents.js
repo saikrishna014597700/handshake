@@ -17,11 +17,14 @@ class CompanyEvents extends Component {
       eventtime: "",
       eventocation: "",
       eventEligibility: "",
-      createEventFlag: false
+      createEventFlag: false,
+      searchValue: ""
     };
     this.handleChange = this.handleChange.bind(this);
     this.submitEventPosting = this.submitEventPosting.bind(this);
     this.cancelEventPosting = this.cancelEventPosting.bind(this);
+    this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   //get the books data from backend
@@ -50,6 +53,29 @@ class CompanyEvents extends Component {
     this.setState({
       [name]: e.target.value
     });
+  };
+
+  handleOnChange = event => {
+    this.setState({ searchValue: event.target.value });
+  };
+  handleSearch = () => {
+    const data = {
+      companyId: this.state.companyId
+    };
+    axios
+      .post(
+        `http://localhost:3001/companyeventSearch/${this.state.searchValue}`,
+        data
+      )
+      .then(response => {
+        if (response.data === "No event postings!") {
+          alert(response.data);
+        } else {
+          this.setState({
+            events: response.data
+          });
+        }
+      });
   };
 
   render() {
@@ -159,6 +185,9 @@ class CompanyEvents extends Component {
     }
 
     let events = this.state.events.map(event => {
+      if (event.eventtime) {
+        var eventTime = event.eventtime.slice(0, 10);
+      }
       return (
         <div class="card2">
           <div class="wrapper">
@@ -167,7 +196,7 @@ class CompanyEvents extends Component {
           <h4>Event Name : {event.eventName}</h4>
           <h4>Location : {event.eventLocation}</h4>
           <h4>
-            Event Date: {event.eventtime}
+            Event Date: {eventTime}
             <button
               class="btn success"
               onClick={event1 =>
@@ -178,7 +207,7 @@ class CompanyEvents extends Component {
                 )
               }
             >
-              View Registered Students
+              Registered Students
             </button>
           </h4>
           {/* <h4>Posting Date: {jobPosting.postingDate}</h4> */}
@@ -208,6 +237,21 @@ class CompanyEvents extends Component {
               Post an Event
             </button>
           </h3>
+          <br />
+          <br />
+          <div>
+            <input
+              name="text"
+              type="text"
+              class="searchComponent"
+              placeholder="  Search for an Event Name / Location"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
+            <button class="button" onClick={this.handleSearch}>
+              Search
+            </button>
+          </div>
           <br />
           {createEvent}
           <br />

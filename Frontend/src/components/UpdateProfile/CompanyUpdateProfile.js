@@ -15,7 +15,10 @@ class CompanyUpdateProfile extends Component {
     this.initialState = {
       companyProfile: []
     };
+    this.state = { fileData: null };
     this.props = this.initialState;
+    this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
+    this.onFileChange = this.onFileChange.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -51,14 +54,54 @@ class CompanyUpdateProfile extends Component {
     console.log("abccc", this.props.companyProfile);
   };
 
-  updateProfile = (event, id) => {
+  onFileChange(e, id) {
+    const compObj = this.props.companyProfile;
+    console.log("in edit handler", compObj);
+    compObj.map(obj => {
+      if (obj.companyId === id) {
+        let fileData = new FormData();
+        console.log("fileData in state", this.state.fileData);
+        fileData.append("companyProfileStorage", e.target.files[0]);
+        obj.companyProfilePic = fileData;
+        console.log(e.target.files[0]);
+      }
+    });
+    console.log("in edit handler222", this.props.studentObject);
+  }
+
+  async updateProfile(event, id) {
     console.log("abccc", this.props.companyProfile);
+    var resumePath;
+    await axios
+      .post(
+        "http://localhost:3001/uploadFile/?companyId=" +
+          this.props.companyProfile[0].companyId +
+          "&type=companyProfilePic",
+        this.props.companyProfile[0].companyProfilePic
+      )
+      .then(response => {
+        console.log("Status Code : ", response);
+        if (response.status === 200) {
+          resumePath = response.data.filename;
+          const compObj = this.props.companyProfile;
+          console.log("in edit handler", compObj);
+          compObj.map(obj => {
+            obj.companyProfilePic = resumePath;
+          });
+        } else {
+          console.log("Error in saving application");
+        }
+      });
+    console.log("path:", resumePath);
+
     if (cookie.load("cookie")) {
       axios
         .post(
-          `http://localhost:3001/updateCompanyProfile/${
-            cookie.load("cookie").split("+")[0]
-          }`,
+          `http://localhost:3001/updateCompanyProfile/${cookie
+            .load("cookie")
+            .split("+")[0] +
+            "/?filePath=" +
+            resumePath}`,
           this.props.companyProfile
         )
         .then(response => {
@@ -72,7 +115,12 @@ class CompanyUpdateProfile extends Component {
           }
         });
     }
-  };
+  }
+
+  buildAvatarUrl(fileName) {
+    console.log("fileName in avatar,", fileName);
+    return "http://localhost:3001/file/" + fileName + "/?role=company";
+  }
 
   render() {
     //iterate over books to create a table row
@@ -85,15 +133,35 @@ class CompanyUpdateProfile extends Component {
         ></div>
       );
     });
+    let profilePic = this.props.companyProfile.map(obj => {
+      if (obj.companyProfilePic) {
+        var path = obj.companyProfilePic;
+        return (
+          <div key={obj.companyId} className="wrapper">
+            <img
+              src={this.buildAvatarUrl(path)}
+              className="image--cover4"
+              alt="Loading.."
+            />
+          </div>
+        );
+      } else {
+        var path2 = "default.png";
+        return (
+          <div key={obj.companyId} className="wrapper">
+            <img
+              src={this.buildAvatarUrl(path2)}
+              className="image--cover4"
+              alt="Loading.."
+            />
+          </div>
+        );
+      }
+    });
     let headerData = this.props.companyProfile.map(companyProfilee => {
       return (
         <div>
-          <div class="wrapper">
-            <img
-              src={require("../Profile/company.jpg")}
-              class="image--cover3"
-            ></img>
-          </div>
+          <div>{profilePic}</div>
           <br />
           <input
             onChange={e =>
@@ -127,6 +195,14 @@ class CompanyUpdateProfile extends Component {
             name="comapnySize"
             defaultValue={companyProfilee.comapnySize}
           ></input>
+
+          <div>
+            <input
+              type="file"
+              name="file"
+              onChange={e => this.onFileChange(e, companyProfilee.companyId)}
+            />
+          </div>
         </div>
       );
     });

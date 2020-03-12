@@ -15,6 +15,7 @@ import {
   EDIT_PERSONALINFO,
   LOGIN,
   STUDENT_REGISTER,
+  COMPANY_REGISTER,
   FETCH_COMPANY_PROFILE
 } from "./types";
 import axios from "axios";
@@ -35,6 +36,27 @@ export const studentRegister = data => dispatch => {
       console.log("student from reducers", signupResponse);
       dispatch({
         type: STUDENT_REGISTER,
+        payload: signupResponse
+      });
+    });
+};
+
+export const companyRegister = data => dispatch => {
+  console.log("before signup");
+  return axios
+    .post("http://localhost:3001/companyregister", data, {
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => {
+      console.log(response);
+      return response;
+    })
+    .then(signupResponse => {
+      console.log("student from reducers", signupResponse);
+      dispatch({
+        type: COMPANY_REGISTER,
         payload: signupResponse
       });
     });
@@ -250,15 +272,54 @@ export function removeMywork(payload) {
   };
 }
 export function editPersonalInfo(payload) {
-  console.log("dispatching the editPersonalInfo action");
-  return function(dispatch) {
-    axios
-      .put("http://localhost:3001/updatePersonalInfo", payload)
+  console.log("dispatching the editPersonalInfo action", payload);
+
+  return async function(dispatch) {
+    console.log("fileData::", payload);
+    var resumePath;
+    await axios
+      .post(
+        "http://localhost:3001/uploadFile/?studentId=" +
+          payload[0].studentId +
+          "&type=studentProfilePic",
+        payload[0].studentProfilePic
+      )
+      .then(response => {
+        console.log("Status Code : ", response);
+        if (response.status === 200) {
+          resumePath = response.data.filename;
+          payload[0].studentProfilePic = resumePath;
+          console.log("payload", payload);
+        } else {
+          console.log("Error in saving application");
+        }
+      });
+    console.log("path:", resumePath);
+    await axios
+      .post(
+        "http://localhost:3001/updatePersonalInfo/:" +
+          payload[0].studentId +
+          "/?filePath=" +
+          resumePath,
+        payload
+      )
       .then(response =>
         dispatch({
           type: EDIT_PERSONALINFO,
           payload: response.data
         })
       );
+    // dispatch(fetchProfile(payload[0].studentId));
   };
+
+  // return function(dispatch) {
+  //   axios
+  //     .put("http://localhost:3001/updatePersonalInfo", payload)
+  //     .then(response =>
+  //       dispatch({
+  //         type: EDIT_PERSONALINFO,
+  //         payload: response.data
+  //       })
+  //     );
+  // };
 }

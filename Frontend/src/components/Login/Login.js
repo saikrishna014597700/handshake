@@ -17,7 +17,8 @@ class Login extends Component {
       username: "",
       password: "",
       authFlag: false,
-      roleFlag: this.props.match.url
+      roleFlag: this.props.match.url,
+      loginFlag: false
     };
     console.log("roleflag is", this.state.roleFlag);
     //Bind the handlers to this class
@@ -82,6 +83,7 @@ class Login extends Component {
       axios.post("http://localhost:3001/companylogin", data).then(response => {
         console.log("Status Code : ", response.status);
         if (response.status === 200) {
+          console.log("Status Code : ", this.state.loginFlag);
           this.setState({
             loginFlag: true
           });
@@ -90,16 +92,22 @@ class Login extends Component {
             loginFlag: false
           });
         }
+        console.log("Status Code 2: ", this.state.loginFlag);
       });
     }
   }
 
   fun() {
-    this.props.history.push("/Register");
+    if (this.state.roleFlag === "/login/1") {
+      this.props.history.push("/Register");
+    } else {
+      this.props.history.push("/CompanyRegister");
+    }
   }
 
   render() {
     //redirect based on successful login
+    console.log("In render", cookie.load("cookie"));
     let redirectVar = null;
     if (cookie.load("cookie") && this.state.roleFlag === "/login/1") {
       console.log("In 1");

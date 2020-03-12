@@ -22,7 +22,7 @@ class Home extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
-    axios.get(backend+"/home").then(response => {
+    axios.get(backend + "/home").then(response => {
       //update the state with the response data
       this.setState({
         jobPostings: this.state.jobPostings.concat(response.data)
@@ -40,9 +40,13 @@ class Home extends Component {
           this.setState({
             studentJobIds: response.data
           });
-          this.state.studentJobIds.map(studentJobId => {
-            jobIdss.push(studentJobId.fk_jobId);
-          });
+          console.log("in componentDidMountddd", this.state.studentJobIds);
+          if (this.state.studentJobIds && this.state.studentJobIds.length > 0) {
+            this.state.studentJobIds.map(studentJobId => {
+              jobIdss.push(studentJobId.fk_jobId);
+            });
+          }
+
           this.setState({
             jobIds: jobIdss
           });

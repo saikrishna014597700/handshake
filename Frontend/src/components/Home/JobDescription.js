@@ -140,13 +140,11 @@ class JobDescription extends Component {
       redirectVar = <Redirect to="/login" />;
     }
     let viewRegisteredStudents;
-    console.log("ABC", cookie.load("cookie"));
-    console.log("ABCC", cookie.load("cookie").split("+")[1] === "company");
+
     if (
       cookie.load("cookie") &&
       cookie.load("cookie").split("+")[1] === "company"
     ) {
-      console.log("ABCcccc", cookie.load("cookie"));
       viewRegisteredStudents = (
         <button
           class="btn success"
@@ -234,7 +232,8 @@ class JobDescription extends Component {
       };
       await axios
         .post(
-          backend+"/uploadFile/?studentId=" +
+          backend +
+            "/uploadFile/?studentId=" +
             studentId +
             "&jobId=" +
             this.props.match.params.id +
@@ -244,7 +243,7 @@ class JobDescription extends Component {
         .then(response => {
           console.log("Status Code : ", response);
           if (response.status === 200) {
-            resumePath = response.data.path;
+            resumePath = response.data.filename;
             console.log("path:", resumePath);
           } else {
             console.log("Error in saving application");
@@ -257,7 +256,7 @@ class JobDescription extends Component {
           studentId: cookie.load("cookie").split("+")[0],
           resumePath: resumePath
         };
-        axios.post(backend+"/applyToJob", data).then(response => {
+        axios.post(backend + "/applyToJob", data).then(response => {
           console.log("Status Code : ", response.status);
           if (response.status === 200) {
             console.log("Applied successfully");

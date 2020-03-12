@@ -40,7 +40,7 @@ class Events extends Component {
             });
           });
         });
-      axios.get(backend+"/events").then(response => {
+      axios.get(backend + "/events").then(response => {
         //update the state with the response data
         console.log("res is  :::", response);
         this.setState({
@@ -111,7 +111,7 @@ class Events extends Component {
   }
 
   viewUpcomingEvents() {
-    axios.get(backend+"/events").then(response => {
+    axios.get(backend + "/events").then(response => {
       //update the state with the response data
       console.log("res is  :::", response);
       this.setState({
@@ -128,7 +128,10 @@ class Events extends Component {
         console.log(this.state.studentMajor);
         console.log(event.eventEligibility);
         console.log(this.state.studentMajor === event.eventEligibility);
-        if (this.state.studentMajor === event.eventEligibility) {
+        if (
+          this.state.studentMajor === event.eventEligibility ||
+          event.eventEligibility === "All"
+        ) {
           viewButton = (
             <button
               class="btn success"
@@ -179,8 +182,6 @@ class Events extends Component {
       }
       if (event.eventtime) {
         var eventTime = event.eventtime.slice(0, 10);
-      }
-      if (this.state.studentMajor === event.eventEligibility) {
       }
       return (
         <div class="card2">
@@ -255,19 +256,17 @@ class Events extends Component {
         companyId: companyId,
         studentId: cookie.load("cookie").split("+")[0]
       };
-      axios
-        .post(backend+"/registerToEvent", data)
-        .then(response => {
-          console.log("Status Code : ", response.status);
-          if (response.status === 200) {
-            console.log("Registered successfully");
-            this.setState({
-              showingAlert: true
-            });
-          } else {
-            console.log("Error Registering for this event");
-          }
-        });
+      axios.post(backend + "/registerToEvent", data).then(response => {
+        console.log("Status Code : ", response.status);
+        if (response.status === 200) {
+          console.log("Registered successfully");
+          this.setState({
+            showingAlert: true
+          });
+        } else {
+          console.log("Error Registering for this event");
+        }
+      });
     }
   };
 }

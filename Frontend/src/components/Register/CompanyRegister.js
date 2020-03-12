@@ -69,7 +69,7 @@ class CompanyRegister extends Component {
     console.log("data before company registration post", data);
     await this.props.companyRegister(data);
     console.log("response from props:", this.props.signupResponse);
-    if (this.props.signupResponse === "Login successed") {
+    if (this.props.signupResponse.data.code === 200) {
       console.log("response.status", this.props.signupResponse.status);
       this.setState({
         registerFlag: true
@@ -117,7 +117,7 @@ class CompanyRegister extends Component {
               />
               <input
                 type="password"
-                onChange={this.passnameChangeHandler}
+                onChange={this.companyPasswordChangeHandler}
                 name="companyPassword"
                 placeholder="Company Password"
                 required

@@ -4,6 +4,8 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import Popup from "reactjs-popup";
+
 // import PDFViewer from "pdf-viewer-reactjs";
 
 class JobAppliedStudents extends Component {
@@ -23,6 +25,7 @@ class JobAppliedStudents extends Component {
     this.handleSearch = this.handleSearch.bind(this);
     this.handleChange2 = this.handleChange2.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
   }
   handleOnChange = event => {
     this.setState({ searchValue: event.target.value });
@@ -63,11 +66,10 @@ class JobAppliedStudents extends Component {
   }
 
   previewResume(e, url) {
-    // <PDFViewer
-    //   document={{
-    //     url: "http://localhost:3001/file/44_11.pdf/?role=resumes"
-    //   }}
-    // />;
+    console.log("Hi");
+    this.setState({
+      previewResume: true
+    });
   }
 
   handleSubmit(event, studentId) {
@@ -88,13 +90,21 @@ class JobAppliedStudents extends Component {
       });
   }
 
+  buildAvatarUrl(fileName) {
+    console.log("calling jaffa", fileName);
+    return backend + "/file/" + fileName + "/?role=resumes";
+  }
+
   render() {
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
+
     //iterate over books to create a table row
     let studentDetails = this.state.studentBasicDetailsResult.map(
       studentBasicDetailResult => {
+        console.log("aaaa", studentBasicDetailResult);
+        console.log("aaaa222", studentBasicDetailResult.studentJobResume);
         return (
           <div class="card2">
             <div class="wrapper">
@@ -129,17 +139,33 @@ class JobAppliedStudents extends Component {
                 this.handleSubmit(e, studentBasicDetailResult.studentId)
               }
             >
-              <button
-                onClick={event =>
-                  this.previewResume(
-                    event,
-                    studentBasicDetailResult.studentProfilePic
-                  )
+              <Popup
+                trigger={
+                  <a
+                    className="aTag"
+                    style={{
+                      marginTop: "20px",
+                      align: "center",
+                      color: "#2c87f0"
+                    }}
+                  >
+                    Preview Resume{" "}
+                  </a>
                 }
-                style={{ marginTop: "6px" }}
+                modal
+                closeOnDocumentClick
               >
-                Preview Resume
-              </button>
+                <div>
+                  <embed
+                    src={this.buildAvatarUrl(
+                      studentBasicDetailResult.studentJobResume
+                    )}
+                    width="600"
+                    height="700"
+                    type="application/pdf"
+                  ></embed>
+                </div>
+              </Popup>
               <label style={{ marginTop: "6px", marginLeft: "40px" }}>
                 Status :
                 <select

@@ -92,6 +92,10 @@ a {
   color: white !important;
   text-decoration: none;
 }
+.aTag {
+  color: black !important;
+  text-decoration: none;
+}
 .btn-primary {
   padding-bottom: 5px;
   background-color: #e0e5e6 none repeat scroll 0 0;

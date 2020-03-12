@@ -380,7 +380,8 @@ app.get("/getStudentAppliedJobIds/:id", async function(req, response) {
       if (results.length > 0) {
         response.send(results);
       } else {
-        response.send("No Job postings!");
+        var result = [];
+        response.send(result);
       }
       // response.end();
     }
@@ -395,7 +396,8 @@ app.get("/getStudentRegisteredEvents/:id", async function(req, response) {
       if (results.length > 0) {
         response.send(results);
       } else {
-        response.send("No event postings!");
+        var result = [];
+        response.send(result);
       }
       // response.end();
     }

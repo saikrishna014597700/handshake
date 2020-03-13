@@ -18,6 +18,7 @@ class Home extends Component {
     this.getJobDetail = this.getJobDetail.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -52,6 +53,13 @@ class Home extends Component {
           });
         });
     }
+  }
+
+  buildAvatarUrl(fileName) {
+    if (!fileName) {
+      fileName = "default.png";
+    }
+    return backend + "/file/" + fileName + "/?role=company";
   }
 
   handleOnChange = event => {
@@ -150,7 +158,10 @@ class Home extends Component {
       return (
         <div class="card2">
           <div class="wrapper">
-            <img src={require("../jobs.png")} class="image--cover2"></img>
+            <img
+              src={this.buildAvatarUrl(jobPosting.companyProfilePic)}
+              class="image--cover2"
+            ></img>
           </div>
           <h4>Job Title : {jobPosting.jobTitle}</h4>
           <h4>Category : {jobPosting.jobCategory}</h4>

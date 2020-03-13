@@ -358,18 +358,19 @@ app.post("/uploadFile", async function(req, res) {
 });
 
 app.get("/home", async function(req, response) {
-  connection.query("SELECT * FROM jobPostings", null, function(
-    error,
-    results,
-    fields
-  ) {
-    if (results.length > 0) {
-      response.send(results);
-    } else {
-      response.send("No Job postings!");
+  connection.query(
+    "SELECT * FROM jobPostings JOIN company on jobPostings.fk_companyId=company.companyId",
+    null,
+    function(error, results, fields) {
+      if (results.length > 0) {
+        console.log("Results are", results);
+        response.send(results);
+      } else {
+        response.send("No Job postings!");
+      }
+      // response.end();
     }
-    // response.end();
-  });
+  );
 });
 
 app.get("/getStudentAppliedJobIds/:id", async function(req, response) {
@@ -503,7 +504,7 @@ app.get("/getjobDetails/:id", async function(req, response) {
 app.get("/companyJobPostings/:id", async function(req, response) {
   console.log("Id ios ", req.params.id);
   connection.query(
-    "SELECT * FROM jobPostings where fk_companyId = ?",
+    "SELECT * FROM jobPostings JOIN company on jobPostings.fk_companyId = company.companyId AND jobPostings.fk_companyId = ?",
     req.params.id,
     function(error, results, fields) {
       if (results.length > 0) {

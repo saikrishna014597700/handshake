@@ -31,6 +31,7 @@ class CompanyDashboard extends Component {
     this.cancelJobPosting = this.cancelJobPosting.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
@@ -75,6 +76,13 @@ class CompanyDashboard extends Component {
         });
     }
   };
+
+  buildAvatarUrl(fileName) {
+    if (!fileName) {
+      fileName = "default.png";
+    }
+    return backend + "/file/" + fileName + "/?role=company";
+  }
 
   handleStatusChange = e => {
     console.log("e.target.value", e.target.value);
@@ -357,7 +365,7 @@ class CompanyDashboard extends Component {
         <div class="card2">
           <div class="wrapper">
             <img
-              src={require("./companyImage.jpg")}
+              src={this.buildAvatarUrl(jobPosting.companyProfilePic)}
               class="image--cover2"
             ></img>
           </div>
@@ -460,7 +468,7 @@ class CompanyDashboard extends Component {
       qualifications: this.state.qualifications,
       companyId: cookie.load("cookie").split("+")[0]
     };
-    axios.post(backend+"/postJob", data).then(response => {
+    axios.post(backend + "/postJob", data).then(response => {
       this.setState({
         companyJobPostings: response.data
       });

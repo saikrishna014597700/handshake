@@ -19,6 +19,7 @@ class Students extends Component {
     this.getProfileDetails = this.getProfileDetails.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
   }
   handleOnChange = event => {
     this.setState({ searchValue: event.target.value });
@@ -65,6 +66,13 @@ class Students extends Component {
       });
   }
 
+  buildAvatarUrl(fileName) {
+    if (!fileName) {
+      fileName = "default.png";
+    }
+    return backend + "/file/" + fileName + "/?role=students";
+  }
+
   render() {
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
@@ -76,7 +84,12 @@ class Students extends Component {
         return (
           <div class="card2">
             <div class="wrapper">
-              <img src={require("../default.png")} class="image--cover2"></img>
+              <img
+                src={this.buildAvatarUrl(
+                  studentBasicDetailResult.studentProfilePic
+                )}
+                class="image--cover2"
+              ></img>
             </div>
             <h4>
               Full Name : {studentBasicDetailResult.firstName}{" "}

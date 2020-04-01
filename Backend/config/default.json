@@ -1,0 +1,3 @@
+{
+  "mongoURI": "mongodb+srv://handshakeuser:handshakeuser@handshakelab2-qt1wt.mongodb.net/handshakeDB?retryWrites=true&w=majority"
+}

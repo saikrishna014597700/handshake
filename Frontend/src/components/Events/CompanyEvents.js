@@ -4,6 +4,12 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import {
+  companyEvents,
+  companyEventSearch,
+  postEvent
+} from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 class CompanyEvents extends Component {
   constructor() {
@@ -13,7 +19,7 @@ class CompanyEvents extends Component {
       showingAlert: false,
       companyId: "",
       redirect: null,
-      eventname: "",
+      eventName: "",
       eventDescription: "",
       eventtime: "",
       eventocation: "",
@@ -29,23 +35,22 @@ class CompanyEvents extends Component {
   }
 
   //get the books data from backend
-  componentDidMount() {
-    if (cookie.load("cookie")) {
-      this.setState({
-        companyId: cookie.load("cookie").split("+")[0]
-      });
-    }
-    console.log("in componentDidMount", this.state.companyId);
-    if (cookie.load("cookie")) {
-      axios
-        .get(backend + `/companyevents/${cookie.load("cookie").split("+")[0]}`)
-        .then(response => {
-          //update the state with the response data
-          console.log("res is  :::", response);
+  async componentDidMount() {
+    if (localStorage.cookie) {
+      const data = {
+        companyId: localStorage.cookie.split("+")[0]
+      };
+      await this.props.companyEvents(data).then(
+        response => {
+          console.log("Events is", response);
           this.setState({
-            events: this.state.events.concat(response.data)
+            events: this.state.events.concat(this.props.events)
           });
-        });
+        },
+        error => {
+          console.log("Events is", error);
+        }
+      );
     }
   }
 
@@ -53,6 +58,7 @@ class CompanyEvents extends Component {
     this.setState({
       [name]: e.target.value
     });
+    console.log(this.state.eventName);
   };
 
   handleOnChange = event => {
@@ -60,19 +66,20 @@ class CompanyEvents extends Component {
   };
   handleSearch = () => {
     const data = {
-      companyId: this.state.companyId
+      companyId: localStorage.cookie.split("+")[0],
+      searchValue: this.state.searchValue
     };
-    axios
-      .post(backend + `/companyeventSearch/${this.state.searchValue}`, data)
-      .then(response => {
-        if (response.data === "No event postings!") {
-          alert(response.data);
-        } else {
-          this.setState({
-            events: response.data
-          });
-        }
-      });
+    this.props.companyEventSearch(data).then(
+      response => {
+        console.log("Company Events is", response);
+        this.setState({
+          events: this.props.events
+        });
+      },
+      error => {
+        console.log("Events is", error);
+      }
+    );
   };
 
   render() {
@@ -89,8 +96,8 @@ class CompanyEvents extends Component {
               <input
                 class="editableinput5"
                 value={this.state.value}
-                onChange={e => this.handleChange(e, "eventname")}
-                name="eventname"
+                onChange={e => this.handleChange(e, "eventName")}
+                name="eventName"
                 style={{ marginTop: "15px" }}
               />
             </label>
@@ -181,7 +188,7 @@ class CompanyEvents extends Component {
       );
     }
 
-    let events = this.state.events.map(event => {
+    let events = this.props.events.map(event => {
       if (event.eventtime) {
         var eventTime = event.eventtime.slice(0, 10);
       }
@@ -197,11 +204,7 @@ class CompanyEvents extends Component {
             <button
               class="btn success"
               onClick={event1 =>
-                this.viewRegisteredStudents(
-                  event1,
-                  event.eventId,
-                  event.fk_companyId
-                )
+                this.viewRegisteredStudents(event1, event._id, event.companyId)
               }
             >
               Registered Students
@@ -215,8 +218,8 @@ class CompanyEvents extends Component {
     });
     //if not logged in go to login page
     let redirectVar = null;
-    console.log("Cookie is", cookie.load("cookie"));
-    if (!cookie.load("cookie")) {
+    console.log("Cookie is", localStorage.cookie);
+    if (!localStorage.cookie) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -268,23 +271,37 @@ class CompanyEvents extends Component {
 
   submitEventPosting = event => {
     const data = {
-      eventname: this.state.eventname,
+      eventName: this.state.eventName,
       eventDescription: this.state.eventDescription,
       eventtime: this.state.eventtime,
       eventocation: this.state.eventocation,
       eventEligibility: this.state.eventEligibility,
-      companyId: cookie.load("cookie").split("+")[0]
+      companyId: localStorage.cookie.split("+")[0]
     };
-    axios.post(backend+"/postEvent", data).then(response => {
-      this.setState({
-        events: response.data
-      });
-    });
+    this.props.postEvent(data).then(
+      response => {
+        console.log("Event Created Res::", response.data);
+        this.setState({
+          events: this.props.events
+        });
+      },
+      error => {
+        console.log("Events is", error);
+      }
+    );
     this.setState({ createEventFlag: false });
   };
   cancelEventPosting = event => {
     this.setState({ createEventFlag: false });
   };
 }
-//export Home Component
-export default CompanyEvents;
+const mapStateToProps = state => ({
+  events: state.schools.events
+});
+
+//export Profile Component
+export default connect(mapStateToProps, {
+  companyEvents,
+  companyEventSearch,
+  postEvent
+})(CompanyEvents);

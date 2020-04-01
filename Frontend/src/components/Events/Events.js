@@ -2,15 +2,22 @@ import React, { Component } from "react";
 import "../../App.css";
 import axios from "axios";
 import { backend } from "../../webConfig";
-import cookie from "react-cookies";
 import { Redirect } from "react-router";
-import Popup from "../Popup/Popup";
+import {
+  fetchEvents,
+  registerStudentToEvent,
+  fetchStudent,
+  registeredEvents,
+  upcomingEvents,
+  eventSearch
+} from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 class Events extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      events: [],
+      eventsState: [],
       showingAlert: false,
       showPopup: false,
       searchValue: "",
@@ -19,58 +26,44 @@ class Events extends Component {
       registeredEventIds: [],
       registeredEvents: []
     };
+    this.initialState = {
+      events: []
+    };
+    this.props = this.initialState;
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
+    this.viewRegisteredEvents = this.viewRegisteredEvents.bind(this);
   }
 
   //get the books data from backend
-  componentDidMount() {
-    console.log("in componentDidMount");
-
-    if (cookie.load("cookie")) {
-      axios
-        .get(backend + `/profilestudent/${cookie.load("cookie").split("+")[0]}`)
-        .then(response => {
+  async componentDidMount() {
+    console.log("in componentDidMount", localStorage.cookie);
+    if (localStorage.cookie) {
+      await this.props.fetchStudent(localStorage.cookie.split("+")[0]).then(
+        response => {
+          console.log("Student Details are is", response.data);
           this.setState({
-            studentprofile: this.state.studentprofile.concat(response.data)
+            studentMajor: response.data.presentCourse
           });
-          this.state.studentprofile.map(student => {
-            this.setState({
-              studentMajor: student.presentCourse
-            });
+          this.setState({
+            registeredEventIds: response.data.registeredEvents
           });
-        });
-      axios.get(backend + "/events").then(response => {
-        //update the state with the response data
-        console.log("res is  :::", response);
-        this.setState({
-          events: this.state.events.concat(response.data)
-        });
-      });
-      if (cookie.load("cookie")) {
-        var eventIdss = [];
-        if (cookie.load("cookie")) {
-          axios
-            .get(
-              backend +
-                `/getStudentRegisteredEvents/${
-                  cookie.load("cookie").split("+")[0]
-                }`
-            )
-            .then(response => {
-              //update the state with the response data
-              this.setState({
-                registeredEvents: response.data
-              });
-              this.state.registeredEvents.map(registeredEvent => {
-                eventIdss.push(registeredEvent.fk_eventId);
-              });
-              this.setState({
-                registeredEventIds: eventIdss
-              });
-            });
+        },
+        error => {
+          console.log("Events is", error);
         }
-      }
+      );
+      await this.props.fetchEvents().then(
+        response => {
+          console.log("Events is", response);
+          this.setState({
+            events: this.state.eventsState.concat(response.data)
+          });
+        },
+        error => {
+          console.log("Events is", error);
+        }
+      );
     }
   }
 
@@ -78,54 +71,71 @@ class Events extends Component {
     this.setState({ searchValue: event.target.value });
   };
   handleSearch = () => {
-    axios
-      .get(backend + `/eventSearch/${this.state.searchValue}`)
-      .then(response => {
-        if (response.data === "No event postings!") {
-          alert(response.data);
-        } else {
-          this.setState({
-            events: response.data
-          });
-        }
-      });
+    this.props.eventSearch(this.state.searchValue).then(
+      response => {
+        console.log("Events is", response);
+        this.setState({
+          events: this.props.events
+        });
+      },
+      error => {
+        console.log("Events is", error);
+      }
+    );
   };
 
-  viewRegisteredEvents() {
-    if (cookie.load("cookie")) {
-      axios
-        .get(
-          backend + `/eventsRegistered/${cookie.load("cookie").split("+")[0]}`
-        )
-        .then(response => {
+  viewRegisteredEvents(event, id) {
+    console.log("Outd");
+    if (localStorage.cookie) {
+      const data = {
+        studentId: localStorage.cookie.split("+")[0]
+      };
+      this.props.registeredEvents(data).then(
+        response => {
+          console.log("Event Registered", this.props.events);
           this.setState({
             upComingEvents: true
           });
-          //update the state with the response data
-          console.log("res is  :::", response);
           this.setState({
-            events: response.data
+            eventsState: this.props.events
           });
-        });
+        },
+        error => {
+          console.log("Events Error is", error);
+        }
+      );
     }
   }
 
   viewUpcomingEvents() {
-    axios.get(backend + "/events").then(response => {
-      //update the state with the response data
-      console.log("res is  :::", response);
-      this.setState({
-        events: response.data
-      });
-    });
+    this.props.upcomingEvents().then(
+      response => {
+        console.log("Event Upcoming", this.props.events);
+        this.setState({
+          eventsState: this.props.events
+        });
+      },
+      error => {
+        console.log("Events Error is", error);
+      }
+    );
   }
 
   render() {
-    //iterate over books to create a table row
-    let events = this.state.events.map(event => {
+    let events = this.props.events.map(event => {
+      console.log(
+        "event id issss",
+        event._id,
+        this.state.registeredEventIds,
+        !this.state.registeredEventIds.includes(event._id)
+      );
       let viewButton = "";
-      if (!this.state.registeredEventIds.includes(event.eventId)) {
-        console.log(this.state.studentMajor);
+      if (!this.state.registeredEventIds.includes(event._id)) {
+        console.log(
+          "Hi",
+          this.state.studentMajor,
+          this.state.registeredEventIds
+        );
         console.log(event.eventEligibility);
         console.log(this.state.studentMajor === event.eventEligibility);
         if (
@@ -136,11 +146,7 @@ class Events extends Component {
             <button
               class="btn success"
               onClick={event1 =>
-                this.registerToEventDetails(
-                  event1,
-                  event.eventId,
-                  event.fk_companyId
-                )
+                this.registerToEventDetails(event1, event._id, event.companyId)
               }
             >
               Register
@@ -152,11 +158,7 @@ class Events extends Component {
               class="btn success"
               disabled
               onClick={event1 =>
-                this.registerToEventDetails(
-                  event1,
-                  event.eventId,
-                  event.fk_companyId
-                )
+                this.registerToEventDetails(event1, event._id, event.companyId)
               }
             >
               Not Eligible
@@ -169,11 +171,7 @@ class Events extends Component {
             disabled
             class="btn success"
             onClick={event1 =>
-              this.registerToEventDetails(
-                event1,
-                event.eventId,
-                event.fk_companyId
-              )
+              this.registerToEventDetails(event1, event._id, event.companyId)
             }
           >
             Registered
@@ -200,8 +198,8 @@ class Events extends Component {
     });
     //if not logged in go to login page
     let redirectVar = null;
-    console.log("Cookie is", cookie.load("cookie"));
-    if (!cookie.load("cookie")) {
+    console.log("Cookie is", localStorage.cookie);
+    if (!localStorage.cookie) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -213,7 +211,12 @@ class Events extends Component {
             Events
             <button
               class="btn5 success"
-              onClick={this.viewRegisteredEvents.bind(this)}
+              onClick={event =>
+                this.viewRegisteredEvents(
+                  event,
+                  localStorage.cookie.split("+")[0]
+                )
+              }
             >
               {" "}
               Registered Events
@@ -250,26 +253,46 @@ class Events extends Component {
   }
 
   registerToEventDetails = (event, eventId, companyId) => {
-    if (cookie.load("cookie")) {
+    if (localStorage.cookie) {
       const data = {
-        eventid: eventId,
+        _id: eventId,
         companyId: companyId,
-        studentId: cookie.load("cookie").split("+")[0]
+        studentId: localStorage.cookie.split("+")[0]
       };
-      axios.post(backend + "/registerToEvent", data).then(response => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          console.log("Registered successfully");
-          this.setState({
-            showingAlert: true
-          });
-          alert("Successfully Registered for this event");
-        } else {
+      console.log("studentId", data);
+      this.props.registerStudentToEvent(data).then(
+        response => {
+          if (response.data == "Successfully Updated") {
+            console.log("Registered is", response);
+            this.setState({
+              showingAlert: true
+            });
+            alert("Successfully Registered for this event");
+          } else {
+            this.setState({
+              showingAlert: true
+            });
+            alert("Not Registered for this event");
+          }
+        },
+        error => {
           console.log("Error Registering for this event");
         }
-      });
+      );
     }
   };
 }
-//export Home Component
-export default Events;
+const mapStateToProps = state => ({
+  events: state.schools.events,
+  studentObject: state.schools.studentObject
+});
+
+//export Profile Component
+export default connect(mapStateToProps, {
+  fetchEvents,
+  registerStudentToEvent,
+  fetchStudent,
+  registeredEvents,
+  upcomingEvents,
+  eventSearch
+})(Events);

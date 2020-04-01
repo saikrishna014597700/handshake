@@ -4,10 +4,16 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import {
+  fetchJobPostings,
+  jobSearchOnName,
+  jobSearchOnNameAndCat
+} from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 class Home extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       jobPostings: [],
       redirect: null,
@@ -21,20 +27,26 @@ class Home extends Component {
     this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
   }
   //get the books data from backend
-  componentDidMount() {
-    console.log("in componentDidMount");
-    axios.get(backend + "/home").then(response => {
-      //update the state with the response data
-      this.setState({
-        jobPostings: this.state.jobPostings.concat(response.data)
-      });
-    });
-    if (cookie.load("cookie")) {
+  async componentDidMount() {
+    if (localStorage.cookie) {
+      this.props.fetchJobPostings().then(
+        response => {
+          console.log("Student Details are is", response.data);
+          this.setState({
+            jobPostings: this.state.jobPostings.concat(
+              this.props.jobPostingsRes
+            )
+          });
+        },
+        error => {
+          console.log("Events is", error);
+        }
+      );
       var jobIdss = [];
       axios
         .get(
           backend +
-            `/getStudentAppliedJobIds/${cookie.load("cookie").split("+")[0]}`
+            `/getStudentAppliedJobIds/${localStorage.cookie.split("+")[0]}`
         )
         .then(response => {
           //update the state with the response data
@@ -47,7 +59,6 @@ class Home extends Component {
               jobIdss.push(studentJobId.fk_jobId);
             });
           }
-
           this.setState({
             jobIds: jobIdss
           });
@@ -64,58 +75,70 @@ class Home extends Component {
 
   handleOnChange = event => {
     this.setState({ searchValue: event.target.value });
+    console.log("Sate", this.state.searchValue);
   };
   handleSearch = () => {
-    axios
-      .get(backend + `/jobPostingSearch/${this.state.searchValue}`)
-      .then(response => {
-        if (response.data === "No Job postings!") {
-          alert(response.data);
-        } else {
-          this.setState({
-            jobPostings: response.data
-          });
-        }
-      });
+    // axios
+    //   .get(backend + `/jobPostingSearch/${this.state.searchValue}`)
+    //   .then(response => {
+    //     if (response.data === "No Job postings!") {
+    //       alert(response.data);
+    //     } else {
+    //       this.setState({
+    //         jobPostings: response.data
+    //       });
+    //     }
+    //   });
+    const data = {
+      searchValue: this.state.searchValue
+    };
+    this.props.jobSearchOnName(data).then(
+      response => {
+        console.log("Student Details are is", response.data);
+        this.setState({
+          jobPostings: this.props.jobPostingsRes
+        });
+      },
+      error => {
+        console.log("Events is", error);
+      }
+    );
   };
 
   handleStatusChange = e => {
     if (e.target.value === "All Jobs") {
-      axios
-        .get(backend + `/jobPostingSearch/${this.state.searchValue}`)
-        .then(response => {
-          if (response.data === "No Job postings!") {
-            alert(response.data);
-          } else {
-            this.setState({
-              jobPostings: response.data
-            });
-          }
-        });
+      const data2 = {
+        searchValue: this.state.searchValue
+      };
+      this.props.jobSearchOnName(data2).then(
+        response => {
+          console.log("Student Details are is", response.data);
+          this.setState({
+            jobPostings: this.props.jobPostingsRes
+          });
+        },
+        error => {
+          console.log("Events is", error);
+        }
+      );
     } else {
       const data = {
         category: e.target.value,
         searchValue: this.state.searchValue
       };
       console.log("Data is", data);
-      if (cookie.load("cookie")) {
-        axios
-          .post(
-            backend +
-              `/studentjobsOnCategory/${cookie.load("cookie").split("+")[0]}`,
-            data
-          )
-          .then(response => {
-            if (response.data === "No Job postings!") {
-              alert(response.data);
-            } else {
-              console.log("response is", response);
-              //update the state with the response data
-              this.setState({
-                jobPostings: response.data
-              });
-            }
-          });
+      if (localStorage.cookie) {
+        this.props.jobSearchOnNameAndCat(data).then(
+          response => {
+            console.log("Student Details are is", response.data);
+            this.setState({
+              jobPostings: this.props.jobPostingsRes
+            });
+          },
+          error => {
+            console.log("Events is", error);
+          }
+        );
       }
     }
   };
@@ -126,7 +149,7 @@ class Home extends Component {
       return <Redirect to={this.state.redirect} />;
     }
     //iterate over books to create a table row
-    let jobPostings = this.state.jobPostings.map(jobPosting => {
+    let jobPostings = this.props.jobPostingsRes.map(jobPosting => {
       let viewButton = "";
       if (jobPosting.applicationDeadline) {
         var applicationDeadline = jobPosting.applicationDeadline.slice(0, 10);
@@ -134,12 +157,12 @@ class Home extends Component {
       if (jobPosting.postingDate) {
         var postingDate = jobPosting.postingDate.slice(0, 10);
       }
-      console.log("Outside", jobPosting.jobId);
-      if (!this.state.jobIds.includes(jobPosting.jobId)) {
+      console.log("Outside", jobPosting._id);
+      if (!this.state.jobIds.includes(jobPosting._id)) {
         viewButton = (
           <button
             class="btn success"
-            onClick={event => this.getJobDetail(event, jobPosting.jobId)}
+            onClick={event => this.getJobDetail(event, jobPosting._id)}
           >
             View Details
           </button>
@@ -149,7 +172,7 @@ class Home extends Component {
           <button
             disabled
             class="btn success"
-            onClick={event => this.getJobDetail(event, jobPosting.jobId)}
+            onClick={event => this.getJobDetail(event, jobPosting._id)}
           >
             Already Applied
           </button>
@@ -177,7 +200,7 @@ class Home extends Component {
     });
     //if not logged in go to login page
     let redirectVar = null;
-    if (!cookie.load("cookie")) {
+    if (!localStorage.cookie) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -226,4 +249,13 @@ class Home extends Component {
   };
 }
 //export Home Component
-export default Home;
+const mapStateToProps = state => ({
+  jobPostingsRes: state.schools.jobPostingsRes
+});
+
+//export Profile Component
+export default connect(mapStateToProps, {
+  fetchJobPostings,
+  jobSearchOnName,
+  jobSearchOnNameAndCat
+})(Home);

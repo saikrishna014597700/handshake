@@ -4,7 +4,7 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
-import { login } from "../../actions/fetchStudent";
+import { login, loginCompany } from "../../actions/fetchStudent";
 import { connect } from "react-redux";
 
 //Define a Login Component
@@ -19,7 +19,8 @@ class Login extends Component {
       password: "",
       authFlag: false,
       roleFlag: this.props.match.url,
-      loginFlag: false
+      loginFlag: false,
+      cookieTest: ""
     };
     console.log("roleflag is", this.state.roleFlag);
     //Bind the handlers to this class
@@ -51,14 +52,17 @@ class Login extends Component {
     var headers = new Headers();
     //prevent page from refresh
     // e.preventDefault();
-    const data = {
-      username: this.state.username,
-      password: this.state.password
-    };
+    console.log("submitLogin", this.state.roleFlag);
+
     //set the with credentials to true
     axios.defaults.withCredentials = true;
     //make a post request with the user data
     if (this.state.roleFlag === "/login/1") {
+      const data = {
+        email: this.state.username,
+        studentPassword: this.state.password
+      };
+      console.log("User info is", data);
       await this.props.login(data);
       console.log(
         "login Response from props in login component status:",
@@ -68,9 +72,16 @@ class Login extends Component {
         //console.log();
         console.log("response.status", this.props.loginResponse);
 
-        var x = await cookie.load("cookie");
-        console.log("Cookie is", x);
+        var cookieTest = await this.props.loginResponse.data.cookie;
+        console.log("Cookie is", cookieTest);
+        document.cookie = "";
+        document.cookie = cookieTest;
 
+        this.setState({
+          cookieTest: cookieTest
+        });
+        var x = await localStorage.setItem("cookie", cookieTest);
+        console.log("Cookie Storage res is", x, localStorage.getItem("cookie"));
         this.setState({
           loginFlag: true
         });
@@ -80,21 +91,37 @@ class Login extends Component {
         });
       }
     } else {
-      console.log("In companylogin");
-      axios.post(backend+"/companylogin", data).then(response => {
-        console.log("Status Code : ", response.status);
-        if (response.status === 200) {
-          console.log("Status Code : ", this.state.loginFlag);
-          this.setState({
-            loginFlag: true
-          });
-        } else {
-          this.setState({
-            loginFlag: false
-          });
-        }
-        console.log("Status Code 2: ", this.state.loginFlag);
-      });
+      const data = {
+        email: this.state.username,
+        companyPassword: this.state.password
+      };
+      await this.props.loginCompany(data);
+      console.log(
+        "login Response from props in login component status:",
+        this.props.loginResponse.status
+      );
+      if (this.props.loginResponse.status === 200) {
+        //console.log();
+        console.log("response.status", this.props.loginResponse);
+
+        var cookieTest = await this.props.loginResponse.data.cookie;
+        console.log("Cookie is", cookieTest);
+        document.cookie = "";
+        document.cookie = cookieTest;
+
+        this.setState({
+          cookieTest: cookieTest
+        });
+        var x = await localStorage.setItem("cookie", cookieTest);
+        console.log("Cookie Storage res is", x, localStorage.getItem("cookie"));
+        this.setState({
+          loginFlag: true
+        });
+      } else {
+        this.setState({
+          loginFlag: false
+        });
+      }
     }
   }
 
@@ -107,13 +134,12 @@ class Login extends Component {
   }
 
   render() {
-    //redirect based on successful login
-    console.log("In render", cookie.load("cookie"));
     let redirectVar = null;
-    if (cookie.load("cookie") && this.state.roleFlag === "/login/1") {
+    console.log("get cookie in Lofin", localStorage.getItem("cookie"));
+    if (this.state.cookieTest && this.state.roleFlag === "/login/1") {
       console.log("In 1");
       redirectVar = <Redirect to="/home" />;
-    } else if (cookie.load("cookie") && this.state.roleFlag === "/login/2") {
+    } else if (this.state.cookieTest && this.state.roleFlag === "/login/2") {
       console.log("In 2");
       redirectVar = <Redirect to="/companyDashboard" />;
     }
@@ -180,5 +206,6 @@ const mapStateToProps = state => ({
 
 //export Profile Component
 export default connect(mapStateToProps, {
-  login
+  login,
+  loginCompany
 })(Login);

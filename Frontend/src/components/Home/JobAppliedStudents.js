@@ -5,6 +5,11 @@ import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import Popup from "reactjs-popup";
+import {
+  jobAppliedStudents,
+  studentSearchComp
+} from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 // import PDFViewer from "pdf-viewer-reactjs";
 
@@ -31,32 +36,33 @@ class JobAppliedStudents extends Component {
     this.setState({ searchValue: event.target.value });
   };
   handleSearch = () => {
-    axios
-      .get(backend + `/studentSearch/${this.state.searchValue}`)
-      .then(response => {
-        if (response.status == 200) {
-          this.setState({
-            studentBasicDetailsResult: response.data
-          });
-        } else {
-          console.log("No search results found");
-        }
-      });
+    console.log("In Student Search", this.state.searchValue);
+    this.props.studentSearchComp(this.state.searchValue).then(
+      response => {
+        console.log("Students are is", this.props.allStudents);
+      },
+      error => {
+        console.log("Events is", error);
+      }
+    );
   };
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
-    var jobId = this.props.match.params.id;
-    console.log("in componentDidMount", jobId);
-    axios.get(backend + `/jobAppliedStudents/${jobId}`).then(response => {
-      //update the state with the response data
-      console.log("res 2 is  :::", response);
-      this.setState({
-        studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
-          response.data
-        )
-      });
-    });
+    const data = {
+      jobId: this.props.match.params.id
+    };
+    this.props.jobAppliedStudents(data).then(
+      response => {
+        console.log("Job Applied Student is", response, this.props.allStudents);
+        this.setState({
+          studentBasicDetailsResult: this.props.allStudents
+        });
+      },
+      error => {
+        console.log("Error is", error);
+      }
+    );
   }
 
   handleChange2(event) {
@@ -101,7 +107,7 @@ class JobAppliedStudents extends Component {
     }
 
     //iterate over books to create a table row
-    let studentDetails = this.state.studentBasicDetailsResult.map(
+    let studentDetails = this.props.allStudents.map(
       studentBasicDetailResult => {
         console.log("aaaa", studentBasicDetailResult);
         console.log("aaaa222", studentBasicDetailResult.studentJobResume);
@@ -124,10 +130,7 @@ class JobAppliedStudents extends Component {
               <button
                 class="btn success"
                 onClick={event =>
-                  this.getProfileDetails(
-                    event,
-                    studentBasicDetailResult.studentId
-                  )
+                  this.getProfileDetails(event, studentBasicDetailResult._id)
                 }
               >
                 View Profile
@@ -191,7 +194,7 @@ class JobAppliedStudents extends Component {
     );
     //if not logged in go to login page
     let redirectVar = null;
-    if (!cookie.load("cookie")) {
+    if (!localStorage.cookie) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -222,5 +225,12 @@ class JobAppliedStudents extends Component {
     this.setState({ redirect: `/studentprofile/${id}` });
   };
 }
-//export Home Component
-export default JobAppliedStudents;
+const mapStateToProps = state => ({
+  allStudents: state.schools.allStudents
+});
+
+//export Profile Component
+export default connect(mapStateToProps, {
+  jobAppliedStudents,
+  studentSearchComp
+})(JobAppliedStudents);

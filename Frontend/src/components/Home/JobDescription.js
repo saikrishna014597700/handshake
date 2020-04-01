@@ -5,6 +5,11 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import {
+  fetchParticularJob,
+  fetchParticularCompany
+} from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 class JobDescription extends Component {
   constructor() {
@@ -15,35 +20,35 @@ class JobDescription extends Component {
       redirect: null,
       fileData: null
     };
+    this.initialState = {
+      job: [],
+      company: []
+    };
+    this.props = this.initialState;
     this.registerToJobDetails = this.registerToJobDetails.bind(this);
     this.getAppliedStudents = this.getAppliedStudents.bind(this);
     this.gotoCompanyProfile = this.gotoCompanyProfile.bind(this);
   }
   //get the books data from backend
   componentDidMount() {
-    console.log("in componentDidMount");
-    axios
-      .get(backend + `/getjobDetails/${this.props.match.params.id}`)
-      .then(response => {
-        //update the state with the response data
-        console.log("res is  :::", response);
-        this.setState({
-          jobDetails: this.state.jobDetails.concat(response.data)
-        });
-        if (this.state.jobDetails[0]) {
-          var comapnyDetails = this.state.jobDetails[0].fk_companyId;
-          console.log("Abc is ", comapnyDetails);
+    console.log("in componentDidMount", this.props.match.params.id);
+    if (localStorage.cookie) {
+      this.props.fetchParticularJob(this.props.match.params.id).then(
+        response => {
+          this.props.fetchParticularCompany(this.props.job[0].companyId).then(
+            response => {
+              console.log("Got Company data");
+            },
+            error => {
+              console.log("Events is", error);
+            }
+          );
+        },
+        error => {
+          console.log("Events is", error);
         }
-        axios
-          .get(backend + `/companyDetails/${comapnyDetails}`)
-          .then(response => {
-            //update the state with the response data
-            console.log("res is  :::", response);
-            this.setState({
-              companyDetails: this.state.companyDetails.concat(response.data)
-            });
-          });
-      });
+      );
+    }
   }
   onFileChange(e, id) {
     let fileData = new FormData();
@@ -61,7 +66,7 @@ class JobDescription extends Component {
     }
 
     //iterate over books to create a table row
-    let jobDetails = this.state.jobDetails.map(jobPosting => {
+    let jobDetails = this.props.job.map(jobPosting => {
       console.log("xxxx::::", jobPosting);
       return (
         <div class="card3">
@@ -111,7 +116,7 @@ class JobDescription extends Component {
       );
     });
 
-    let companyDetails = this.state.companyDetails.map(companyDetail => {
+    let companyDetails = this.props.company.map(companyDetail => {
       return (
         <div class="card3">
           <h4> Name : {companyDetail.companyName}</h4>
@@ -122,9 +127,7 @@ class JobDescription extends Component {
           <br />
           <button
             class="btn4 success"
-            onClick={event =>
-              this.gotoCompanyProfile(event, companyDetail.companyId)
-            }
+            onClick={event => this.gotoCompanyProfile(event, companyDetail._id)}
           >
             View Profile
           </button>
@@ -136,14 +139,14 @@ class JobDescription extends Component {
 
     //if not logged in go to login page
     let redirectVar = null;
-    if (!cookie.load("cookie")) {
+    if (!localStorage.cookie) {
       redirectVar = <Redirect to="/login" />;
     }
     let viewRegisteredStudents;
 
     if (
-      cookie.load("cookie") &&
-      cookie.load("cookie").split("+")[1] === "company"
+      localStorage.cookie &&
+      localStorage.cookie.split("+")[1] === "company"
     ) {
       viewRegisteredStudents = (
         <button
@@ -156,8 +159,8 @@ class JobDescription extends Component {
     }
 
     if (
-      cookie.load("cookie") &&
-      cookie.load("cookie").split("+")[1] === "student"
+      localStorage.cookie &&
+      localStorage.cookie.split("+")[1] === "student"
     ) {
       viewRegisteredStudents = (
         <div>
@@ -219,11 +222,11 @@ class JobDescription extends Component {
   }
 
   async registerToJobDetails(event, jobId, companyId) {
-    if (cookie.load("cookie")) {
+    if (localStorage.cookie) {
       const dataArray = new FormData();
       dataArray.append("file", this.state.fileData);
-      if (cookie.load("cookie")) {
-        var studentId = cookie.load("cookie").split("+")[0];
+      if (localStorage.cookie) {
+        var studentId = localStorage.cookie.split("+")[0];
       }
       var resumePath;
       console.log("JobId::", this.props.match.params.id);
@@ -249,11 +252,11 @@ class JobDescription extends Component {
             console.log("Error in saving application");
           }
         });
-      if (cookie.load("cookie")) {
+      if (localStorage.cookie) {
         const data = {
           jobId: jobId,
           companyId: companyId,
-          studentId: cookie.load("cookie").split("+")[0],
+          studentId: localStorage.cookie.split("+")[0],
           resumePath: resumePath
         };
         axios.post(backend + "/applyToJob", data).then(response => {
@@ -281,5 +284,15 @@ class JobDescription extends Component {
     });
   }
 }
+
 //export Home Component
-export default JobDescription;
+const mapStateToProps = state => ({
+  job: state.schools.job,
+  company: state.schools.company
+});
+
+//export Profile Component
+export default connect(mapStateToProps, {
+  fetchParticularJob,
+  fetchParticularCompany
+})(JobDescription);

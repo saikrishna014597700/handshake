@@ -4,10 +4,15 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
+import {
+  fetchAllStudents,
+  studentSearchComp
+} from "../../actions/fetchStudent";
+import { connect } from "react-redux";
 
 class Students extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       students: [],
       studentId: 1,
@@ -16,6 +21,10 @@ class Students extends Component {
       redirect: null,
       searchValue: ""
     };
+    this.initialState = {
+      allStudents: []
+    };
+    this.props = this.initialState;
     this.getProfileDetails = this.getProfileDetails.bind(this);
     this.handleOnChange = this.handleOnChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
@@ -25,45 +34,29 @@ class Students extends Component {
     this.setState({ searchValue: event.target.value });
   };
   handleSearch = () => {
-    axios
-      .get(backend + `/studentSearch/${this.state.searchValue}`)
-      .then(response => {
-        if (response.status == 200) {
-          this.setState({
-            studentBasicDetailsResult: response.data
-          });
-        } else {
-          console.log("No search results found");
-        }
-      });
+    console.log("In Student Search", this.state.searchValue);
+    this.props.studentSearchComp(this.state.searchValue).then(
+      response => {
+        console.log("Students are is", this.props.allStudents);
+      },
+      error => {
+        console.log("Events is", error);
+      }
+    );
   };
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
-    const data = {
-      studentId: this.state.studentId
-    };
-    axios.get(backend + `/allstudentDetails`).then(response => {
-      //update the state with the response data
-      console.log("res 2 is  :::", response);
-      this.setState({
-        studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
-          response.data
-        )
-      });
-    });
-    console.log("data is", data);
-    axios
-      .get(backend + `/profilestudentDetails/${this.state.studentId}`)
-      .then(response => {
-        console.log("res 1 is  :::", response);
-        //update the state with the response data
-        this.setState({
-          studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
-            response.data
-          )
-        });
-      });
+    if (localStorage.cookie) {
+      this.props.fetchAllStudents().then(
+        response => {
+          console.log("Students are is", this.props.allStudents);
+        },
+        error => {
+          console.log("Events is", error);
+        }
+      );
+    }
   }
 
   buildAvatarUrl(fileName) {
@@ -78,7 +71,7 @@ class Students extends Component {
       return <Redirect to={this.state.redirect} />;
     }
     //iterate over books to create a table row
-    let studentDetails = this.state.studentBasicDetailsResult.map(
+    let studentDetails = this.props.allStudents.map(
       studentBasicDetailResult => {
         console.log("Student is ", studentBasicDetailResult);
         return (
@@ -101,10 +94,7 @@ class Students extends Component {
               <button
                 class="btn success"
                 onClick={event =>
-                  this.getProfileDetails(
-                    event,
-                    studentBasicDetailResult.studentId
-                  )
+                  this.getProfileDetails(event, studentBasicDetailResult._id)
                 }
               >
                 View Profile
@@ -119,7 +109,7 @@ class Students extends Component {
     );
     //if not logged in go to login page
     let redirectVar = null;
-    if (!cookie.load("cookie")) {
+    if (!localStorage.cookie) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -152,5 +142,13 @@ class Students extends Component {
     this.setState({ redirect: `/studentprofile/${id}` });
   };
 }
-//export Home Component
-export default Students;
+
+const mapStateToProps = state => ({
+  allStudents: state.schools.allStudents
+});
+
+//export Profile Component
+export default connect(mapStateToProps, {
+  fetchAllStudents,
+  studentSearchComp
+})(Students);

@@ -19,9 +19,9 @@ class StudentApplication extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("in componentDidMount");
-    if (localStorage.cookie) {
+    if (cookie.load("cookie")) {
       axios
-        .get(backend + `/studentjobs/${localStorage.cookie.split("+")[0]}`)
+        .get(backend + `/studentjobs/${cookie.load("cookie").split("+")[0]}`)
         .then(response => {
           //update the state with the response data
           this.setState({
@@ -33,9 +33,9 @@ class StudentApplication extends Component {
 
   handleStatusChange = e => {
     if (e.target.value === "Applied Jobs") {
-      if (localStorage.cookie) {
+      if (cookie.load("cookie")) {
         axios
-          .get(backend + `/studentjobs/${localStorage.cookie.split("+")[0]}`)
+          .get(backend + `/studentjobs/${cookie.load("cookie").split("+")[0]}`)
           .then(response => {
             //update the state with the response data
             if (response.data === "No Job postings!") {
@@ -52,11 +52,11 @@ class StudentApplication extends Component {
         status: e.target.value
       };
       console.log("Data is", data);
-      if (localStorage.cookie) {
+      if (cookie.load("cookie")) {
         axios
           .post(
             backend +
-              `/studentjobsOnStatus/${localStorage.cookie.split("+")[0]}`,
+              `/studentjobsOnStatus/${cookie.load("cookie").split("+")[0]}`,
             data
           )
           .then(response => {
@@ -109,7 +109,7 @@ class StudentApplication extends Component {
     });
     //if not logged in go to login page
     let redirectVar = null;
-    if (!localStorage.cookie) {
+    if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
     return (

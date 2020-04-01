@@ -4,20 +4,13 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
-import {
-  companyJobs,
-  companyJobSearch,
-  companyJobSearchOnNameAndCat,
-  postJob
-} from "../../actions/fetchStudent";
-import { connect } from "react-redux";
 
 class CompanyDashboard extends Component {
   constructor() {
     super();
     this.state = {
       company: [],
-      jobPostingsRes: [],
+      companyJobPostings: [],
       redirect: null,
       createJobFlag: false,
       jobTitle: "",
@@ -42,23 +35,19 @@ class CompanyDashboard extends Component {
   }
   //get the books data from backend
   componentDidMount() {
-    if (localStorage.cookie) {
-      const data = {
-        companyId: localStorage.cookie.split("+")[0]
-      };
-      this.props.companyJobs(data).then(
-        response => {
-          console.log("Student Details are is", response.data);
+    console.log("in componentDidMount");
+    if (cookie.load("cookie")) {
+      axios
+        .get(
+          backend + `/companyJobPostings/${cookie.load("cookie").split("+")[0]}`
+        )
+        .then(response => {
           this.setState({
-            jobPostingsRes: this.state.jobPostingsRes.concat(
-              this.props.jobPostingsRes
+            companyJobPostings: this.state.companyJobPostings.concat(
+              response.data
             )
           });
-        },
-        error => {
-          console.log("Events is", error);
-        }
-      );
+        });
     }
   }
 
@@ -67,21 +56,25 @@ class CompanyDashboard extends Component {
   };
 
   handleSearch = () => {
-    const data = {
-      companyId: localStorage.cookie.split("+")[0],
-      searchValue: this.state.searchValue
-    };
-    this.props.companyJobSearch(data).then(
-      response => {
-        console.log("Company Events is", response);
-        this.setState({
-          jobPostingsRes: this.props.jobPostingsRes
+    if (cookie.load("cookie")) {
+      const data = {
+        companyId: cookie.load("cookie").split("+")[0]
+      };
+      axios
+        .post(
+          backend + `/companyjobPostingSearch/${this.state.searchValue}`,
+          data
+        )
+        .then(response => {
+          if (response.data === "No Job postings!") {
+            alert(response.data);
+          } else {
+            this.setState({
+              companyJobPostings: response.data
+            });
+          }
         });
-      },
-      error => {
-        console.log("Events is", error);
-      }
-    );
+    }
   };
 
   buildAvatarUrl(fileName) {
@@ -92,41 +85,48 @@ class CompanyDashboard extends Component {
   }
 
   handleStatusChange = e => {
-    if (e.target.value === "All Jobs") {
-      const data = {
-        companyId: localStorage.cookie.split("+")[0],
-        searchValue: this.state.searchValue
-      };
-      this.props.companyJobSearch(data).then(
-        response => {
-          console.log("Company Events is", response);
-          this.setState({
-            jobPostingsRes: this.props.jobPostingsRes
+    console.log("e.target.value", e.target.value);
+    if (cookie.load("cookie")) {
+      if (e.target.value === "All Jobs") {
+        axios
+          .get(
+            backend +
+              `/companyJobPostings/${cookie.load("cookie").split("+")[0]}`
+          )
+          .then(response => {
+            this.setState({
+              companyJobPostings: this.state.companyJobPostings.concat(
+                response.data
+              )
+            });
           });
-        },
-        error => {
-          console.log("Events is", error);
-        }
-      );
+      }
     } else {
       const data = {
-        companyId: localStorage.cookie.split("+")[0],
         category: e.target.value,
         searchValue: this.state.searchValue
       };
-      console.log("Data is", data);
-      if (localStorage.cookie) {
-        this.props.companyJobSearchOnNameAndCat(data).then(
-          response => {
-            console.log("Student Details are is", response.data);
-            this.setState({
-              jobPostingsRes: this.props.jobPostingsRes
-            });
-          },
-          error => {
-            console.log("Events is", error);
-          }
-        );
+      if (cookie.load("cookie")) {
+        console.log("Data is", data);
+        axios
+          .post(
+            backend +
+              `/companyjobPostingSearchOnCategory/${
+                cookie.load("cookie").split("+")[0]
+              }`,
+            data
+          )
+          .then(response => {
+            if (response.data === "No Job postings!") {
+              alert(response.data);
+            } else {
+              console.log("response is", response);
+              //update the state with the response data
+              this.setState({
+                companyJobPostings: response.data
+              });
+            }
+          });
       }
     }
   };
@@ -347,14 +347,14 @@ class CompanyDashboard extends Component {
       );
     }
     let redirectVar = null;
-    console.log("Cookie is", localStorage.cookie);
-    if (!localStorage.cookie) {
+    console.log("Cookie is", cookie.load("cookie"));
+    if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
-    let companyJobPosting = this.props.jobPostingsRes.map(jobPosting => {
+    let companyJobPosting = this.state.companyJobPostings.map(jobPosting => {
       if (jobPosting.applicationDeadline) {
         var applicationDeadline = jobPosting.applicationDeadline.slice(0, 10);
       }
@@ -381,7 +381,7 @@ class CompanyDashboard extends Component {
             Posted On&nbsp;&nbsp;: &nbsp;&nbsp;&nbsp;{postingDate}
             <button
               class="btn success"
-              onClick={event => this.getJobDetail(event, jobPosting._id)}
+              onClick={event => this.getJobDetail(event, jobPosting.jobId)}
             >
               View Details
             </button>
@@ -466,19 +466,13 @@ class CompanyDashboard extends Component {
       duties: this.state.duties,
       requirements: this.state.requirements,
       qualifications: this.state.qualifications,
-      companyId: localStorage.cookie.split("+")[0]
+      companyId: cookie.load("cookie").split("+")[0]
     };
-    this.props.postJob(data).then(
-      response => {
-        console.log("Event Created Res::", response.data);
-        this.setState({
-          jobPostingsRes: this.props.jobPostingsRes
-        });
-      },
-      error => {
-        console.log("Events is", error);
-      }
-    );
+    axios.post(backend + "/postJob", data).then(response => {
+      this.setState({
+        companyJobPostings: response.data
+      });
+    });
     this.setState({ createJobFlag: false });
   };
   cancelJobPosting = event => {
@@ -486,14 +480,4 @@ class CompanyDashboard extends Component {
   };
 }
 //export Home Component
-const mapStateToProps = state => ({
-  jobPostingsRes: state.schools.jobPostingsRes
-});
-
-//export Profile Component
-export default connect(mapStateToProps, {
-  companyJobs,
-  companyJobSearch,
-  companyJobSearchOnNameAndCat,
-  postJob
-})(CompanyDashboard);
+export default CompanyDashboard;

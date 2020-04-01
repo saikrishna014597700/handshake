@@ -74,8 +74,8 @@ class Register extends Component {
       email: this.state.email,
       firstName: this.state.firstName,
       lastName: this.state.lastName,
-      collegeName: this.state.univname,
-      studentPassword: this.state.password
+      univname: this.state.univname,
+      password: this.state.password
     };
     //set the with credentials to true
     axios.defaults.withCredentials = true;

@@ -12,17 +12,9 @@ var bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const exjwt = require("express-jwt");
 var aws = require("aws-sdk");
-var passport = require("passport");
 require("dotenv").config();
 var multer = require("multer");
 var fs = require("fs");
-const connectDB = require("./config/db");
-var studentMongoRouter = require("./routes/student");
-var loginRouter = require("./routes/login");
-var jobRouter = require("./routes/job");
-var eventRouter = require("./routes/event");
-var companyRouter = require("./routes/company");
-var router = express.Router();
 
 var fileStorage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -66,17 +58,6 @@ var companyImageUpload = multer({ storage: companyProfileStorage }).single(
 
 //use cors to allow cross origin resource sharing
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(
-  require("express-session")({
-    secret: "Hello World, this is a session",
-    resave: false,
-    saveUninitialized: false
-  })
-);
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
 
 //use express session to maintain session data
 app.use(
@@ -97,87 +78,10 @@ var connection = mysql.createConnection({
   database: "CMPE273LAB1"
 });
 
-connectDB();
-
-// var pool = mysql.createPool({
-//   connectionLimit: 600,
-//   host: "localhost",
-//   user: "root",
-//   port: "3306",
-//   password: "Demo@123",
-//   database: "CMPE273LAB1",
-//   debug: false
-// });
-// [10:41 PM, 3/12/2020] Saikrishna Nandikonda🏹: pool.getConnection(function(err, connection) {
-//       if (err) {
-//         connection.release();
-//         throw err;
-//       }
-//       connection.query(
-//         "SELECT * FROM student WHERE email = ?",
-//         [username],
-//         function(error, results, fields) {
-//           if (error) {
-//             response.end("Invalid Username");
-//           }
-//           console.log(results);
-//           if (results.length > 0) {
-//             bcrypt.compare(password, results[0].studentPassword, function(
-//               err,
-//               result
-//             ) {
-//               if (result === true) {
-//                 response.cookie(
-//                   "cookie",
-//                   results[0].studentId + "+" + "student",
-//                   {
-//                     maxAge: 900000,
-//                     httpOnly: false,
-//                     path: "/"
-//                   }
-//                 );
-//                 console.log("Valid!");
-//                 let token = jwt.sign(
-//                   { username: results[0].email },
-//                   "keyboard cat 4 ever",
-//                   { expiresIn: 129600 }
-//                 ); // Signing the token
-//                 response.json({
-//                   sucess: true,
-//                   err: null,
-//                   token
-//                 });
-//                 console.log("Valid!", token);
-//               } else {
-//                 console.log("Entered Password and Hash do not match!");
-//                 res.status(401).json({
-//                   sucess: false,
-//                   token: null,
-//                   err: "Entered Password and Hash do not match!"
-//                 });
-//               }
-//             });
-//           } else {
-//             response.end("Invalid Username");
-//           }
-//           // response.end();
-//         }
-//       );
-//     });
 // app.use(bodyParser.urlencoded({
 //     extended: true
 //   }));
 app.use(bodyParser.json());
-app.use(
-  bodyParser.urlencoded({
-    extended: true
-  })
-);
-app.use("/student-mongo", studentMongoRouter);
-app.use("/personaLogin", loginRouter);
-app.use("/job-mongo", jobRouter);
-app.use("/event-mongo", eventRouter);
-app.use("/company-mongo", companyRouter);
 
 //Allow Access Control
 app.use(function(req, res, next) {
@@ -864,7 +768,7 @@ app.get("/eventSearch/:name", async function(req, response) {
 
 app.get("/file/:name", (req, res) => {
   const name = req.params.name;
-  // console.log("/file req.params: " + JSON.stringify(req.params));
+  console.log("/file req.params: " + JSON.stringify(req.params));
   const path = __dirname + "/HandshakeFiles/" + req.query.role + "/" + name;
   console.log("/PATHHH" + path);
   try {
@@ -1293,5 +1197,3 @@ app.post("/sign_s3", async function(req, res) {
 //start your server on port 3001
 app.listen(3001);
 console.log("Server Listening on port 3001");
-
-module.exports = app;

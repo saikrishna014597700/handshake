@@ -19,14 +19,18 @@ import {
   editContactDetails,
   removeMyEdu,
   removeMywork,
-  editPersonalInfo,
-  submitReduxProfileStudent
+  editPersonalInfo
 } from "../../actions/fetchStudent";
 import { connect } from "react-redux";
 
 class UpdateProfile extends Component {
   constructor() {
     super();
+    // this.props = {
+    //   studentBasicDetailsResult: [],
+    //   studentAllDetailsResult: [],
+    //   studentAllEduDetailsResult: [],
+    //   myJourney: [],
     this.state = {
       yearofPassing: "",
       collegeName: "",
@@ -55,14 +59,15 @@ class UpdateProfile extends Component {
     //   super();
     this.initialState = {
       studentObject: [],
-      studentBasicDetailsResult: []
+      studentExperience: [],
+      studentEducation: [],
+      studentBasicDetails: []
     };
     this.props = this.initialState;
     // }
     this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
     this.handlemyChange = this.handlemyChange.bind(this);
     this.handlemyEduChange = this.handlemyEduChange.bind(this);
-    this.handleReduxChange = this.handleReduxChange.bind(this);
     this.submitmyJourney = this.submitmyJourney.bind(this);
     this.submitEduDetails = this.submitEduDetails.bind(this);
     this.removeEduDetails = this.removeEduDetails.bind(this);
@@ -73,9 +78,6 @@ class UpdateProfile extends Component {
     );
     this.submitpersonalInfoDetails = this.submitpersonalInfoDetails.bind(this);
     this.addEduDetails = this.addEduDetails.bind(this);
-    this.submitmyReduxProfileStudent = this.submitmyReduxProfileStudent.bind(
-      this
-    );
     this.addWorkDetails = this.addWorkDetails.bind(this);
     this.submitWorkDetails = this.submitWorkDetails.bind(this);
     this.addEducation = this.addEducation.bind(this);
@@ -86,34 +88,21 @@ class UpdateProfile extends Component {
   }
   //get the books data from backend
   componentDidMount() {
-    // if (localStorage.cookie) {
-    //   var studentId = localStorage.cookie.split("+")[0];
-    // }
-    // this.setState({
-    //   studentId: studentId
-    // });
-    // this.props.fetchStudent(studentId);
-    // this.props.fetchStudentDetails(studentId);
-    // this.props.fetchEduDetails(studentId);
-    // this.props.fetchWorkExpDetails(studentId);
-    // this.props.studentBasicDetails.map(studentAllDetailResult => {
-    //   this.setState({
-    //     studentDetailsId: studentAllDetailResult.studentDetailsId
-    //   });
-    // });
-    if (localStorage.cookie) {
-      this.props.fetchStudent(localStorage.cookie.split("+")[0]).then(
-        response => {
-          console.log("Student Details are is", response.data);
-          this.setState({
-            studentDetailsId: localStorage.cookie.split("+")[0]
-          });
-        },
-        error => {
-          console.log("Events is", error);
-        }
-      );
+    if (cookie.load("cookie")) {
+      var studentId = cookie.load("cookie").split("+")[0];
     }
+    this.setState({
+      studentId: studentId
+    });
+    this.props.fetchStudent(studentId);
+    this.props.fetchStudentDetails(studentId);
+    this.props.fetchEduDetails(studentId);
+    this.props.fetchWorkExpDetails(studentId);
+    this.props.studentBasicDetails.map(studentAllDetailResult => {
+      this.setState({
+        studentDetailsId: studentAllDetailResult.studentDetailsId
+      });
+    });
   }
 
   addEducation() {
@@ -159,34 +148,11 @@ class UpdateProfile extends Component {
   handlemyChange = (e, id, name) => {
     const studentBasicDetails = this.props.studentBasicDetails;
     studentBasicDetails.map(studentBasicDetail => {
-      if (studentBasicDetail._id === id) {
+      if (studentBasicDetail.studentDetailsId === id) {
         studentBasicDetail[name] = e.target.value;
       }
     });
   };
-
-  handleReduxChange = (e, id, name) => {
-    console.log("Before", this.props.studentObject);
-    const studentObject = this.props.studentObject;
-    studentObject.map(studentObjectt => {
-      if (studentObjectt._id === id) {
-        studentObjectt[name] = e.target.value;
-      }
-    });
-  };
-
-  submitmyReduxProfileStudent = event => {
-    console.log("Hiiiii", this.props.studentObject);
-    this.props.submitReduxProfileStudent(this.props.studentObject).then(
-      response => {
-        console.log("Updatedsuccessfully");
-      },
-      error => {
-        console.log("Student is", error);
-      }
-    );
-  };
-
   handlemystudentDetailsChange = (e, id, name) => {
     const studentBasicDetailsResult = this.props.studentObject;
     console.log("submitpersonalInfoDetails", this.props.studentObject);
@@ -202,43 +168,23 @@ class UpdateProfile extends Component {
   };
 
   handlemyEduChange = (e, id, name) => {
-    console.log("handlemyEduChange", id, name);
-    var stuId = localStorage.cookie.split("+")[0];
-    const studentObjectt = this.props.studentObject;
-    console.log("handlemyEduChange Before", this.props.studentObject);
-    studentObjectt.map(student => {
-      if (student._id === stuId) {
-        var educations = student.educations;
-        educations.map(education => {
-          console.log("Educa", education, education._id, id);
-          if (education._id == id) {
-            console.log("Hii");
-            education[name] = e.target.value;
-          }
-        });
+    const studentEduDetails = this.props.studentEducation;
+    console.log("handlemyEduChange", this.props.studentEducation);
+    studentEduDetails.map(studentEduDetail => {
+      if (studentEduDetail.studentEduDetailsId === id) {
+        studentEduDetail[name] = e.target.value;
       }
     });
-    console.log("handlemyEduChange After", this.props.studentObject);
   };
 
   handlemyWorkChange = (e, id, name) => {
-    console.log("handlemyEduChange", id, name);
-    var stuId = localStorage.cookie.split("+")[0];
-    const studentObjectt = this.props.studentObject;
-    console.log("handlemyEduChange Before", this.props.studentObject);
-    studentObjectt.map(student => {
-      if (student._id === stuId) {
-        var workExperiences = student.workExperiences;
-        workExperiences.map(workExperience => {
-          console.log("Educa", workExperience, workExperience._id, id);
-          if (workExperience._id == id) {
-            console.log("Hii");
-            workExperience[name] = e.target.value;
-          }
-        });
+    const studentWorkDetails = this.props.studentExperience;
+    console.log("handlemyWorkChange", this.props.studentExperience);
+    studentWorkDetails.map(studentWorkDetail => {
+      if (studentWorkDetail.workExpDetailsId === id) {
+        studentWorkDetail[name] = e.target.value;
       }
     });
-    console.log("handlemyEduChange After", this.props.studentObject);
   };
 
   submitmyJourney = (event, id, name) => {
@@ -270,7 +216,7 @@ class UpdateProfile extends Component {
   };
 
   submitEduDetails = (event, id) => {
-    console.log("submitContactDetailsDetailss", this.props.studentEducation);
+    console.log("submitContactDetailsDetails", this.props.studentEducation);
     var response = this.props.editMyedu(this.props.studentEducation);
     console.log("response is", response);
   };
@@ -281,19 +227,17 @@ class UpdateProfile extends Component {
     console.log("response is", response);
   };
 
-  removeEduDetails = async function(event, id) {
+  removeEduDetails = (event, id) => {
     const data = {
-      _id: id,
-      stuId: localStorage.cookie.split("+")[0]
+      eduId: id
     };
-    var response = await this.props.removeMyEdu(data);
+    var response = this.props.removeMyEdu(data);
     console.log("response is", response);
   };
 
   removeWorkDetails = (event, id) => {
     const data = {
-      _id: id,
-      stuId: localStorage.cookie.split("+")[0]
+      workId: id
     };
     var response = this.props.removeMywork(data);
     console.log("response is", response);
@@ -305,17 +249,20 @@ class UpdateProfile extends Component {
       collegeName: this.state.collegeName,
       degree: this.state.degree,
       major: this.state.major,
-      _id: this.state.studentDetailsId
+      studentId: this.state.studentId
     };
     console.log("submitContactDetailsDetails", this.props.studentExperience);
-    this.props.addEducation(data).then(
-      response => {
-        console.log("Updated successfgully");
-      },
-      error => {
-        console.log("Error is", error);
-      }
-    );
+    var response = this.props.addEducation(data);
+    console.log("response is", response);
+    // console.log("Dataaaa is", data);
+    // axios.post(backend+"/addEduDetails", data).then(response => {
+    //   console.log("Status Code : ", response.status);
+    //   if (response.status === 200) {
+    //     console.log("Updated work details successfully");
+    //   } else {
+    //     console.log("Error Updating work page");
+    //   }
+    // });
   };
   addWorkDetails = (event, id) => {
     const data = {
@@ -324,17 +271,11 @@ class UpdateProfile extends Component {
       startDate: this.state.startDate,
       endDate: this.state.endDate,
       description: this.state.description,
-      _id: this.state.studentDetailsId
+      studentId: this.state.studentId
     };
     console.log("submitContactDetailsDetails", data);
-    this.props.addWork(data).then(
-      response => {
-        console.log("Updated successfgully");
-      },
-      error => {
-        console.log("Error is", error);
-      }
-    );
+    var response = this.props.addWork(data);
+    console.log("response is", response);
   };
 
   onFileChange(e, id) {
@@ -360,13 +301,13 @@ class UpdateProfile extends Component {
   render() {
     console.log("jaffa", this.props.studentObject);
     let redirectVar = null;
-    if (!localStorage.cookie) {
+    if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
 
-    let studentDetails1 = this.props.studentObject.map(
+    let studentDetails1 = this.props.studentBasicDetails.map(
       studentAllDetailResult => {
-        console.log("Id iss::::::" + studentAllDetailResult.carrierObjective);
+        console.log("Id iss::::::" + studentAllDetailResult.studentDetailsId);
         return studentAllDetailResult.carrierObjective;
       }
     );
@@ -407,7 +348,12 @@ class UpdateProfile extends Component {
               {studentBasicDetailResult.lastName}
               <button
                 class="btn success"
-                onClick={event => this.submitmyReduxProfileStudent(event)}
+                onClick={event =>
+                  this.submitpersonalInfoDetails(
+                    event,
+                    studentBasicDetailResult.studentDetailsId
+                  )
+                }
               >
                 Save
               </button>
@@ -429,9 +375,9 @@ class UpdateProfile extends Component {
             <br />
             <input
               onChange={e =>
-                this.handleReduxChange(
+                this.handlemystudentDetailsChange(
                   e,
-                  this.state.studentDetailsId,
+                  studentBasicDetailResult.studentId,
                   "presentlevelOfEducation"
                 )
               }
@@ -442,9 +388,9 @@ class UpdateProfile extends Component {
             ></input>
             <input
               onChange={e =>
-                this.handleReduxChange(
+                this.handlemystudentDetailsChange(
                   e,
-                  this.state.studentDetailsId,
+                  studentBasicDetailResult.studentId,
                   "collegeName"
                 )
               }
@@ -455,9 +401,9 @@ class UpdateProfile extends Component {
             ></input>
             <input
               onChange={e =>
-                this.handleReduxChange(
+                this.handlemystudentDetailsChange(
                   e,
-                  this.state.studentDetailsId,
+                  studentBasicDetailResult.studentId,
                   "presentCourse"
                 )
               }
@@ -468,9 +414,9 @@ class UpdateProfile extends Component {
             ></input>
             <input
               onChange={e =>
-                this.handleReduxChange(
+                this.handlemystudentDetailsChange(
                   e,
-                  this.state.studentDetailsId,
+                  studentBasicDetailResult.studentId,
                   "graduationYear"
                 )
               }
@@ -486,7 +432,7 @@ class UpdateProfile extends Component {
       }
     );
 
-    let studentDetails2 = this.props.studentObject.map(
+    let studentDetails2 = this.props.studentBasicDetails.map(
       studentBasicDetailResult => {
         return (
           <div class="card">
@@ -494,7 +440,12 @@ class UpdateProfile extends Component {
               <b>Contact Info</b>
               <button
                 class="btn success"
-                onClick={event => this.submitmyReduxProfileStudent(event)}
+                onClick={event =>
+                  this.submitContactDetailsDetails(
+                    event,
+                    studentBasicDetailResult.studentDetailsId
+                  )
+                }
               >
                 Save
               </button>
@@ -502,9 +453,9 @@ class UpdateProfile extends Component {
             <br />
             <input
               onChange={e =>
-                this.handleReduxChange(
+                this.handlemyChange(
                   e,
-                  this.state.studentDetailsId,
+                  studentBasicDetailResult.studentDetailsId,
                   "phoneNumber"
                 )
               }
@@ -515,7 +466,11 @@ class UpdateProfile extends Component {
             ></input>
             <input
               onChange={e =>
-                this.handleReduxChange(e, this.state.studentDetailsId, "city")
+                this.handlemyChange(
+                  e,
+                  studentBasicDetailResult.studentDetailsId,
+                  "city"
+                )
               }
               class="editableinput4"
               name="city"
@@ -524,7 +479,11 @@ class UpdateProfile extends Component {
             ></input>
             <input
               onChange={e =>
-                this.handleReduxChange(e, this.state.studentDetailsId, "state")
+                this.handlemyChange(
+                  e,
+                  studentBasicDetailResult.studentDetailsId,
+                  "state"
+                )
               }
               class="editableinput4"
               name="state"
@@ -533,9 +492,9 @@ class UpdateProfile extends Component {
             ></input>
             <input
               onChange={e =>
-                this.handleReduxChange(
+                this.handlemyChange(
                   e,
-                  this.state.studentDetailsId,
+                  studentBasicDetailResult.studentDetailsId,
                   "country"
                 )
               }
@@ -546,7 +505,11 @@ class UpdateProfile extends Component {
             ></input>
             <input
               onChange={e =>
-                this.handleReduxChange(e, this.state.studentDetailsId, "dob")
+                this.handlemyChange(
+                  e,
+                  studentBasicDetailResult.studentDetailsId,
+                  "dob"
+                )
               }
               class="editableinput4"
               name="dob"
@@ -557,7 +520,7 @@ class UpdateProfile extends Component {
         );
       }
     );
-    let studentDetails3 = this.props.studentObject.map(
+    let studentDetails3 = this.props.studentBasicDetails.map(
       studentBasicDetailResult => {
         return (
           <div>
@@ -565,7 +528,13 @@ class UpdateProfile extends Component {
               <b> Skills</b>
               <button
                 class="btn success"
-                onClick={event => this.submitmyReduxProfileStudent(event)}
+                onClick={event =>
+                  this.submitmyskillSet(
+                    event,
+                    studentBasicDetailResult.studentDetailsId,
+                    "skillSet"
+                  )
+                }
               >
                 Save
               </button>
@@ -573,9 +542,9 @@ class UpdateProfile extends Component {
             <br />
             <input
               onChange={e =>
-                this.handleReduxChange(
+                this.handlemyChange(
                   e,
-                  this.state.studentDetailsId,
+                  studentBasicDetailResult.studentDetailsId,
                   "skillSet"
                 )
               }
@@ -588,126 +557,132 @@ class UpdateProfile extends Component {
       }
     );
 
-    // let addSkills = null;
-    // console.log("state is", this.state.addSkillsFlag);
-    // if (this.state.addSkillsFlag) {
-    //   addSkills = (
-    //     <div>
-    //       <br />
-    //       <input
-    //         onChange={e =>
-    //           this.handlemyChange(
-    //             e,
-    //             this.props.studentObject.studentDetailsId,
-    //             "skillSet"
-    //           )
-    //         }
-    //         class="editableinput4"
-    //         name="skillSet"
-    //         defaultValue="Skills"
-    //       ></input>
-    //       <button
-    //         class="btn success"
-    //         onClick={event =>
-    //           this.submitmyskillSet(
-    //             event,
-    //             this.props.studentBasicDetails[0].studentDetailsId,
-    //             "skillSet"
-    //           )
-    //         }
-    //       >
-    //         Save
-    //       </button>
-    //     </div>
-    //   );
-    // }
-    let studentEducationDetails = null;
-    //iterate over books to create a table row
-    this.props.studentObject.map(studentAllEduDetailResult => {
-      studentEducationDetails = studentAllEduDetailResult.educations.map(
-        studentEduDetailResult => {
-          return (
-            <div class="card">
-              <form>
-                <input
-                  onChange={e =>
-                    this.handlemyEduChange(
-                      e,
-                      studentEduDetailResult._id,
-                      "collegeName"
-                    )
-                  }
-                  name="collegeName"
-                  class="editableinput3"
-                  type="text"
-                  placeholder="University"
-                  defaultValue={studentEduDetailResult.collegeName}
-                ></input>
-                <br />
-                <br />
-                <input
-                  onChange={e =>
-                    this.handlemyEduChange(
-                      e,
-                      studentEduDetailResult._id,
-                      "degree"
-                    )
-                  }
-                  class="editableinput"
-                  name="degree"
-                  placeholder="Degree"
-                  defaultValue={studentEduDetailResult.degree}
-                ></input>
-                <br />
-                <br />
-                <input
-                  onChange={e =>
-                    this.handlemyEduChange(
-                      e,
-                      studentEduDetailResult._id,
-                      "major"
-                    )
-                  }
-                  class="editableinput"
-                  name="major"
-                  placeholder="Major"
-                  defaultValue={studentEduDetailResult.major}
-                ></input>
-                <br />
-                <br />
-                <input
-                  onChange={e =>
-                    this.handlemyEduChange(
-                      e,
-                      studentEduDetailResult._id,
-                      "yearofPassing"
-                    )
-                  }
-                  class="editableinput"
-                  name="yearofPassing"
-                  placeholder="Graduation year"
-                  defaultValue={studentEduDetailResult.yearOfPassing}
-                ></input>
-                <button
-                  class="btn success"
-                  onClick={event =>
-                    this.removeEduDetails(event, studentEduDetailResult._id)
-                  }
-                >
-                  Remove
-                </button>
-                <button
-                  class="btn success"
-                  onClick={event => this.submitmyReduxProfileStudent(event)}
-                >
-                  Save
-                </button>
-              </form>
-            </div>
-          );
-        }
+    let addSkills = null;
+    console.log("state is", this.state.addSkillsFlag);
+    if (this.state.addSkillsFlag) {
+      addSkills = (
+        <div>
+          <br />
+          <input
+            onChange={e =>
+              this.handlemyChange(
+                e,
+                this.props.studentBasicDetails[0].studentDetailsId,
+                "skillSet"
+              )
+            }
+            class="editableinput4"
+            name="skillSet"
+            defaultValue="Skills"
+          ></input>
+          <button
+            class="btn success"
+            onClick={event =>
+              this.submitmyskillSet(
+                event,
+                this.props.studentBasicDetails[0].studentDetailsId,
+                "skillSet"
+              )
+            }
+          >
+            Save
+          </button>
+        </div>
       );
-    });
+    }
+
+    //iterate over books to create a table row
+    let studentEducationDetails = this.props.studentEducation.map(
+      studentAllEduDetailResult => {
+        return (
+          <div class="card">
+            <form>
+              <input
+                onChange={e =>
+                  this.handlemyEduChange(
+                    e,
+                    studentAllEduDetailResult.studentEduDetailsId,
+                    "collegeName"
+                  )
+                }
+                name="collegeName"
+                class="editableinput3"
+                type="text"
+                placeholder="University"
+                defaultValue={studentAllEduDetailResult.collegeName}
+              ></input>
+              <br />
+              <br />
+              <input
+                onChange={e =>
+                  this.handlemyEduChange(
+                    e,
+                    studentAllEduDetailResult.studentEduDetailsId,
+                    "degree"
+                  )
+                }
+                class="editableinput"
+                name="degree"
+                placeholder="Degree"
+                defaultValue={studentAllEduDetailResult.degree}
+              ></input>
+              <br />
+              <br />
+              <input
+                onChange={e =>
+                  this.handlemyEduChange(
+                    e,
+                    studentAllEduDetailResult.studentEduDetailsId,
+                    "major"
+                  )
+                }
+                class="editableinput"
+                name="major"
+                placeholder="Major"
+                defaultValue={studentAllEduDetailResult.major}
+              ></input>
+              <br />
+              <br />
+              <input
+                onChange={e =>
+                  this.handlemyEduChange(
+                    e,
+                    studentAllEduDetailResult.studentEduDetailsId,
+                    "yearofPassing"
+                  )
+                }
+                class="editableinput"
+                name="yearofPassing"
+                placeholder="Graduation year"
+                defaultValue={studentAllEduDetailResult.yearofPassing}
+              ></input>
+              <button
+                class="btn success"
+                onClick={event =>
+                  this.removeEduDetails(
+                    event,
+                    studentAllEduDetailResult.studentEduDetailsId
+                  )
+                }
+              >
+                Remove
+              </button>
+              <button
+                class="btn success"
+                onClick={event =>
+                  this.submitEduDetails(
+                    event,
+                    studentAllEduDetailResult.studentEduDetailsId
+                  )
+                }
+              >
+                Save
+              </button>
+            </form>
+          </div>
+        );
+      }
+    );
 
     //iterate over books to create a table row
 
@@ -777,107 +752,111 @@ class UpdateProfile extends Component {
         </div>
       );
     }
-    let studentWorkDetails = "";
-    this.props.studentObject.map(studentAllWorkDetailResult => {
-      studentWorkDetails = studentAllWorkDetailResult.workExperiences.map(
-        studentWorkDetailResult => {
-          console.log("xxxx::::", studentWorkDetailResult);
-          return (
-            <div class="card">
-              <form>
-                <input
-                  onChange={e =>
-                    this.handlemyWorkChange(
-                      e,
-                      studentWorkDetailResult._id,
-                      "companyName"
-                    )
-                  }
-                  class="editableinput"
-                  name="companyName"
-                  placeholder="Company"
-                  defaultValue={studentWorkDetailResult.companyName}
-                ></input>
-                <br />
-                <br />
-                <input
-                  onChange={e =>
-                    this.handlemyWorkChange(
-                      e,
-                      studentWorkDetailResult._id,
-                      "title"
-                    )
-                  }
-                  class="editableinput"
-                  name="title"
-                  placeholder="Title"
-                  defaultValue={studentWorkDetailResult.title}
-                ></input>
-                <br />
-                <br />
-                <input
-                  onChange={e =>
-                    this.handlemyWorkChange(
-                      e,
-                      studentWorkDetailResult._id,
-                      "startDate"
-                    )
-                  }
-                  class="editableinput"
-                  name="startDate"
-                  placeholder="StartDate"
-                  defaultValue={studentWorkDetailResult.startDate}
-                ></input>
-                <br />
-                <br />
-                <input
-                  onChange={e =>
-                    this.handlemyWorkChange(
-                      e,
-                      studentWorkDetailResult._id,
-                      "endDate"
-                    )
-                  }
-                  class="editableinput"
-                  name="endDate"
-                  placeholder="EndDate"
-                  defaultValue={studentWorkDetailResult.endDate}
-                ></input>
-                <br />
-                <br />
-                <input
-                  onChange={e =>
-                    this.handlemyWorkChange(
-                      e,
-                      studentWorkDetailResult._id,
-                      "description"
-                    )
-                  }
-                  class="editableinput"
-                  name="description"
-                  placeholder="Description"
-                  defaultValue={studentWorkDetailResult.description}
-                ></input>
-                <button
-                  class="btn success"
-                  onClick={event =>
-                    this.removeWorkDetails(event, studentWorkDetailResult._id)
-                  }
-                >
-                  Remove
-                </button>
-                <button
-                  class="btn success"
-                  onClick={event => this.submitmyReduxProfileStudent(event)}
-                >
-                  Save
-                </button>
-              </form>
-            </div>
-          );
-        }
-      );
-    });
+    let studentWorkDetails = this.props.studentExperience.map(
+      studentAllWorkDetailResult => {
+        return (
+          <div class="card">
+            <form>
+              <input
+                onChange={e =>
+                  this.handlemyWorkChange(
+                    e,
+                    studentAllWorkDetailResult.workExpDetailsId,
+                    "companyName"
+                  )
+                }
+                class="editableinput"
+                name="companyName"
+                placeholder="Company"
+                defaultValue={studentAllWorkDetailResult.companyName}
+              ></input>
+              <br />
+              <br />
+              <input
+                onChange={e =>
+                  this.handlemyWorkChange(
+                    e,
+                    studentAllWorkDetailResult.workExpDetailsId,
+                    "title"
+                  )
+                }
+                class="editableinput"
+                name="title"
+                placeholder="Title"
+                defaultValue={studentAllWorkDetailResult.title}
+              ></input>
+              <br />
+              <br />
+              <input
+                onChange={e =>
+                  this.handlemyWorkChange(
+                    e,
+                    studentAllWorkDetailResult.workExpDetailsId,
+                    "startDate"
+                  )
+                }
+                class="editableinput"
+                name="startDate"
+                placeholder="StartDate"
+                defaultValue={studentAllWorkDetailResult.startDate}
+              ></input>
+              <br />
+              <br />
+              <input
+                onChange={e =>
+                  this.handlemyWorkChange(
+                    e,
+                    studentAllWorkDetailResult.workExpDetailsId,
+                    "endDate"
+                  )
+                }
+                class="editableinput"
+                name="endDate"
+                placeholder="EndDate"
+                defaultValue={studentAllWorkDetailResult.endDate}
+              ></input>
+              <br />
+              <br />
+              <input
+                onChange={e =>
+                  this.handlemyWorkChange(
+                    e,
+                    studentAllWorkDetailResult.workExpDetailsId,
+                    "description"
+                  )
+                }
+                class="editableinput"
+                name="description"
+                placeholder="Description"
+                defaultValue={studentAllWorkDetailResult.description}
+              ></input>
+              <button
+                class="btn success"
+                onClick={event =>
+                  this.removeWorkDetails(
+                    event,
+                    studentAllWorkDetailResult.workExpDetailsId
+                  )
+                }
+              >
+                Remove
+              </button>
+              <button
+                class="btn success"
+                onClick={event =>
+                  this.submitWorkDetails(
+                    event,
+                    studentAllWorkDetailResult.workExpDetailsId
+                  )
+                }
+              >
+                Save
+              </button>
+            </form>
+          </div>
+        );
+      }
+    );
 
     let Addexperience = null;
     console.log("state is", this.state.addWorkFlag);
@@ -984,7 +963,7 @@ class UpdateProfile extends Component {
                           name="carrierObjective"
                           defaultValue={studentDetails1}
                           onChange={e =>
-                            this.handleReduxChange(
+                            this.handlemyChange(
                               e,
                               this.state.studentDetailsId,
                               "carrierObjective"
@@ -994,7 +973,11 @@ class UpdateProfile extends Component {
                         <button
                           class="btn success"
                           onClick={event =>
-                            this.submitmyReduxProfileStudent(event)
+                            this.submitmyJourney(
+                              event,
+                              this.state.studentDetailsId,
+                              "carrierObjective"
+                            )
                           }
                         >
                           Save
@@ -1041,7 +1024,10 @@ class UpdateProfile extends Component {
 }
 
 const mapStateToProps = state => ({
-  studentObject: state.schools.studentObject
+  studentObject: state.schools.studentObject,
+  studentBasicDetails: state.schools.studentBasicDetails,
+  studentExperience: state.schools.studentExperience,
+  studentEducation: state.schools.studentEducation
 });
 
 //export Profile Component
@@ -1059,6 +1045,5 @@ export default connect(mapStateToProps, {
   editContactDetails,
   removeMyEdu,
   removeMywork,
-  editPersonalInfo,
-  submitReduxProfileStudent
+  editPersonalInfo
 })(UpdateProfile);

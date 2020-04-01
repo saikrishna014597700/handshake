@@ -14,15 +14,12 @@ class Navbar extends Component {
   }
   //handle logout to destroy the cookie
   handleLogout = () => {
-    // cookie.remove("cookie", { path: "/" });
-    localStorage.removeItem("cookie");
+    cookie.remove("cookie", { path: "/" });
   };
   render() {
     //if Cookie is set render Logout Button
     let navLogin = null;
-    console.log("in componentDidMountaa", localStorage.cookie);
-    console.log("in componentDidMountaa", localStorage.cookie);
-    if (localStorage.cookie) {
+    if (cookie.load("cookie")) {
       console.log("Able to read cookie");
       navLogin = (
         <ul class="nav navbar-nav navbar-right">
@@ -51,15 +48,15 @@ class Navbar extends Component {
     var studentFlag = false;
     var companyFlag = false;
     if (
-      localStorage.cookie &&
-      localStorage.cookie.split("+")[1] === "student"
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "student"
     ) {
       redirectVar = <Redirect to="/home" />;
       loginFLag = true;
       studentFlag = true;
     } else if (
-      localStorage.cookie &&
-      localStorage.cookie.split("+")[1] === "company"
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "company"
     ) {
       redirectVar = <Redirect to="/companyDashboard" />;
       loginFLag = true;
@@ -106,7 +103,7 @@ class Navbar extends Component {
             </li>
 
             <li>
-              <Link to="/companyprofile">Profile</Link>
+              <Link to="/companyprofile/:id">Profile</Link>
             </li>
           </ul>
         </div>
@@ -123,7 +120,7 @@ class Navbar extends Component {
               <Link to="/login/2">Employers</Link>
             </li>
             <li>
-              <Link to="/carrierCenters">Carrer Ceters</Link>
+              <Link to="/carrierCenters">Carrier Ceters</Link>
             </li>
           </ul>
         </div>

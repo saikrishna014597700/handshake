@@ -50,7 +50,7 @@ class Main extends Component {
           <Route path="/studentprofile/:id" component={StudentProfile} />
           <Route path="/jobDetails/:id" component={JobDescription} />
           <Route path="/companyDashboard" component={CompanyDashboard} />
-          <Route path="/companyprofile" component={CompanyProfile} />
+          <Route path="/companyprofile/:id" component={CompanyProfile} />
           <Route
             path="/studentcompanyprofile/:id"
             component={StudentCompanyProfile}

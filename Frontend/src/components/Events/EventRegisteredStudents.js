@@ -4,8 +4,6 @@ import axios from "axios";
 import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
-import { eventRegisteredStudents } from "../../actions/fetchStudent";
-import { connect } from "react-redux";
 
 class EventRegisteredStudents extends Component {
   constructor(props) {
@@ -38,22 +36,33 @@ class EventRegisteredStudents extends Component {
       });
   };
   //get the books data from backend
-  async componentDidMount() {
+  componentDidMount() {
     console.log("in componentDidMount");
-    const data = {
-      eventId: this.props.match.params.id
-    };
-    await this.props.eventRegisteredStudents(data).then(
-      response => {
-        console.log(
-          "Student Registeres to event  are is",
-          this.props.studentObject
-        );
-      },
-      error => {
-        console.log("Error is", error);
-      }
-    );
+    var eventId = this.props.match.params.id;
+    axios
+      .get(backend + `/eventRegisteredStudents/${eventId}`)
+      .then(response => {
+        //update the state with the response data
+        console.log("res 2 is  :::", response);
+        this.setState({
+          studentBasicDetailsResult: this.state.studentBasicDetailsResult.concat(
+            response.data
+          )
+        });
+      });
+    // axios
+    //   .get(
+    //     backend+`/profilestudentDetails/${this.state.studentId}`
+    //   )
+    //   .then(response => {
+    //     console.log("res 1 is  :::", response);
+    //     //update the state with the response data
+    //     this.setState({
+    //       studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
+    //         response.data
+    //       )
+    //     });
+    //   });
   }
 
   render() {
@@ -61,7 +70,7 @@ class EventRegisteredStudents extends Component {
       return <Redirect to={this.state.redirect} />;
     }
     //iterate over books to create a table row
-    let studentDetails = this.props.studentObject.map(
+    let studentDetails = this.state.studentBasicDetailsResult.map(
       studentBasicDetailResult => {
         console.log("Student is ", studentBasicDetailResult);
         return (
@@ -82,7 +91,10 @@ class EventRegisteredStudents extends Component {
               <button
                 class="btn success"
                 onClick={event =>
-                  this.getProfileDetails(event, studentBasicDetailResult._id)
+                  this.getProfileDetails(
+                    event,
+                    studentBasicDetailResult.studentId
+                  )
                 }
               >
                 View Profile
@@ -96,7 +108,7 @@ class EventRegisteredStudents extends Component {
     );
     //if not logged in go to login page
     let redirectVar = null;
-    if (!localStorage.cookie) {
+    if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -127,12 +139,5 @@ class EventRegisteredStudents extends Component {
     this.setState({ redirect: `/studentprofile/${id}` });
   };
 }
-
-const mapStateToProps = state => ({
-  studentObject: state.schools.studentObject
-});
-
-//export Profile Component
-export default connect(mapStateToProps, {
-  eventRegisteredStudents
-})(EventRegisteredStudents);
+//export Home Component
+export default EventRegisteredStudents;

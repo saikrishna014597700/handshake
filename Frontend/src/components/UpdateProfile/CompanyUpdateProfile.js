@@ -2,12 +2,10 @@ import React, { Component } from "react";
 import "../../profile.css";
 import axios from "axios";
 import { backend } from "../../webConfig";
+import cookie from "react-cookies";
 import { Redirect } from "react-router";
-import {
-  fetchParticularCompany,
-  getCompanyProfilePicPath,
-  updateCompanyProfile
-} from "../../actions/fetchStudent";
+import { Link } from "react-router-dom";
+import { fetchCompanyProfile } from "../../actions/fetchStudent";
 import { connect } from "react-redux";
 import Background from "../Profile/companyBackground.png";
 
@@ -16,10 +14,9 @@ class CompanyUpdateProfile extends Component {
     super(props);
     console.log("Hii");
     this.initialState = {
-      company: [],
-      filePath: []
+      companyProfile: []
     };
-    this.state = { fileData: null, company: null };
+    this.state = { fileData: null };
     this.props = this.initialState;
     this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
     this.onFileChange = this.onFileChange.bind(this);
@@ -27,20 +24,9 @@ class CompanyUpdateProfile extends Component {
   //get the books data from backend
   componentDidMount() {
     console.log("this.props", this.props);
-    var companyId = "";
-    if (localStorage.cookie) {
-      companyId = localStorage.cookie.split("+")[0];
-    }
-    if (companyId) {
-      console.log("In company", companyId);
-      this.props.fetchParticularCompany(companyId).then(
-        response => {
-          console.log("Student fetchCompanyProfile are is", this.props.company);
-        },
-        error => {
-          console.log("Events is", error);
-        }
-      );
+    if (cookie.load("cookie")) {
+      var companyId = cookie.load("cookie").split("+")[0];
+      this.props.fetchCompanyProfile(companyId);
     }
   }
 
@@ -57,126 +43,80 @@ class CompanyUpdateProfile extends Component {
   }
 
   handlemyChange = (e, id, name) => {
-    console.log("Hii", this.props.company);
-    const companyProfilee = this.props.company;
+    console.log("Hii", this.props.companyProfile);
+    const companyProfilee = this.props.companyProfile;
     companyProfilee.map(companyProfilee => {
-      if (companyProfilee._id === id) {
-        console.log("Hii", this.props.company);
+      if (companyProfilee.companyId === id) {
+        console.log("Hii", this.props.companyProfile);
         console.log("Hiiii", name, e.target.value);
         companyProfilee[name] = e.target.value;
       }
     });
-    console.log("abccc", this.props.company);
+    console.log("abccc", this.props.companyProfile);
   };
 
   onFileChange(e, id) {
-    this.props.company.map(obj => {
-      if (obj._id === id) {
+    const compObj = this.props.companyProfile;
+    console.log("in edit handler", compObj);
+    compObj.map(obj => {
+      if (obj.companyId === id) {
         let fileData = new FormData();
-        console.log("fileData in state", e.target.files[0]);
+        console.log("fileData in state", this.state.fileData);
         fileData.append("companyProfileStorage", e.target.files[0]);
         obj.companyProfilePic = fileData;
-        console.log(fileData, e.target.files[0]);
-        console.log(obj.companyProfilePic);
+        console.log(e.target.files[0]);
       }
     });
-    console.log("in edit handler222", this.props.company);
+    console.log("in edit handler222", this.props.studentObject);
   }
 
   async updateProfile(event, id) {
+    console.log("abccc", this.props.companyProfile);
     var resumePath;
-    const data = {
-      companyId: localStorage.cookie.split("+")[0],
-      type: "companyProfilePic",
-      profilePic: this.props.company[0].companyProfilePic
-    };
-    console.log("In updayte PP", data, this.props.company[0]);
-    await this.props.getCompanyProfilePicPath(data).then(
-      response => {
-        console.log(
-          "New FIle Path company pPic",
-          this.props.filePath,
-          response
-        );
-        console.log("Status Code : ", this.props.filePath.filename);
+    await axios
+      .post(
+        backend +
+          "/uploadFile/?companyId=" +
+          this.props.companyProfile[0].companyId +
+          "&type=companyProfilePic",
+        this.props.companyProfile[0].companyProfilePic
+      )
+      .then(response => {
+        console.log("Status Code : ", response);
         if (response.status === 200) {
-          resumePath = this.props.filePath.filename;
-          const compObj = this.props.company;
+          resumePath = response.data.filename;
+          const compObj = this.props.companyProfile;
           console.log("in edit handler", compObj);
           compObj.map(obj => {
-            console.log("Error in saving application", resumePath);
             obj.companyProfilePic = resumePath;
           });
         } else {
           console.log("Error in saving application");
         }
-      },
-      error => {
-        console.log("Events is", error);
-      }
-    );
-    const data2 = {
-      companyId: localStorage.cookie.split("+")[0],
-      filePath: "companyProfilePic",
-      company: this.props.company
-    };
-    await this.props.updateCompanyProfile(data2).then(
-      response => {
-        console.log("Events is", this.props.company);
-        this.setState({
-          company: this.props.company
+      });
+    console.log("path:", resumePath);
+
+    if (cookie.load("cookie")) {
+      axios
+        .post(
+          backend +
+            `/updateCompanyProfile/${cookie.load("cookie").split("+")[0] +
+              "/?filePath=" +
+              resumePath}`,
+          this.props.companyProfile
+        )
+        .then(response => {
+          if (response.status == 200) {
+            this.setState({
+              studentBasicDetailsResult: response.data
+            });
+            this.redirecttoeventPage.bind(this);
+          } else {
+            console.log("No search results found");
+          }
         });
-      },
-      error => {
-        console.log("Events is", error);
-      }
-    );
+    }
   }
-
-  // await axios
-  //   .post(
-  //     backend +
-  //       "/uploadFile/?companyId=" +
-  //       this.props.company[0]._id +
-  //       "&type=companyProfilePic",
-  //     this.props.company[0].companyProfilePic
-  //   )
-  //   .then(response => {
-  //     console.log("Status Code : ", response);
-  //     if (response.status === 200) {
-  //       resumePath = response.data.filename;
-  //       const compObj = this.props.company;
-  //       console.log("in edit handler", compObj);
-  //       compObj.map(obj => {
-  //         obj.companyProfilePic = resumePath;
-  //       });
-  //     } else {
-  //       console.log("Error in saving application");
-  //     }
-  //   });
-  // console.log("path:", resumePath);
-
-  //   if (localStorage.cookie) {
-  //     axios
-  //       .post(
-  //         backend +
-  //           `/updateCompanyProfile/${localStorage.cookie.split("+")[0] +
-  //             "/?filePath=" +
-  //             resumePath}`,
-  //         this.props.company
-  //       )
-  //       .then(response => {
-  //         if (response.status == 200) {
-  //           this.setState({
-  //             studentBasicDetailsResult: response.data
-  //           });
-  //           this.redirecttoeventPage.bind(this);
-  //         } else {
-  //           console.log("No search results found");
-  //         }
-  //       });
-  //   }
-  // }
 
   buildAvatarUrl(fileName) {
     console.log("fileName in avatar,", fileName);
@@ -186,7 +126,7 @@ class CompanyUpdateProfile extends Component {
   render() {
     //iterate over books to create a table row
 
-    let header = this.props.company.map(companyProfilee => {
+    let header = this.props.companyProfile.map(companyProfilee => {
       return (
         <div
           class="card6 card5"
@@ -194,12 +134,11 @@ class CompanyUpdateProfile extends Component {
         ></div>
       );
     });
-    let profilePic = this.props.company.map(obj => {
+    let profilePic = this.props.companyProfile.map(obj => {
       if (obj.companyProfilePic) {
-        console.log("Final prodile pic,", obj.companyProfilePic);
         var path = obj.companyProfilePic;
         return (
-          <div key={obj._id} className="wrapper">
+          <div key={obj.companyId} className="wrapper">
             <img
               src={this.buildAvatarUrl(path)}
               className="image--cover4"
@@ -210,7 +149,7 @@ class CompanyUpdateProfile extends Component {
       } else {
         var path2 = "default.png";
         return (
-          <div key={obj._id} className="wrapper">
+          <div key={obj.companyId} className="wrapper">
             <img
               src={this.buildAvatarUrl(path2)}
               className="image--cover4"
@@ -220,45 +159,41 @@ class CompanyUpdateProfile extends Component {
         );
       }
     });
-    let headerData = this.props.company.map(companyProfilee => {
+    let headerData = this.props.companyProfile.map(companyProfilee => {
       return (
         <div>
           <div>{profilePic}</div>
           <br />
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "companyName")
+              this.handlemyChange(e, companyProfilee.companyId, "companyName")
             }
             class="editableinput9"
             name="companyName"
-            placeholder="Company Name"
             defaultValue={companyProfilee.companyName}
           ></input>
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "location")
+              this.handlemyChange(e, companyProfilee.companyId, "location")
             }
             class="editableinput9"
             name="location"
-            placeholder="Location"
             defaultValue={companyProfilee.location}
           ></input>
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "shortDesc")
+              this.handlemyChange(e, companyProfilee.companyId, "shortDesc")
             }
             class="editableinput9"
             name="shortDesc"
-            placeholder="Short Desc"
             defaultValue={companyProfilee.shortDesc}
           ></input>
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "comapnySize")
+              this.handlemyChange(e, companyProfilee.companyId, "comapnySize")
             }
             class="editableinput9"
             name="comapnySize"
-            placeholder="Company Size"
             defaultValue={companyProfilee.comapnySize}
           ></input>
 
@@ -266,67 +201,65 @@ class CompanyUpdateProfile extends Component {
             <input
               type="file"
               name="file"
-              onChange={e => this.onFileChange(e, companyProfilee._id)}
+              onChange={e => this.onFileChange(e, companyProfilee.companyId)}
             />
           </div>
         </div>
       );
     });
-    let headerData1 = this.props.company.map(companyProfilee => {
+    let headerData1 = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h3>About {companyProfilee.companyname}</h3>
           <br />
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "description")
+              this.handlemyChange(e, companyProfilee.companyId, "description")
             }
             class="editableinput8"
             name="description"
-            placeholder="Description"
             defaultValue={companyProfilee.description}
           ></input>
         </div>
       );
     });
-    let headerData2 = this.props.company.map(companyProfilee => {
+    let headerData2 = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h3>About Founders</h3>
           <br />
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "founders")
+              this.handlemyChange(e, companyProfilee.companyId, "founders")
             }
             class="editableinput7"
             name="founders"
-            placeholder="Founders"
             defaultValue={companyProfilee.founders}
           ></input>
           <br />
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "founderInfo")
+              this.handlemyChange(e, companyProfilee.companyId, "founderInfo")
             }
             class="editableinput8"
             name="founderInfo"
-            placeholder="Founder Description"
             defaultValue={companyProfilee.founderInfo}
           ></input>
         </div>
       );
     });
-    let contactInfo = this.props.company.map(companyProfilee => {
+    let contactInfo = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h3>Contact Information</h3>
           <br />
           <h4>Email:</h4>
           <input
-            onChange={e => this.handlemyChange(e, companyProfilee._id, "email")}
+            onChange={e =>
+              this.handlemyChange(e, companyProfilee.companyId, "email")
+            }
             class="editableinput7"
             name="email"
-            placeholder="Email"
             defaultValue={companyProfilee.email}
           ></input>
           <br />
@@ -334,45 +267,42 @@ class CompanyUpdateProfile extends Component {
           <h4>Phone:</h4>
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "phoneNumber")
+              this.handlemyChange(e, companyProfilee.companyId, "phoneNumber")
             }
             class="editableinput7"
             name="phoneNumber"
-            placeholder="Phone Number"
             defaultValue={companyProfilee.phoneNumber}
           ></input>
           <br />
           <h4>Website Url:</h4>
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "websiteUrl")
+              this.handlemyChange(e, companyProfilee.companyId, "websiteUrl")
             }
             class="editableinput7"
             name="websiteUrl"
-            placeholder="Website Url"
             defaultValue={companyProfilee.websiteUrl}
           ></input>
           <br />
         </div>
       );
     });
-    let availPostions = this.props.company.map(companyProfilee => {
+    let availPostions = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h4>Available Postions</h4>
           <input
             onChange={e =>
-              this.handlemyChange(e, companyProfilee._id, "availPostions")
+              this.handlemyChange(e, companyProfilee.companyId, "availPostions")
             }
             class="editableinput7"
             name="availPostions"
-            placeholder="Available Positions"
             defaultValue={companyProfilee.availPostions}
           ></input>
         </div>
       );
     });
-    let postSomething = this.props.company.map(companyProfilee => {
+    let postSomething = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <br />
@@ -401,7 +331,7 @@ class CompanyUpdateProfile extends Component {
     });
 
     let redirectVar = null;
-    if (!localStorage.cookie) {
+    if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -431,13 +361,10 @@ class CompanyUpdateProfile extends Component {
   }
 }
 const mapStateToProps = state => ({
-  company: state.schools.company,
-  filePath: state.schools.filePath
+  companyProfile: state.schools.companyProfile
 });
 
 //export Profile Component
 export default connect(mapStateToProps, {
-  fetchParticularCompany,
-  getCompanyProfilePicPath,
-  updateCompanyProfile
+  fetchCompanyProfile
 })(CompanyUpdateProfile);

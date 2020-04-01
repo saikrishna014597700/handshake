@@ -5,7 +5,7 @@ import { backend } from "../../webConfig";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
 import { Link } from "react-router-dom";
-import { fetchParticularCompany } from "../../actions/fetchStudent";
+import { fetchCompanyProfile } from "../../actions/fetchStudent";
 import { connect } from "react-redux";
 import Background from "./companyBackground.png";
 
@@ -14,7 +14,7 @@ class CompanyProfile extends Component {
     super(props);
     console.log("Hii");
     this.initialState = {
-      company: []
+      companyProfile: []
     };
     this.props = this.initialState;
     this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
@@ -24,21 +24,16 @@ class CompanyProfile extends Component {
     console.log("this.props", this.props);
     var companyId = "";
     if (
-      localStorage.cookie &&
-      localStorage.cookie.split("+")[1] === "company"
+      cookie.load("cookie") &&
+      cookie.load("cookie").split("+")[1] === "company"
     ) {
-      companyId = localStorage.cookie.split("+")[0];
-    }
-    if (companyId) {
-      console.log("In company", companyId);
-      this.props.fetchParticularCompany(companyId).then(
-        response => {
-          console.log("Student fetchCompanyProfile are is", this.props.company);
-        },
-        error => {
-          console.log("Events is", error);
-        }
-      );
+      companyId = cookie.load("cookie").split("+")[0];
+      console.log("this.props 1", companyId);
+      this.props.fetchCompanyProfile(companyId);
+    } else {
+      companyId = this.props.match.params.id;
+      console.log("this.props 2", companyId);
+      this.props.fetchCompanyProfile(companyId);
     }
   }
 
@@ -55,12 +50,12 @@ class CompanyProfile extends Component {
   }
 
   buildAvatarUrl(fileName) {
-    return backend + "/file/" + fileName + "/?role=company";
+    return backend+"/file/" + fileName + "/?role=company";
   }
 
   render() {
     //iterate over books to create a table row
-    let profilePic = this.props.company.map(obj => {
+    let profilePic = this.props.companyProfile.map(obj => {
       if (obj.companyProfilePic) {
         var path = obj.companyProfilePic;
         return (
@@ -85,7 +80,7 @@ class CompanyProfile extends Component {
         );
       }
     });
-    let header = this.props.company.map(companyProfilee => {
+    let header = this.props.companyProfile.map(companyProfilee => {
       return (
         <div
           class="card6 card5"
@@ -93,7 +88,7 @@ class CompanyProfile extends Component {
         ></div>
       );
     });
-    let headerData = this.props.company.map(companyProfilee => {
+    let headerData = this.props.companyProfile.map(companyProfilee => {
       return (
         <div>
           <h2>{companyProfilee.companyname}</h2>
@@ -107,7 +102,7 @@ class CompanyProfile extends Component {
         </div>
       );
     });
-    let headerData1 = this.props.company.map(companyProfilee => {
+    let headerData1 = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h3>About {companyProfilee.companyname}</h3>
@@ -116,7 +111,7 @@ class CompanyProfile extends Component {
         </div>
       );
     });
-    let headerData2 = this.props.company.map(companyProfilee => {
+    let headerData2 = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h3>About Founders</h3>
@@ -127,7 +122,7 @@ class CompanyProfile extends Component {
         </div>
       );
     });
-    let contactInfo = this.props.company.map(companyProfilee => {
+    let contactInfo = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h3>Contact Information</h3>
@@ -145,7 +140,7 @@ class CompanyProfile extends Component {
         </div>
       );
     });
-    let availPostions = this.props.company.map(companyProfilee => {
+    let availPostions = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <h4>Available Postions</h4>
@@ -154,7 +149,7 @@ class CompanyProfile extends Component {
         </div>
       );
     });
-    let postSomething = this.props.company.map(companyProfilee => {
+    let postSomething = this.props.companyProfile.map(companyProfilee => {
       return (
         <div class="card">
           <br />
@@ -186,7 +181,7 @@ class CompanyProfile extends Component {
     });
 
     let redirectVar = null;
-    if (!localStorage.cookie) {
+    if (!cookie.load("cookie")) {
       redirectVar = <Redirect to="/login" />;
     }
     return (
@@ -216,10 +211,10 @@ class CompanyProfile extends Component {
   }
 }
 const mapStateToProps = state => ({
-  company: state.schools.company
+  companyProfile: state.schools.companyProfile
 });
 
 //export Profile Component
 export default connect(mapStateToProps, {
-  fetchParticularCompany
+  fetchCompanyProfile
 })(CompanyProfile);
